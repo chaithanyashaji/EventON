@@ -24,7 +24,7 @@ class _HomePageState extends State<HomePage> {
   static List<Widget> _widgetOptions = <Widget>[
     searchpage1(),
     searchpage(),
-    profile(),
+    Profile(),
   ];
 
   void _onItemTapped(int index) {

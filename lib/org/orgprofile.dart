@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:gap/gap.dart';
 import 'package:universe2024/Utiles/app_styles.dart';
 import 'package:universe2024/pages/loginpage.dart';
+import 'package:universe2024/org/editdetails.dart'; // Import the new form
 
 class OrgProfile extends StatefulWidget {
   const OrgProfile({Key? key}) : super(key: key);
@@ -61,7 +62,7 @@ class _OrgProfileState extends State<OrgProfile> {
 
   Stream<List<Map<String, dynamic>>> _fetchAllUsersEvents() async* {
     final usersSnapshot =
-        await FirebaseFirestore.instance.collection('users').get();
+    await FirebaseFirestore.instance.collection('users').get();
 
     List<Map<String, dynamic>> allEvents = [];
 
@@ -190,7 +191,7 @@ class _OrgProfileState extends State<OrgProfile> {
                           child: CircleAvatar(
                             radius: 60,
                             backgroundImage:
-                                AssetImage('assets/ieeeprofile.jpeg'),
+                            AssetImage('assets/ieeeprofile.jpeg'),
                           ),
                         ),
                       ),
@@ -230,7 +231,7 @@ class _OrgProfileState extends State<OrgProfile> {
                         width: 450,
                         decoration: BoxDecoration(
                           border:
-                              Border.all(width: 1, color: Styles.yellowColor),
+                          Border.all(width: 1, color: Styles.yellowColor),
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(13),
                         ),
@@ -244,7 +245,7 @@ class _OrgProfileState extends State<OrgProfile> {
                                 children: [
                                   Column(
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'Community Name  :  $name',
@@ -289,11 +290,16 @@ class _OrgProfileState extends State<OrgProfile> {
                                     alignment: Alignment.center,
                                     child: TextButton(
                                       onPressed: () {
-                                        // Call function to pick image
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => EditDetailsForm(userData: userData),
+                                          ),
+                                        );
                                       },
                                       child: Row(
                                         mainAxisAlignment:
-                                            MainAxisAlignment.center,
+                                        MainAxisAlignment.center,
                                         children: [
                                           Icon(Icons.add,
                                               color: Styles.blueColor),
@@ -331,7 +337,7 @@ class _OrgProfileState extends State<OrgProfile> {
                         stream: _eventsStream,
                         builder: (BuildContext context,
                             AsyncSnapshot<List<Map<String, dynamic>>>
-                                eventSnapshot) {
+                            eventSnapshot) {
                           if (eventSnapshot.hasError) {
                             return Center(
                                 child: Text('Error: ${eventSnapshot.error}'));
@@ -371,7 +377,7 @@ class _OrgProfileState extends State<OrgProfile> {
                                       elevation: 3,
                                       child: Column(
                                         mainAxisAlignment:
-                                            MainAxisAlignment.center,
+                                        MainAxisAlignment.center,
                                         children: [
                                           Padding(
                                             padding: const EdgeInsets.all(8.0),
@@ -424,11 +430,11 @@ class _OrgProfileState extends State<OrgProfile> {
                         stream: _allEventsStream,
                         builder: (BuildContext context,
                             AsyncSnapshot<List<Map<String, dynamic>>>
-                                allEventsSnapshot) {
+                            allEventsSnapshot) {
                           if (allEventsSnapshot.hasError) {
                             return Center(
                                 child:
-                                    Text('Error: ${allEventsSnapshot.error}'));
+                                Text('Error: ${allEventsSnapshot.error}'));
                           }
                           if (allEventsSnapshot.connectionState ==
                               ConnectionState.waiting) {
@@ -465,7 +471,7 @@ class _OrgProfileState extends State<OrgProfile> {
                                       elevation: 3,
                                       child: Column(
                                         mainAxisAlignment:
-                                            MainAxisAlignment.center,
+                                        MainAxisAlignment.center,
                                         children: [
                                           Padding(
                                             padding: const EdgeInsets.all(8.0),
