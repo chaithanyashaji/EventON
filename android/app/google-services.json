@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "959258951524",
+    "firebase_url": "https://universe-264dd-default-rtdb.firebaseio.com",
+    "project_id": "universe-264dd",
+    "storage_bucket": "universe-264dd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:959258951524:android:70d9b1c0c32ec392fb8471",
+        "android_client_info": {
+          "package_name": "com.example.universe2024"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDqV0rVM2sHkf0o7CaB6eWiUH14bofdzvs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
