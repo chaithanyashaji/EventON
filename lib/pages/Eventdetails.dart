@@ -1,183 +1,327 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:readmore/readmore.dart';
+import 'package:gap/gap.dart';
+import 'package:universe2024/Utiles/app_styles.dart';
+import 'package:universe2024/org/EditEventScreen.dart';
+import 'package:universe2024/pages/qrcode.dart';
 
-class EditEventScreen extends StatefulWidget {
+class EventDetails extends StatefulWidget {
   final String eventKey;
-  const EditEventScreen({Key? key, required this.eventKey}) : super(key: key);
+  const EventDetails({Key? key, required this.eventKey}) : super(key: key);
 
   @override
-  _EditEventScreenState createState() => _EditEventScreenState();
+  State<EventDetails> createState() => _EventDetailsState();
 }
 
-class _EditEventScreenState extends State<EditEventScreen> {
-  final _formKey = GlobalKey<FormState>();
-  late TextEditingController _nameController;
-  late TextEditingController _typeController;
-  late TextEditingController _dateController;
-  late TextEditingController _timeController;
-  late TextEditingController _contactController;
-  late TextEditingController _detailsController;
-  late TextEditingController _locationController;
-  late TextEditingController _priceController;
-  bool _isRegistrationOpen = true;
+class _EventDetailsState extends State<EventDetails> {
+  late Stream<QuerySnapshot> _stream;
+  bool _isRegistrationOpen = true; // Define _isRegistrationOpen with an initial value
+
+  var _trimMode = TrimMode.Line;
+  int _trimLines = 4;
+  int _trimLength = 150;
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController();
-    _typeController = TextEditingController();
-    _dateController = TextEditingController();
-    _timeController = TextEditingController();
-    _contactController = TextEditingController();
-    _detailsController = TextEditingController();
-    _locationController = TextEditingController();
-    _priceController = TextEditingController();
-    _fetchEventDetails();
+    _stream = FirebaseFirestore.instance
+        .collection('event')
+        .where(FieldPath.documentId, isEqualTo: widget.eventKey)
+        .snapshots();
   }
 
-  void _fetchEventDetails() async {
-    DocumentSnapshot doc = await FirebaseFirestore.instance.collection('event').doc(widget.eventKey).get();
-    var data = doc.data() as Map<String, dynamic>;
-    _nameController.text = data['eventName'];
-    _typeController.text = data['eventtype'];
-    _dateController.text = data['eventDate'];
-    _timeController.text = data['eventtime'];
-    _contactController.text = data['eventcontact'];
-    _detailsController.text = data['eventdetails'];
-    _locationController.text = data['eventLocation'];
-    _priceController.text = data['eventPrice'];
-    setState(() {
-      _isRegistrationOpen = data['isRegistrationOpen'];
+  void _editEvent(QueryDocumentSnapshot eventDoc) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditEventScreen(eventKey: widget.eventKey),
+      ),
+    );
+  }
+
+  void _deleteEvent() async {
+    await FirebaseFirestore.instance.collection('event').doc(widget.eventKey).delete();
+    Navigator.pop(context);
+  }
+
+  void _toggleRegistration(bool isOpen) async {
+    await FirebaseFirestore.instance.collection('event').doc(widget.eventKey).update({
+      'isRegistrationOpen': isOpen,
     });
-  }
-
-  void _saveChanges() async {
-    if (_formKey.currentState!.validate()) {
-      await FirebaseFirestore.instance.collection('event').doc(widget.eventKey).update({
-        'eventName': _nameController.text,
-        'eventtype': _typeController.text,
-        'eventDate': _dateController.text,
-        'eventtime': _timeController.text,
-        'eventcontact': _contactController.text,
-        'eventdetails': _detailsController.text,
-        'eventLocation': _locationController.text,
-        'eventPrice': _priceController.text,
-        'isRegistrationOpen': _isRegistrationOpen,
-      });
-      Navigator.pop(context);
-    }
+    setState(() {
+      _isRegistrationOpen = isOpen; // Update the state
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Edit Event"),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(labelText: 'Event Name'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter event name';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _typeController,
-                decoration: InputDecoration(labelText: 'Event Type'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter event type';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _dateController,
-                decoration: InputDecoration(labelText: 'Event Date'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter event date';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _timeController,
-                decoration: InputDecoration(labelText: 'Event Time'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter event time';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _contactController,
-                decoration: InputDecoration(labelText: 'Contact'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter contact';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _detailsController,
-                decoration: InputDecoration(labelText: 'Details'),
-                maxLines: 3,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter event details';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _locationController,
-                decoration: InputDecoration(labelText: 'Location'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter event location';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _priceController,
-                decoration: InputDecoration(labelText: 'Price'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter event price';
-                  }
-                  return null;
-                },
-              ),
-              SwitchListTile(
-                title: Text("Registration Open"),
-                value: _isRegistrationOpen,
-                onChanged: (value) {
-                  setState(() {
-                    _isRegistrationOpen = value;
-                  });
-                },
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _saveChanges,
-                child: Text("Save Changes"),
-              ),
-            ],
-          ),
-        ),
+      backgroundColor: Colors.white,
+      body: StreamBuilder<QuerySnapshot>(
+        stream: _stream,
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          List<QueryDocumentSnapshot> documents = snapshot.data!.docs;
+          QueryDocumentSnapshot firstDocument = documents.first;
+
+          // Fetch the current value of isRegistrationOpen from Firestore
+          _isRegistrationOpen = firstDocument['isRegistrationOpen'];
+
+          return SingleChildScrollView(
+            physics: AlwaysScrollableScrollPhysics(),
+            child: Column(
+              children: [
+                SizedBox(
+                  height: MediaQuery.of(context).size.height / 2,
+                  child: Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(25),
+                          bottomRight: Radius.circular(25),
+                        ),
+                        child: GestureDetector(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                content: Container(
+                                  child: Image.asset('assets/13.jpg'),
+                                ),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            width: MediaQuery.of(context).size.width,
+                            height: 400,
+                            decoration: BoxDecoration(
+                              color: Colors.grey,
+                              image: DecorationImage(
+                                image: AssetImage('assets/13.jpg'), // Path to your asset image
+                                fit: BoxFit.cover, // Adjust the fit as needed
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        top: 325,
+                        left: MediaQuery.of(context).size.width / 8,
+                        right: MediaQuery.of(context).size.width / 8,
+                        child: Container(
+                          width: MediaQuery.of(context).size.width / 2,
+                          height: 150,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.25),
+                                spreadRadius: 3,
+                                blurRadius: 15,
+                                offset: Offset(0, 3),
+                              ),
+                            ],
+                            border: Border.all(color: Styles.yellowColor),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(left: 18.0, right: 18, top: 18),
+                                child: Text(
+                                  firstDocument['eventName'],
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: Styles.blueColor),
+                                ),
+                              ),
+                              Gap(0),
+                              Padding(
+                                padding: EdgeInsets.only(left: 32.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "- ${firstDocument['eventtype']}  :  ${firstDocument['eventtime']}",
+                                      style: TextStyle(
+                                          color: Styles.blueColor,
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 14),
+                                    ),
+                                    Gap(0),
+                                    Text(
+                                      "- ${firstDocument['eventDate']}  :  ${firstDocument['eventtime']}",
+                                      style: TextStyle(
+                                          color: Styles.blueColor,
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 14),
+                                    ),
+                                    Gap(0),
+                                    Text(
+                                      "- For queries:  ${firstDocument['eventcontact']}",
+                                      style: TextStyle(
+                                          color: Styles.blueColor,
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 14),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: MediaQuery.of(context).size.height / 2,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        margin: EdgeInsets.only(left: 35, right: 35),
+                        child: Text(
+                          "Description",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Styles.blueColor,
+                              fontSize: 15),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 35.0, right: 35, top: 15, bottom: 15),
+                        child: Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: 125,
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.vertical,
+                            child: ReadMoreText(
+                              firstDocument['eventdetails'],
+                              trimMode: _trimMode,
+                              trimLines: _trimLines,
+                              trimLength: _trimLength,
+                              style: TextStyle(color: Styles.blueColor),
+                              colorClickableText: Colors.blue,
+                              trimCollapsedText: 'Read More',
+                              trimExpandedText: 'Read less',
+                            ),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(left: 35, top: 15, right: 35),
+                        child: Text(
+                          "Venue",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Styles.blueColor,
+                              fontSize: 15),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 35.0, right: 35, top: 15, bottom: 30),
+                        child: Container(
+                          height: 50,
+                          decoration: BoxDecoration(
+                            border: Border(
+                              top: BorderSide(color: Styles.yellowColor, width: 0.75),
+                              bottom: BorderSide(color: Styles.yellowColor, width: 0.75),
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 8.0, bottom: 15),
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.vertical,
+                              child: Text(firstDocument['eventLocation'], style: TextStyle(color: Styles.blueColor)),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                margin: EdgeInsets.only(left: 35, top: 15, right: 35),
+                                child: Text(
+                                  "Ticket Price",
+                                  style: TextStyle(color: Styles.yellowColor, fontSize: 13.5, fontWeight: FontWeight.w300),
+                                ),
+                              ),
+                              Container(
+                                margin: EdgeInsets.only(left: 35, top: 5, right: 5, bottom: 20),
+                                height: 34,
+                                child: Text(
+                                  firstDocument['eventPrice'],
+                                  style: TextStyle(color: Styles.blueColor, fontWeight: FontWeight.bold, fontSize: 17),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Gap(80),
+                          Container(
+                            margin: EdgeInsets.only(left: 20, top: 5, right: 10, bottom: 20),
+                            height: 34,
+                            width: 130,
+                            decoration: BoxDecoration(
+                              color: Styles.blueColor,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            alignment: Alignment.center,
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => QrGenerationScreen(id: '')));
+                              },
+                              child: Text(
+                                "Register Now",
+                                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.edit, color: Colors.blue),
+                      onPressed: () => _editEvent(firstDocument),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.delete, color: Colors.red),
+                      onPressed: _deleteEvent,
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        _isRegistrationOpen ? Icons.lock_open : Icons.lock,
+                        color: _isRegistrationOpen ? Colors.green : Colors.grey,
+                      ),
+                      onPressed: () => _toggleRegistration(!_isRegistrationOpen),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
