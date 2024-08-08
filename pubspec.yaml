@@ -51,8 +51,10 @@ dependencies:
   qr_flutter: ^4.1.0
   image_picker: ^1.1.2
   qr_code_scanner: ^1.0.1
+  firebase_messaging: ^14.9.4
   readmore: ^3.0.0
-
+  flutter_local_notifications: ^17.2.1+2
+  flutter_dotenv: ^5.1.0
 
 
 
@@ -61,6 +63,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_launcher_icons: "^0.13.1"
+
 
 
 
@@ -101,6 +104,7 @@ flutter:
     - assets/logosplash.png
     - assets/ieeebanner.jpeg
     - assets/ieeeprofile.jpeg
+    - .env
   #   - images/a_dot_ham.jpeg
 
 

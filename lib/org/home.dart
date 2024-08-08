@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:universe2024/Utiles/app_styles.dart';
 import 'package:gap/gap.dart';
-import 'package:universe2024/org/add.dart';
+import 'package:universe2024/org/addevent.dart';
 import 'package:universe2024/org/attendee.dart';
 import 'package:universe2024/org/qrscanner.dart';
 import 'package:universe2024/pages/Eventdetails.dart';
@@ -12,7 +12,7 @@ import 'package:universe2024/pages/chatbot.dart';
 import 'package:universe2024/org/orgprofile.dart';
 import 'package:universe2024/pages/qrcode.dart';
 import 'package:universe2024/pages/search1.dart';
-import 'package:universe2024/pages/ticket.dart';
+
 
 class SocHomePage extends StatefulWidget {
   @override

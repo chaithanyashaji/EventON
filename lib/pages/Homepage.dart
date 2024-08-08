@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+
 import 'package:universe2024/Utiles/app_styles.dart';
 import 'package:gap/gap.dart';
 import 'package:universe2024/pages/Eventdetails.dart';
@@ -9,6 +9,8 @@ import 'package:universe2024/pages/chatbot.dart';
 import 'package:universe2024/pages/search.dart';
 import 'package:universe2024/pages/search1.dart';
 import 'package:universe2024/pages/profile.dart';
+import 'package:universe2024/pages/my_events.dart';
+import 'package:universe2024/pages/notifications.dart'; // Import the Notifications page
 
 class HomePage extends StatefulWidget {
   @override
@@ -25,18 +27,12 @@ class _HomePageState extends State<HomePage> {
     searchpage1(),
     searchpage(),
     Profile(),
+    MyEventsPage(), // Add My Events page to the widget options
   ];
 
   void _onItemTapped(int index) {
     setState(() {
-      if (index != 5) {
-        _selectedIndex = index;
-      } else {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => searchpage1()),
-        );
-      }
+      _selectedIndex = index;
     });
   }
 
@@ -45,6 +41,21 @@ class _HomePageState extends State<HomePage> {
     _stream = _reference.snapshots();
     return Scaffold(
       backgroundColor: Styles.bgColor,
+      appBar: AppBar(
+        backgroundColor: Styles.bgColor,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.notifications, color: Styles.blueColor),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NotificationsPage()),
+              );
+            },
+          ),
+        ],
+      ),
       body: Stack(
         children: [
           StreamBuilder<QuerySnapshot>(
@@ -73,7 +84,7 @@ class _HomePageState extends State<HomePage> {
               return Center(child: CircularProgressIndicator());
             },
           ),
-          _widgetOptions.elementAt(_selectedIndex),
+          if (_selectedIndex != 0) _widgetOptions.elementAt(_selectedIndex),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -89,6 +100,10 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'Profile',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.event),
+            label: 'My Events',
           ),
         ],
         currentIndex: _selectedIndex,
