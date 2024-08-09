@@ -91,14 +91,7 @@ class _loginpageState extends State<loginpage> {
                   height: MediaQuery.of(context).size.height,
                   child: Column(
                     children: [
-                      const Gap(40),
-                      Image.asset(
-                        'assets/logowhite.png', // Replace with your logo asset
-                        width: 300, // Adjust width
-                        height: 100, // Adjust height
-                      ),
-
-                      const Gap(10),
+                      const Gap(100),
                       Text(
                         "Sign-In",
                         style: TextStyle(
