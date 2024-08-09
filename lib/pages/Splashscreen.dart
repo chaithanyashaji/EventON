@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:universe2024/pages/loginpage.dart';
 import 'package:universe2024/pages/new.dart';
 import 'package:universe2024/Utiles/app_styles.dart';
+import 'package:gap/gap.dart';
 
 class Splashscreen extends StatefulWidget {
   @override
@@ -34,32 +35,19 @@ class _SplashScreenState extends State<Splashscreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Image.asset(
-                  'assets/logosplash.png',
-                  width: 400, // Adjust size as needed
-                  height: 200,
+                  'assets/EventOn.png',
+                  width: 150, // Adjust size as needed
+
                 ),
-                SizedBox(height: 300), // Add spacing between logo and text
+                Gap(10),
+                Text(
+                  'Lead with EventOn',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 18, fontStyle: FontStyle.italic,color: Colors.black,),
+                )// Add spacing between logo and text
               ],
             ),
-
-            ShaderMask(
-              blendMode: BlendMode.srcATop,
-              shaderCallback: (Rect bounds) {
-                return LinearGradient(
-                  colors: [Styles.blueColor, Styles.yellowColor], // Gradient colors
-                  begin: Alignment.centerLeft, // Gradient start position
-                  end: Alignment.centerRight, // Gradient end position
-                ).createShader(bounds);
-              },
-              child: Text(
-                'UniVerse', // Replace 'Your Text' with your actual text
-                style: TextStyle(
-                  fontSize: 25, // Adjust the font size as needed
-                  fontWeight: FontWeight.bold, // Adjust the font weight as needed
-                  color: Colors.white, // This color will be overridden by the gradient
-                ),
-              ),
-            )// Add spacing between logo and text
+// Add spacing between logo and text
 
           ],
         ),

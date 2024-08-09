@@ -105,6 +105,7 @@ flutter:
     - assets/ieeebanner.jpeg
     - assets/ieeeprofile.jpeg
     - .env
+    - assets/EventOn.png
   #   - images/a_dot_ham.jpeg
 
 

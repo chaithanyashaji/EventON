@@ -82,26 +82,42 @@ class _AddEventPageState extends State<addevent> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Styles.bgColor,
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+    title: Text(
+    'Add Event',
+    style: TextStyle(
+    color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
+    ),
+    leading: SizedBox(
+    width: 800, // Set the desired width
+    height: double.infinity,
+    child: Image.asset(
+    'assets/logowhite.png',
+    fit: BoxFit.fitHeight, // Adjust the fit as needed
+    ),
+    ),
+        ),
+    backgroundColor: Colors.white,
       body: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         child: Column(
           children: [
-            const SizedBox(height: 50),
-            Image.asset(
-              'assets/logowhite.png',
-              width: 200,
-              height: 100,
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              "Add Event",
-              style: TextStyle(
-                fontSize: 25,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
+            Container(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 25),
+                child: Text(
+                  "Give your event details here : ",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: Styles.blueColor,
+                  ),
+                ),
               ),
             ),
+
+            const SizedBox(height: 50),
             _buildTextField("Name of the Event", _eventNameController),
             const SizedBox(height: 10),
             _buildDateField("Date of the Event", _eventDateController),
@@ -158,7 +174,7 @@ class _AddEventPageState extends State<addevent> {
               style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: Colors.black,
               ),
             ),
           ),
@@ -202,7 +218,7 @@ class _AddEventPageState extends State<addevent> {
               style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: Colors.black,
               ),
             ),
           ),
@@ -259,7 +275,7 @@ class _AddEventPageState extends State<addevent> {
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Colors.black,
             ),
           ),
           const SizedBox(height: 10),
@@ -308,11 +324,11 @@ class _AddEventPageState extends State<addevent> {
           Container(
             padding: const EdgeInsets.symmetric(vertical: 12),
             child: const Text(
-              "Upload Image",
+              "Upload Poster",
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: Colors.black,
               ),
             ),
           ),
@@ -322,8 +338,6 @@ class _AddEventPageState extends State<addevent> {
               children: [
                 if (_image != null)
                   Image.file(_image!)
-                else
-                  Image.asset('assets/placeholder.png', width: 100, height: 100),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
