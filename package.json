@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "@types/node": "^22.1.0",
+    "actions-on-google": "^2.13.0",
+    "dialogflow-fulfillment": "^0.6.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.1.6"
+  }
+}

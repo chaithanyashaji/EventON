@@ -75,6 +75,8 @@ class _ProfileState extends State<Profile> {
             final email = userData['email'] ?? '';
             final phoneNumber = userData['phoneNumber'] ?? '';
             final collegeName = userData['collegeName'] ?? '';
+            final communityMember = userData['communityMember'] ?? '';
+            final ieeeMembershipId = userData['ieeeMembershipId'] ?? '';
 
             return SizedBox(
               height: MediaQuery.of(context).size.height,
@@ -171,6 +173,20 @@ class _ProfileState extends State<Profile> {
                                                 Gap(5),
                                                 Text(
                                                   'College Name  :  $collegeName',
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      color: Styles.blueColor),
+                                                ),
+                                                Gap(5),
+                                                Text(
+                                                  'Community Member  :  $communityMember',
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      color: Styles.blueColor),
+                                                ),
+                                                Gap(5),
+                                                Text(
+                                                  'IEEE Membership ID  :  $ieeeMembershipId',
                                                   style: TextStyle(
                                                       fontSize: 16,
                                                       color: Styles.blueColor),
@@ -276,6 +292,8 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
   late String _email;
   late String _phoneNumber;
   late String _collegeName;
+  late String _communityMember; // Add this line
+  late String _ieeeMembershipId; // Add this line
 
   @override
   void initState() {
@@ -284,6 +302,8 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
     _email = widget.userData['email'] ?? '';
     _phoneNumber = widget.userData['phoneNumber'] ?? '';
     _collegeName = widget.userData['collegeName'] ?? '';
+    _communityMember = widget.userData['communityMember'] ?? ''; // Initialize
+    _ieeeMembershipId = widget.userData['ieeeMembershipId'] ?? ''; // Initialize
   }
 
   void _saveDetails() {
@@ -292,9 +312,10 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
       final currentUserUid = FirebaseAuth.instance.currentUser?.uid;
       FirebaseFirestore.instance.collection('users').doc(currentUserUid).update({
         'name': _name,
-        'email': _email,
         'phoneNumber': _phoneNumber,
         'collegeName': _collegeName,
+        'communityMember': _communityMember, // Save this field
+        'ieeeMembershipId': _ieeeMembershipId, // Save this field
       }).then((value) {
         Navigator.pop(context);
       }).catchError((error) {
@@ -316,6 +337,7 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
           key: _formKey,
           child: ListView(
             children: [
+              // Existing form fields
               TextFormField(
                 initialValue: _name,
                 decoration: InputDecoration(labelText: 'Name'),
@@ -331,16 +353,11 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
               ),
               TextFormField(
                 initialValue: _email,
-                decoration: InputDecoration(labelText: 'Email'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  _email = value!;
-                },
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  labelStyle: TextStyle(color: Colors.grey),
+                ),
+                enabled: false,
               ),
               TextFormField(
                 initialValue: _phoneNumber,
@@ -366,6 +383,21 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
                 },
                 onSaved: (value) {
                   _collegeName = value!;
+                },
+              ),
+              // New form fields
+              TextFormField(
+                initialValue: _communityMember,
+                decoration: InputDecoration(labelText: 'Community Member (Optional)'),
+                onSaved: (value) {
+                  _communityMember = value!;
+                },
+              ),
+              TextFormField(
+                initialValue: _ieeeMembershipId,
+                decoration: InputDecoration(labelText: 'IEEE Membership ID (Optional)'),
+                onSaved: (value) {
+                  _ieeeMembershipId = value!;
                 },
               ),
               SizedBox(height: 20),

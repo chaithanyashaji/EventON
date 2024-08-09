@@ -137,7 +137,7 @@ class _HomePageState extends State<SocHomePage> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => chat()),
+            MaterialPageRoute(builder: (context) => Chat()),
           );
         },
         child: Icon(Icons.chat, color: Styles.blueColor),
