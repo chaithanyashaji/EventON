@@ -45,11 +45,7 @@ class MyApp extends StatelessWidget {
         textTheme: GoogleFonts.poppinsTextTheme(),
       ),
       home: HomePage(),
-<<<<<<< HEAD
 
-=======
-      
->>>>>>> 9187961be40dfcdecd39575625ba5eb032122148
     );
 
 
