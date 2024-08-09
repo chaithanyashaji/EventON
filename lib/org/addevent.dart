@@ -33,6 +33,7 @@ class _AddEventPageState extends State<addevent> {
   String _selectedEventType = 'Competition';
   String _errorText = '';
 
+
   final ImagePicker _picker = ImagePicker();
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -82,59 +83,61 @@ class _AddEventPageState extends State<addevent> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.black,
-    title: Text(
-    'Add Event',
-    style: TextStyle(
-    color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
-    ),
-    leading: SizedBox(
-    width: 800, // Set the desired width
-    height: double.infinity,
-    child: Image.asset(
-    'assets/logowhite.png',
-    fit: BoxFit.fitHeight, // Adjust the fit as needed
-    ),
-    ),
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween, // Aligns children to the ends
+          children: [
+            Text(
+              'Add Event',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Image.asset(
+              "assets/EventOn.png",
+              height: 33,
+            ),
+          ],
         ),
-    backgroundColor: Colors.white,
+      ),
+
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.symmetric(vertical: 20),
         child: Column(
           children: [
-            Container(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 25),
-                child: Text(
-                  "Give your event details here : ",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                    color: Styles.blueColor,
-                  ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30),
+              child: Text(
+                "Give your event details here:",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: Styles.blueColor,
                 ),
               ),
             ),
-
-            const SizedBox(height: 50),
+            const SizedBox(height: 35),
             _buildTextField("Name of the Event", _eventNameController),
-            const SizedBox(height: 10),
+            const SizedBox(height: 20),
             _buildDateField("Date of the Event", _eventDateController),
-            const SizedBox(height: 10),
+            const SizedBox(height: 20),
             _buildTextField("Event Location", _eventLocationController),
-            const SizedBox(height: 10),
+            const SizedBox(height: 20),
             _buildTextField("Event Price", _eventPriceController),
-            const SizedBox(height: 10),
+            const SizedBox(height: 20),
             _buildDateField("Deadline", _deadlineController),
-            const SizedBox(height: 10),
+            const SizedBox(height: 20),
             _buildEventTypeDropdown(),
             if (_selectedEventType == 'Other') _buildTextField("Specify Event Type", _otherEventTypeController),
-            const SizedBox(height: 10),
-            _buildTextField("Notification Phrase (Optional)", _notificationPhraseController),
-            const SizedBox(height: 10),
-            _buildImagePicker(),
             const SizedBox(height: 20),
+            _buildTextField("Notification Phrase (Optional)", _notificationPhraseController),
+            const SizedBox(height: 30),
+            _buildImagePicker(),
+            const SizedBox(height: 30),
             ElevatedButton(
               onPressed: _signUp,
               child: const Text(
@@ -151,9 +154,12 @@ class _AddEventPageState extends State<addevent> {
             ),
             const SizedBox(height: 10),
             if (_errorText.isNotEmpty)
-              Text(
-                _errorText,
-                style: const TextStyle(color: Colors.red),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 30),
+                child: Text(
+                  _errorText,
+                  style: const TextStyle(color: Colors.red),
+                ),
               ),
           ],
         ),
@@ -163,40 +169,45 @@ class _AddEventPageState extends State<addevent> {
 
   Widget _buildTextField(String label, TextEditingController controller) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 50),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      margin: const EdgeInsets.symmetric(horizontal: 30),
+      child: Stack(
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-          ),
-          Container(
-            height: 35,
             decoration: const BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.all(Radius.circular(12)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black,
-                  blurRadius: 10,
-                  offset: Offset(2, 2),
-                )
-              ],
+              borderRadius: BorderRadius.all(Radius.circular(15)),
+              border: Border(
+                bottom: BorderSide(color: Colors.black, width: 1.5),
+                top: BorderSide(color: Colors.black, width: 1.5),
+                left: BorderSide(color: Colors.black, width: 1.5),
+                right: BorderSide(color: Colors.black, width: 1.5),
+              ),
             ),
             child: TextFormField(
               controller: controller,
               style: const TextStyle(color: Colors.black),
-              decoration: const InputDecoration(
-                contentPadding: EdgeInsets.symmetric(horizontal: 10),
+              decoration: InputDecoration(
+                labelText: '',
+                labelStyle: TextStyle(color: Colors.black, fontSize: 16),
+                floatingLabelBehavior: FloatingLabelBehavior.never,
+                contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                 border: InputBorder.none,
+              ),
+            ),
+          ),
+          Positioned(
+            top: -10,
+            left: 10,
+            child: Container(
+              color: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
@@ -207,40 +218,29 @@ class _AddEventPageState extends State<addevent> {
 
   Widget _buildDateField(String label, TextEditingController controller) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 50),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      margin: const EdgeInsets.symmetric(horizontal: 30),
+      child: Stack(
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-          ),
-          Container(
-            height: 35,
             decoration: const BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.all(Radius.circular(12)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black,
-                  blurRadius: 10,
-                  offset: Offset(2, 2),
-                )
-              ],
+              borderRadius: BorderRadius.all(Radius.circular(15)),
+              border: Border(
+                bottom: BorderSide(color: Colors.black, width: 1.5),
+                top: BorderSide(color: Colors.black, width: 1.5),
+                left: BorderSide(color: Colors.black, width: 1.5),
+                right: BorderSide(color: Colors.black, width: 1.5),
+              ),
             ),
             child: TextFormField(
               controller: controller,
               style: const TextStyle(color: Colors.black),
               readOnly: true,
-              decoration: const InputDecoration(
-                contentPadding: EdgeInsets.symmetric(horizontal: 10),
+              decoration: InputDecoration(
+                labelText: '',
+                labelStyle: TextStyle(color: Colors.black, fontSize: 16),
+                floatingLabelBehavior: FloatingLabelBehavior.never,
+                contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                 border: InputBorder.none,
               ),
               onTap: () async {
@@ -258,6 +258,76 @@ class _AddEventPageState extends State<addevent> {
               },
             ),
           ),
+          Positioned(
+            top: -5,
+            left: 10,
+            child: Container(
+              color: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  Widget _buildEventTypeDropdown() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 30),
+      child: Stack(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.black,
+                width: 1.5,
+              ),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: _selectedEventType,
+                isExpanded: true,
+                items: <String>['IEEE', 'TinkerHub', 'IEDC', 'CSI','TechFest', 'Other']
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedEventType = newValue!;
+                  });
+                },
+              ),
+            ),
+          ),
+          Positioned(
+            top: -10,
+            left: 10,
+            child: Container(
+              color: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+              child: Text(
+                'Community',
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -265,49 +335,52 @@ class _AddEventPageState extends State<addevent> {
 
   Widget _buildEventTypeDropdown() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 50),
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      margin: const EdgeInsets.symmetric(horizontal: 30),
+      child: Stack(
         children: [
-          const Text(
-            "Event Type",
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-          const SizedBox(height: 10),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.all(Radius.circular(12)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black,
-                  blurRadius: 10,
-                  offset: Offset(2, 2),
-                )
-              ],
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.black,
+                width: 1.5,
+              ),
             ),
-            child: DropdownButton<String>(
-              value: _selectedEventType,
-              isExpanded: true,
-              underline: Container(),
-              items: <String>['Competition', 'Workshop', 'Seminar', 'Conference', 'Other']
-                  .map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (String? newValue) {
-                setState(() {
-                  _selectedEventType = newValue!;
-                });
-              },
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: _selectedEventType,
+                isExpanded: true,
+                items: <String>['Competition', 'Workshop', 'Seminar', 'Conference', 'Other']
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedEventType = newValue!;
+                  });
+                },
+              ),
+            ),
+          ),
+          Positioned(
+            top: -10,
+            left: 10,
+            child: Container(
+              color: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+              child: Text(
+                'Event Type',
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ),
         ],
@@ -317,14 +390,15 @@ class _AddEventPageState extends State<addevent> {
 
   Widget _buildImagePicker() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 50),
+      margin: const EdgeInsets.symmetric(horizontal: 30),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: const Text(
-              "Upload Poster",
+            color: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+            child: Text(
+              'Upload Poster',
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
@@ -332,49 +406,72 @@ class _AddEventPageState extends State<addevent> {
               ),
             ),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            child: Column(
-              children: [
-                if (_image != null)
-                  Image.file(_image!)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(
-                      onPressed: _pickImage,
-                      child: const Text(
-                        'Pick Image',
-                        style: TextStyle(fontSize: 16, color: Colors.white),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Styles.blueColor,
-                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    if (_image != null)
-                      ElevatedButton(
-                        onPressed: _uploadImage,
-                        child: const Text(
-                          'Upload Image',
-                          style: TextStyle(fontSize: 16, color: Colors.white),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Styles.blueColor,
-                          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                      ),
+          const SizedBox(height: 10),
+          Stack(
+            children: [
+              Container(
+                height: 150,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.yellow,
+                    width: 1.25,
+                  ),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey,
+                      blurRadius: 1,
+                    )
                   ],
                 ),
-              ],
-            ),
+                child: _image == null
+                    ? Center(
+                  child: Text(
+                    'No image selected',
+                    style: TextStyle(color: Colors.blue),
+                  ),
+                )
+                    : ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.file(
+                    _image!,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 110,
+                left: 10,
+                right: 10,
+                child: Center(
+                  child: TextButton(
+                    onPressed: _pickImage,
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(Colors.white),
+                      padding: MaterialStateProperty.all(EdgeInsets.symmetric(vertical: 10, horizontal: 20)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.add,
+                          color: Colors.blue,
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          'Pick Image',
+                          style: TextStyle(
+                            color: Colors.blue,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -414,9 +511,10 @@ class _AddEventPageState extends State<addevent> {
     String notificationPhrase = _notificationPhraseController.text;
 
     if (eventName.isEmpty || eventDate.isEmpty || eventLocation.isEmpty ||
-        eventPrice.isEmpty || deadline.isEmpty || eventType.isEmpty) {
+        eventPrice.isEmpty || deadline.isEmpty || eventType.isEmpty ||
+        imageUrl.isEmpty) { // Check if imageUrl is empty
       setState(() {
-        _errorText = 'Please fill all the required fields.';
+        _errorText = 'Please fill all the required fields and upload an image.';
       });
       return;
     }
