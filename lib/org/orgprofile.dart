@@ -90,26 +90,24 @@ class _OrgProfileState extends State<OrgProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Styles.yellowColor, Styles.lblueColor, Styles.blueColor],
+        backgroundColor: Colors.black,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween, // Aligns children to the ends
+          children: [
+            Text(
+              'Community Profile',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
+            Image.asset(
+              "assets/EventOn.png",
+              height: 33,
+            ),
+          ],
         ),
-        title: Text(
-          'Community Profile',
-          style: TextStyle(
-              color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
-        ),
-        leading: SizedBox(
-          width: 800,
-          height: double.infinity,
-          child: Image.asset('assets/logowhite.png', fit: BoxFit.fitHeight),
-        ),
-        backgroundColor: Styles.blueColor,
       ),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(

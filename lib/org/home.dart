@@ -31,7 +31,7 @@ class _SocHomePageState extends State<SocHomePage> {
   static List<Widget> _widgetOptions = <Widget>[
     searchpage1(),
     attendee(),
-    addevent(),
+    AddEvent(),
     OrgProfile(),
     // Add other widget options here if needed
   ];

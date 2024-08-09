@@ -9,6 +9,7 @@ import 'package:universe2024/pages/Homepage.dart';
 import 'firebase_options.dart';
 import 'package:universe2024/pages/Splashscreen.dart';
 import 'package:universe2024/org/addevent.dart';
+import 'package:universe2024/pages/Homepage.dart';
 
 
 // Background message handler
@@ -44,8 +45,14 @@ class MyApp extends StatelessWidget {
         textTheme: GoogleFonts.poppinsTextTheme(),
       ),
       home: HomePage(),
+<<<<<<< HEAD
 
+=======
+      
+>>>>>>> 9187961be40dfcdecd39575625ba5eb032122148
     );
+
+
   }
 }
 
