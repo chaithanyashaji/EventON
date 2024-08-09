@@ -406,6 +406,7 @@ class _AddEventPageState extends State<addevent> {
               ),
             ),
           ),
+<<<<<<< HEAD
           const SizedBox(height: 10),
           Stack(
             children: [
@@ -423,6 +424,46 @@ class _AddEventPageState extends State<addevent> {
                       color: Colors.grey,
                       blurRadius: 1,
                     )
+=======
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Column(
+              children: [
+                if (_image != null)
+                  Image.file(_image!),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: _pickImage,
+                      child: const Text(
+                        'Pick Image',
+                        style: TextStyle(fontSize: 16, color: Colors.white),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Styles.blueColor,
+                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    if (_image != null)
+                      ElevatedButton(
+                        onPressed: _uploadImage,
+                        child: const Text(
+                          'Upload Image',
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Styles.blueColor,
+                          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                      ),
                   ],
                 ),
                 child: _image == null
