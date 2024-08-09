@@ -76,7 +76,7 @@ class _ProfileState extends State<Profile> {
             final phoneNumber = userData['phoneNumber'] ?? '';
             final collegeName = userData['collegeName'] ?? '';
             final communityMember = userData['communityMember'] ?? '';
-            final ieeeMembershipId = userData['ieeeMembershipId'] ?? '';
+            final MembershipId = userData['MembershipId'] ?? '';
 
             return SizedBox(
               height: MediaQuery.of(context).size.height,
@@ -186,7 +186,7 @@ class _ProfileState extends State<Profile> {
                                                 ),
                                                 Gap(5),
                                                 Text(
-                                                  'IEEE Membership ID  :  $ieeeMembershipId',
+                                                  'Membership ID  :  $MembershipId',
                                                   style: TextStyle(
                                                       fontSize: 16,
                                                       color: Styles.blueColor),
@@ -293,7 +293,7 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
   late String _phoneNumber;
   late String _collegeName;
   late String _communityMember; // Add this line
-  late String _ieeeMembershipId; // Add this line
+  late String _MembershipId; // Add this line
 
   @override
   void initState() {
@@ -303,7 +303,7 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
     _phoneNumber = widget.userData['phoneNumber'] ?? '';
     _collegeName = widget.userData['collegeName'] ?? '';
     _communityMember = widget.userData['communityMember'] ?? ''; // Initialize
-    _ieeeMembershipId = widget.userData['ieeeMembershipId'] ?? ''; // Initialize
+    _MembershipId = widget.userData['MembershipId'] ?? ''; // Initialize
   }
 
   void _saveDetails() {
@@ -315,7 +315,7 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
         'phoneNumber': _phoneNumber,
         'collegeName': _collegeName,
         'communityMember': _communityMember, // Save this field
-        'ieeeMembershipId': _ieeeMembershipId, // Save this field
+        'MembershipId': _MembershipId, // Save this field
       }).then((value) {
         Navigator.pop(context);
       }).catchError((error) {
@@ -394,10 +394,10 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
                 },
               ),
               TextFormField(
-                initialValue: _ieeeMembershipId,
-                decoration: InputDecoration(labelText: 'IEEE Membership ID (Optional)'),
+                initialValue: _MembershipId,
+                decoration: InputDecoration(labelText: 'Membership ID (Optional)'),
                 onSaved: (value) {
-                  _ieeeMembershipId = value!;
+                  _MembershipId = value!;
                 },
               ),
               SizedBox(height: 20),

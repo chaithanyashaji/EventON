@@ -337,7 +337,7 @@ class _AddEventPageState extends State<addevent> {
             child: Column(
               children: [
                 if (_image != null)
-                  Image.file(_image!)
+                  Image.file(_image!),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
