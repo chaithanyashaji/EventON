@@ -9,6 +9,7 @@ import 'package:flutter/widgets.dart';
 import 'package:universe2024/Utiles/app_styles.dart';
 import 'package:gap/gap.dart';
 import 'package:universe2024/org/home.dart';
+import 'package:universe2024/pages/Forget.dart';
 import 'package:universe2024/pages/Homepage.dart';
 import 'package:universe2024/pages/Signuppage.dart';
 import 'package:universe2024/pages/Splashscreen.dart';
@@ -90,9 +91,14 @@ class _loginpageState extends State<loginpage> {
                   height: MediaQuery.of(context).size.height,
                   child: Column(
                     children: [
-                      SizedBox(
-                        height:100
+                      const Gap(40),
+                      Image.asset(
+                        'assets/logowhite.png', // Replace with your logo asset
+                        width: 300, // Adjust width
+                        height: 100, // Adjust height
                       ),
+
+                      const Gap(10),
                       Text(
                         "Sign-In",
                         style: TextStyle(
@@ -218,16 +224,20 @@ class _loginpageState extends State<loginpage> {
                       // Submit button
                       const Gap(10),
                       TextButton(
-                        onPressed: () {
-                          // Add your forgot password logic here
-                        },
-                        child: Text(
-                          'Forgot Password?',
-                          style: TextStyle(
-                            color: Styles.blueColor,
-                          ),
-                        ),
-                      ),
+                    onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ForgotPasswordPage()),
+    );
+  },
+  child: Text(
+    'Forgot Password?',
+    style: TextStyle(
+      color: Styles.blueColor,
+    ),
+  ),
+),
+
                       const Gap(40),
 
                       Container(
@@ -357,19 +367,23 @@ class _loginpageState extends State<loginpage> {
         .then((DocumentSnapshot documentSnapshot) {
       if (documentSnapshot.exists) {
         if (documentSnapshot.get('roll') == "Community") {
+          print("log");
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) => SocHomePage(),
             ),
           );
-        } else {
+        } else if (documentSnapshot.get('roll') == "Student"){
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) => HomePage(),
             ),
           );
+        } else{
+          ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Admin not approved yet,Please contact the admin')));
         }
       } else {
         print('Document does not exist on the database');
