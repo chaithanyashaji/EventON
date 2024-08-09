@@ -38,7 +38,7 @@ class _ChatState extends State<Chat> {
 
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Styles.bgColor,
+      backgroundColor: Colors.black,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(60.0),
         child: AppBar(
@@ -46,30 +46,26 @@ class _ChatState extends State<Chat> {
           flexibleSpace: Container(
             padding: EdgeInsets.only(right: 40.0),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Styles.yellowColor, Styles.lblueColor, Styles.blueColor],
-              ),
               borderRadius: BorderRadius.vertical(
                 bottom: Radius.circular(10),
               ),
             ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Image.asset(
-                  'assets/logowhite.png',
-                  fit: BoxFit.fitHeight,
-                ),
                 Text(
-                  "Unibot",
+                  "EON",
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                 ),
+                Image.asset(
+                  'assets/logowhite.png',
+                  fit: BoxFit.fitHeight,
+                ),
+
               ],
             ),
           ),
