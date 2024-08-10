@@ -377,7 +377,7 @@ class _loginpageState extends State<loginpage> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => SocHomePage(),
+              builder: (context) => SocHomePage(userId: documentSnapshot.id,),
             ),
           );
         }

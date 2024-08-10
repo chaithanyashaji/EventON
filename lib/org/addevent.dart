@@ -13,7 +13,9 @@ import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';  // Import FirebaseAuth
 
 class AddEvent extends StatefulWidget {
-  const AddEvent({Key? key}) : super(key: key);
+
+  String userID;
+   AddEvent({Key? key ,required this.userID}) : super(key: key);
 
   @override
   State<AddEvent> createState() => _AddEventPageState();
@@ -443,6 +445,7 @@ class _AddEventPageState extends State<AddEvent> {
         ? _communityTypeController.text
         : _selectedCommunityType;
 
+
     if (eventName.isEmpty || eventDate.isEmpty || eventLocation.isEmpty || eventPrice.isEmpty || deadline.isEmpty) {
       setState(() {
         _errorText = 'Please fill all required fields.';
@@ -463,7 +466,9 @@ class _AddEventPageState extends State<AddEvent> {
       downloadUrl = await _uploadImageToFirebase(_image!);
     }
 
-    await userDoc.collection('events').add({
+    String id=DateTime.now().microsecondsSinceEpoch.toString();
+
+    FirebaseFirestore.instance.collection('EVENTS').doc(id).set({
       'eventName': eventName,
       'eventType': _selectedEventType == 'Other' ? otherEventType : _selectedEventType,
       'community': communityType,
@@ -474,7 +479,37 @@ class _AddEventPageState extends State<AddEvent> {
       'notificationPhrase': notificationPhrase,
       'description': eventDescription,
       'imageUrl': downloadUrl,
+      'addedby': widget.userID,
+      'isRegistrationOpen': true,
     });
+
+
+    FirebaseFirestore.instance.collection('EVENTS').where("addedby",isEqualTo:widget.userID ).get().then((value) {
+
+
+    //   add to user profile list
+
+
+
+
+
+    });
+
+
+
+
+    // await userDoc.collection('events').add({
+    //   'eventName': eventName,
+    //   'eventType': _selectedEventType == 'Other' ? otherEventType : _selectedEventType,
+    //   'community': communityType,
+    //   'eventDate': eventDate,
+    //   'eventLocation': eventLocation,
+    //   'eventPrice': eventPrice,
+    //   'deadline': deadline,
+    //   'notificationPhrase': notificationPhrase,
+    //   'description': eventDescription,
+    //   'imageUrl': downloadUrl,
+    // });
 
     // Show notification
     _showNotification("Event Created", "Your event '$eventName' has been successfully created!");
@@ -482,7 +517,7 @@ class _AddEventPageState extends State<AddEvent> {
     // Navigate to Home page after successful submission
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => SocHomePage()),
+      MaterialPageRoute(builder: (context) => SocHomePage(userId: widget.userID,)),
     );
   }
 }
