@@ -9,6 +9,7 @@ import 'firebase_options.dart';
 import 'package:universe2024/pages/Splashscreen.dart';
 import 'package:universe2024/org/addevent.dart';
 import 'package:universe2024/pages/Homepage.dart';
+import 'package:universe2024/pages/loginpage.dart';
 
 
 // Background message handler
@@ -43,7 +44,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         textTheme: GoogleFonts.poppinsTextTheme(),
       ),
-      home: Splashscreen(),
+      home: loginpage(),
       
     );
 
