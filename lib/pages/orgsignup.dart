@@ -247,6 +247,7 @@ class _orgsignupState extends State<orgsignup> {
             'email': email,
             'collegeName': collegeName,
             'roll': 'Community',
+            'status': 'pending',
           });
         } else {
           print("Some error");
