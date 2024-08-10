@@ -351,7 +351,7 @@ class _AddEventPageState extends State<AddEvent> {
               _selectedCommunityType = newValue!;
             });
           },
-          items: <String>['IEEE', 'ACM', 'Student Council', 'Other']
+          items: <String>['IEEE', 'IEDC', 'CSI', 'Other']
               .map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(
               value: value,
@@ -464,16 +464,16 @@ class _AddEventPageState extends State<AddEvent> {
     }
 
     await userDoc.collection('events').add({
-      'name': eventName,
-      'type': _selectedEventType == 'Other' ? otherEventType : _selectedEventType,
+      'eventName': eventName,
+      'eventType': _selectedEventType == 'Other' ? otherEventType : _selectedEventType,
       'community': communityType,
-      'date': eventDate,
-      'location': eventLocation,
-      'price': eventPrice,
+      'eventDate': eventDate,
+      'eventLocation': eventLocation,
+      'eventPrice': eventPrice,
       'deadline': deadline,
-      'notification_phrase': notificationPhrase,
+      'notificationPhrase': notificationPhrase,
       'description': eventDescription,
-      'image_url': downloadUrl,
+      'imageUrl': downloadUrl,
     });
 
     // Show notification

@@ -150,28 +150,32 @@ class _searchpageState extends State<searchpage> {
                     }
                   },
                   child: ListTile(
-                    title: Text(
-                      combinedResults[index].reference.parent.id == 'users'
-                          ? data['name']
-                          : data['eventName'],
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: Colors.black54,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                    title: Flexible(
+                      child: Text(
+                        combinedResults[index].reference.parent.id == 'users'
+                            ? data['name']
+                            : data['eventName'],
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.black54,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                    subtitle: Text(
-                      combinedResults[index].reference.parent.id == 'event'
-                          ? data['eventLocation']
-                          : data['collegeName'],
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: Colors.black54,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                    subtitle: Flexible(
+                      child: Text(
+                        combinedResults[index].reference.parent.id == 'event'
+                            ? data['eventLocation']
+                            : data['collegeName'],
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.black54,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),

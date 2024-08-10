@@ -10,6 +10,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 
 import 'package:gap/gap.dart';
 import 'package:universe2024/Utiles/app_styles.dart';
+import 'package:universe2024/admin/admhome.dart';
 import 'package:universe2024/org/home.dart';
 import 'package:universe2024/pages/Homepage.dart';
 import 'package:universe2024/pages/firebase.dart';
@@ -26,7 +27,7 @@ class _Admaddevent extends State<Admaddevent> {
   String imageUrl = '';
   final FirebaseAuthService _auth = FirebaseAuthService();
   CollectionReference _reference =
-      FirebaseFirestore.instance.collection('event');
+      FirebaseFirestore.instance.collection('Adminevents');
 
   TextEditingController _eventNameController = TextEditingController();
   TextEditingController _eventDateController = TextEditingController();
@@ -134,8 +135,8 @@ class _Admaddevent extends State<Admaddevent> {
                                 ),
                               ],
                             ),
-                        
-                            
+
+
                             const SizedBox(height: 10),
                             _buildTextField4(
                               "Registration Link",
@@ -528,12 +529,12 @@ class _Admaddevent extends State<Admaddevent> {
 
     String eventTimeStr = _eventTimeController.text; // Change variable name
     String eventWebsite = _WebsiteController.text;
- 
+
 
     if (eventName.isEmpty ||
         eventDateStr.isEmpty ||
         eventLocation.isEmpty ||
-     
+
         eventTimeStr.isEmpty || // Check for empty event time
         eventWebsite.isEmpty) {
       setState(() {
@@ -561,10 +562,9 @@ class _Admaddevent extends State<Admaddevent> {
     try {
       // Add the event to the user's events collection
       await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .collection('events')
-          .doc() // Use .doc() to generate a new unique ID for the event
+          .collection('Adminevents')
+          .doc()
+          // Use .doc() to generate a new unique ID for the event
           .set({
         'eventName': eventName,
         'eventDate': Timestamp.fromDate(eventDate), // Store as Timestamp
@@ -579,7 +579,7 @@ class _Admaddevent extends State<Admaddevent> {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
             builder: (context) =>
-                SocHomePage()), // Replace SocHomePage with your actual home page widget
+                Admhome()), // Replace SocHomePage with your actual home page widget
       );
     } catch (error) {
       print("Error uploading event: $error");

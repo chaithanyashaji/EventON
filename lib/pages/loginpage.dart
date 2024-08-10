@@ -331,7 +331,7 @@ class _loginpageState extends State<loginpage> {
 
       // Navigate to home page if login is successful
       if (user != null) {
-        print("User is successfully signed in");
+
 
         route();
       } else {
@@ -359,15 +359,14 @@ class _loginpageState extends State<loginpage> {
         .get()
         .then((DocumentSnapshot documentSnapshot) {
       if (documentSnapshot.exists) {
-        if (documentSnapshot.get('roll') == "Community") {
+        if (documentSnapshot.get('roll') == 'Community' && 'status' == 'pending') {
+
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Admin not approved yet,Please contact the admin')));
           print("log");
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => SocHomePage(),
-            ),
-          );
-        } else if (documentSnapshot.get('roll') == "Student"){
+
+
+        } else if (documentSnapshot.get('roll') == 'student'){
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -375,8 +374,12 @@ class _loginpageState extends State<loginpage> {
             ),
           );
         } else{
-          ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Admin not approved yet,Please contact the admin')));
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SocHomePage(),
+            ),
+          );
         }
       } else {
         print('Document does not exist on the database');
