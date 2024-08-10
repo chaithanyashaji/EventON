@@ -77,79 +77,82 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Gap(30),
-            Container(
-              child:Icon(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Gap(30),
+              Icon(
                 Icons.lock_open,
                 color: Colors.black,
                 size: 100.0,
               ),
-            ),
-            Gap(20),
-            Container(
-                child:Text("Forget Password?",
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 30),
-                ),
-            ),
-                Gap(20),
-                Container(
-              child:Text("We just need your email address to send your password reset code",
+              const Gap(20),
+              Text(
+                "Forgot Password?",
+                style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 30),
+              ),
+              const Gap(20),
+              Text(
+                "We just need your email address to send your password reset code",
                 style: TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
                     fontSize: 15),
                 textAlign: TextAlign.center,
               ),
-            ),
-            Gap(100),
-            if (_emailSent)
-              Padding(
-                padding: EdgeInsets.all(15), //apply padding to all four sides
-                child: Text('Password reset email sent. Please check your inbox.',
-                  style: TextStyle(color: Colors.green),
-              ),
-              ),
-
-            if (_error)
-              Text(
-                _errorMessage,
-                style: TextStyle(color: Colors.red),
-              ),
-            Gap(15),
-            TextField(
-              controller: _emailController,
-              decoration: InputDecoration(
-                labelText: 'Enter your email',
-                labelStyle: TextStyle(color: Colors.black),  // Label text color to black
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.black),  // Border color to black
+              const Gap(100),
+              if (_emailSent)
+                Padding(
+                  padding: const EdgeInsets.all(15), // Apply padding to all sides
+                  child: Text(
+                    'Password reset email sent. Please check your inbox.',
+                    style: TextStyle(color: Colors.green),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.black),  // Border color when focused
+              if (_error)
+                Padding(
+                  padding: const EdgeInsets.all(15),
+                  child: Text(
+                    _errorMessage,
+                    style: TextStyle(color: Colors.red),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              const Gap(15),
+              TextField(
+                controller: _emailController,
+                decoration: InputDecoration(
+                  labelText: 'Enter your email',
+                  labelStyle: TextStyle(color: Colors.black),  // Label text color to black
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black),  // Border color to black
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black),  // Border color when focused
+                  ),
+                ),
+                keyboardType: TextInputType.emailAddress,
+              ),
+              const SizedBox(height: 30),
+              ElevatedButton(
+                onPressed: _sendPasswordResetEmail,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black, // Updated to use backgroundColor
+                ),
+                child: Text(
+                  'Send Reset Email',
+                  style: TextStyle(color: Colors.white),  // Button text color to white
                 ),
               ),
-              keyboardType: TextInputType.emailAddress,
-            ),
-            SizedBox(height: 30),
-            ElevatedButton(
-              onPressed: _sendPasswordResetEmail,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black, // Updated to use backgroundColor
-              ),
-              child: Text(
-                'Send Reset Email',
-                style: TextStyle(color: Colors.white),  // Button text color to white
-              ),
-            ),
-
-          ],
+            ],
+          ),
         ),
       ),
     );
