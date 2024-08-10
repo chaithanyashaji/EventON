@@ -10,7 +10,7 @@ import 'package:universe2024/pages/Splashscreen.dart';
 import 'package:universe2024/org/addevent.dart';
 import 'package:universe2024/pages/Homepage.dart';
 import 'package:universe2024/pages/loginpage.dart';
-
+import 'package:universe2024/pages/profile.dart';
 
 // Background message handler
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         textTheme: GoogleFonts.poppinsTextTheme(),
       ),
-      home: loginpage(),
+      home: Splashscreen(),
       
     );
 

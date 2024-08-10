@@ -58,224 +58,198 @@ class _ProfileState extends State<Profile> {
         backgroundColor: Styles.blueColor,
       ),
       backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        physics: AlwaysScrollableScrollPhysics(),
-        child: StreamBuilder<DocumentSnapshot>(
-          stream: _stream,
-          builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-            if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            }
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            }
+      body: StreamBuilder<DocumentSnapshot>(
+        stream: _stream,
+        builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
 
-            final userData = snapshot.data?.data() as Map<String, dynamic>;
-            final name = userData['name'] ?? '';
-            final email = userData['email'] ?? '';
-            final phoneNumber = userData['phoneNumber'] ?? '';
-            final collegeName = userData['collegeName'] ?? '';
-            final communityMember = userData['communityMember'] ?? '';
-            final ieeeMembershipId = userData['ieeeMembershipId'] ?? '';
+          final userData = snapshot.data?.data() as Map<String, dynamic>;
+          final name = userData['name'] ?? '';
+          final email = userData['email'] ?? '';
+          final phoneNumber = userData['phoneNumber'] ?? '';
+          final collegeName = userData['collegeName'] ?? '';
+          final communityMember = userData['communityMember'] ?? '';
+          final ieeeMembershipId = userData['ieeeMembershipId'] ?? '';
 
-            return SizedBox(
-              height: MediaQuery.of(context).size.height,
-              child: Stack(
+          return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Align(
-                    alignment: Alignment.topCenter,
-                    child: SizedBox(
-                      height: MediaQuery.of(context).size.height,
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            const Gap(20),
-                            Icon(
-                              Icons.person,
-                              size: 90,
+                  const Gap(20),
+                  Icon(
+                    Icons.person,
+                    size: 90,
+                    color: Styles.blueColor,
+                  ),
+                  const Gap(10),
+                  Text(
+                    name,
+                    style: TextStyle(
+                      fontSize: 22,
+                      color: Styles.blueColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Gap(50),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.only(left: 27.0),
+                            child: Icon(
+                              Icons.note_alt_outlined,
                               color: Styles.blueColor,
                             ),
-                            const Gap(10),
-                            Text(
-                              "$name",
-                              style: TextStyle(
-                                fontSize: 22,
-                                color: Styles.blueColor,
-                                fontWeight: FontWeight.bold,
+                          ),
+                          const Gap(3),
+                          Text(
+                            'About me',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Styles.blueColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 24.0),
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          border: Border.all(width: 1, color: Styles.yellowColor),
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(13),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Name  :  $name',
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    color: Styles.blueColor),
+                              ),
+                              const Gap(5),
+                              Text(
+                                'Email  :  $email',
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    color: Styles.blueColor),
+                              ),
+                              const Gap(5),
+                              Text(
+                                'Phone Number  : $phoneNumber',
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    color: Styles.blueColor),
+                              ),
+                              const Gap(5),
+                              Text(
+                                'College Name  :  $collegeName',
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    color: Styles.blueColor),
+                              ),
+                              const Gap(5),
+                              Text(
+                                'Community Member  :  $communityMember',
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    color: Styles.blueColor),
+                              ),
+                              const Gap(5),
+                              Text(
+                                'IEEE Membership ID  :  $ieeeMembershipId',
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    color: Styles.blueColor),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Gap(20),
+                  Container(
+                    width: 150,
+                    height: 40,
+                    child: Material(
+                      elevation: 8,
+                      borderRadius: BorderRadius.circular(25),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EditDetailsForm(
+                                userData: userData,
                               ),
                             ),
-                            const Gap(50),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      margin: const EdgeInsets.only(left: 27.0),
-                                      child: Icon(
-                                        Icons.note_alt_outlined,
-                                        color: Styles.blueColor,
-                                      ),
-                                    ),
-                                    Gap(3),
-                                    Text(
-                                      'About me',
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.bold,
-                                        color: Styles.blueColor,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 10),
-                                Container(
-                                  margin: const EdgeInsets.only(left: 24.0, right: 24),
-                                  width: 450,
-                                  height: 210,
-                                  decoration: BoxDecoration(
-                                    border: Border.all(width: 1, color: Styles.yellowColor),
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(13),
-                                  ),
-                                  child: Padding(
-                                    padding: EdgeInsets.all(20),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.start,
-                                          children: [
-                                            Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  'Name  :  $name',
-                                                  style: TextStyle(
-                                                      fontSize: 16,
-                                                      color: Styles.blueColor),
-                                                ),
-                                                Gap(5),
-                                                Text(
-                                                  'Email  :  $email',
-                                                  style: TextStyle(
-                                                      fontSize: 16,
-                                                      color: Styles.blueColor),
-                                                ),
-                                                Gap(5),
-                                                Text(
-                                                  'Phone Number  : $phoneNumber',
-                                                  style: TextStyle(
-                                                      fontSize: 16,
-                                                      color: Styles.blueColor),
-                                                ),
-                                                Gap(5),
-                                                Text(
-                                                  'College Name  :  $collegeName',
-                                                  style: TextStyle(
-                                                      fontSize: 16,
-                                                      color: Styles.blueColor),
-                                                ),
-                                                Gap(5),
-                                                Text(
-                                                  'Community Member  :  $communityMember',
-                                                  style: TextStyle(
-                                                      fontSize: 16,
-                                                      color: Styles.blueColor),
-                                                ),
-                                                Gap(5),
-                                                Text(
-                                                  'IEEE Membership ID  :  $ieeeMembershipId',
-                                                  style: TextStyle(
-                                                      fontSize: 16,
-                                                      color: Styles.blueColor),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                        const Gap(12),
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Container(
-                                              alignment: Alignment.center,
-                                              child: TextButton(
-                                                onPressed: () {
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder: (context) => EditDetailsForm(userData: userData),
-                                                    ),
-                                                  );
-                                                },
-                                                child: Row(
-                                                  mainAxisAlignment: MainAxisAlignment.center,
-                                                  children: [
-                                                    Icon(Icons.add, color: Styles.blueColor),
-                                                    Text(
-                                                      'Edit Details',
-                                                      style: TextStyle(
-                                                          color: Styles.blueColor,
-                                                          fontWeight: FontWeight.w600),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Gap(50),
-                            Gap(30),
-                            Container(
-                              width: 150,
-                              height: 40,
-                              child: Material(
-                                elevation: 8,
-                                borderRadius: BorderRadius.circular(25),
-                                child: SizedBox(
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(builder: (context) => loginpage()),
-                                      );
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Styles.blueColor,
-                                    ),
-                                    child: Text(
-                                      'Logout',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Gap(30),
-                          ],
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Styles.blueColor,
+                        ),
+                        child: Text(
+                          'Edit Details',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
                   ),
+                  const Gap(20), // Gap between buttons
+                  Container(
+                    width: 150,
+                    height: 40,
+                    child: Material(
+                      elevation: 8,
+                      borderRadius: BorderRadius.circular(25),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => loginpage()),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Styles.blueColor,
+                        ),
+                        child: Text(
+                          'Logout',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const Gap(30),
                 ],
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }
 }
+
 
 class EditDetailsForm extends StatefulWidget {
   final Map<String, dynamic> userData;
@@ -292,8 +266,8 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
   late String _email;
   late String _phoneNumber;
   late String _collegeName;
-  late String _communityMember; // Add this line
-  late String _ieeeMembershipId; // Add this line
+  late String _communityMember;
+  late String _ieeeMembershipId;
 
   @override
   void initState() {
@@ -302,8 +276,8 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
     _email = widget.userData['email'] ?? '';
     _phoneNumber = widget.userData['phoneNumber'] ?? '';
     _collegeName = widget.userData['collegeName'] ?? '';
-    _communityMember = widget.userData['communityMember'] ?? ''; // Initialize
-    _ieeeMembershipId = widget.userData['ieeeMembershipId'] ?? ''; // Initialize
+    _communityMember = widget.userData['communityMember'] ?? '';
+    _ieeeMembershipId = widget.userData['ieeeMembershipId'] ?? '';
   }
 
   void _saveDetails() {
@@ -314,8 +288,8 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
         'name': _name,
         'phoneNumber': _phoneNumber,
         'collegeName': _collegeName,
-        'communityMember': _communityMember, // Save this field
-        'ieeeMembershipId': _ieeeMembershipId, // Save this field
+        'communityMember': _communityMember,
+        'ieeeMembershipId': _ieeeMembershipId,
       }).then((value) {
         Navigator.pop(context);
       }).catchError((error) {
@@ -337,7 +311,6 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
           key: _formKey,
           child: ListView(
             children: [
-              // Existing form fields
               TextFormField(
                 initialValue: _name,
                 decoration: InputDecoration(labelText: 'Name'),
@@ -356,6 +329,9 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
                 decoration: InputDecoration(
                   labelText: 'Email',
                   labelStyle: TextStyle(color: Colors.grey),
+                  disabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.grey, width: 1.0),
+                  ),
                 ),
                 enabled: false,
               ),
@@ -385,26 +361,33 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
                   _collegeName = value!;
                 },
               ),
-              // New form fields
               TextFormField(
                 initialValue: _communityMember,
-                decoration: InputDecoration(labelText: 'Community Member (Optional)'),
+                decoration: InputDecoration(labelText: 'Community Member'),
                 onSaved: (value) {
                   _communityMember = value!;
                 },
               ),
               TextFormField(
                 initialValue: _ieeeMembershipId,
-                decoration: InputDecoration(labelText: 'IEEE Membership ID (Optional)'),
+                decoration: InputDecoration(labelText: 'IEEE Membership ID'),
                 onSaved: (value) {
                   _ieeeMembershipId = value!;
                 },
               ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _saveDetails,
-                style: ElevatedButton.styleFrom(backgroundColor: Styles.blueColor),
-                child: Text('Save'),
+              const Gap(20),
+              Container(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _saveDetails,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Styles.blueColor,
+                  ),
+                  child: Text(
+                    'Save',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
               ),
             ],
           ),
