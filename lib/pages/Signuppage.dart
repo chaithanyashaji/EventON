@@ -92,12 +92,7 @@ class _SignupPageState extends State<SignupPage> {
                     padding: const EdgeInsets.symmetric(vertical: 50),
                     child: Column(
                       children: [
-                        Image.asset(
-                          'assets/logowhite.png',
-                          width: 200,
-                          height: 100,
-                        ),
-                        const Gap(10),
+                        const Gap(70),
                         Text(
                           "Sign-Up",
                           style: TextStyle(
@@ -106,7 +101,7 @@ class _SignupPageState extends State<SignupPage> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const Gap(20),
+                        const Gap(30),
                         _buildTextField("Name", _nameController),
                         const Gap(10),
                         _buildTextField("Email", _emailController),
