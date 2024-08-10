@@ -10,6 +10,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:universe2024/Utiles/app_styles.dart';
 import 'package:universe2024/org/home.dart';
 import 'package:http/http.dart' as http;
+import 'package:firebase_auth/firebase_auth.dart';  // Import FirebaseAuth
 
 class AddEvent extends StatefulWidget {
   const AddEvent({Key? key}) : super(key: key);
@@ -92,7 +93,7 @@ class _AddEventPageState extends State<AddEvent> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
+            const Text(
               'Add Event',
               style: TextStyle(
                 color: Colors.white,
@@ -126,7 +127,7 @@ class _AddEventPageState extends State<AddEvent> {
             const SizedBox(height: 35),
             _buildTextField("Name of the Event", _eventNameController),
             const SizedBox(height: 20),
-            _buildCommunityTypeDropdown(), // Added Community Dropdown here
+            _buildCommunityTypeDropdown(),
             if (_selectedCommunityType == 'Other') _buildTextField("Specify Community", _communityTypeController),
             const SizedBox(height: 20),
             _buildEventTypeDropdown(),
@@ -142,7 +143,7 @@ class _AddEventPageState extends State<AddEvent> {
             const SizedBox(height: 20),
             _buildTextField("Notification Phrase (Optional)", _notificationPhraseController),
             const SizedBox(height: 20),
-            _buildTextField("Event Description", _eventDescriptionController), // Added Event Description here
+            _buildTextField("Event Description", _eventDescriptionController),
             const SizedBox(height: 30),
             _buildImagePicker(),
             const SizedBox(height: 30),
@@ -194,14 +195,13 @@ class _AddEventPageState extends State<AddEvent> {
             child: TextFormField(
               controller: controller,
               style: const TextStyle(color: Colors.black),
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: '',
-                labelStyle: TextStyle(color: Colors.black, fontSize: 16),
                 floatingLabelBehavior: FloatingLabelBehavior.never,
                 contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                 border: InputBorder.none,
               ),
-              maxLines: label == 'Event Description' ? 5 : 1, // Allow multiple lines for description
+              maxLines: label == 'Event Description' ? 5 : 1,
             ),
           ),
           Positioned(
@@ -212,7 +212,7 @@ class _AddEventPageState extends State<AddEvent> {
               padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
               child: Text(
                 label,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 15,
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
@@ -245,9 +245,8 @@ class _AddEventPageState extends State<AddEvent> {
               controller: controller,
               style: const TextStyle(color: Colors.black),
               readOnly: true,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: '',
-                labelStyle: TextStyle(color: Colors.black, fontSize: 16),
                 floatingLabelBehavior: FloatingLabelBehavior.never,
                 contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                 border: InputBorder.none,
@@ -275,7 +274,7 @@ class _AddEventPageState extends State<AddEvent> {
               padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
               child: Text(
                 label,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 15,
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
@@ -284,6 +283,88 @@ class _AddEventPageState extends State<AddEvent> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildEventTypeDropdown() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 30),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.all(Radius.circular(15)),
+        border: Border(
+          bottom: BorderSide(color: Colors.black, width: 1.5),
+          top: BorderSide(color: Colors.black, width: 1.5),
+          left: BorderSide(color: Colors.black, width: 1.5),
+          right: BorderSide(color: Colors.black, width: 1.5),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        child: DropdownButton<String>(
+          isExpanded: true,
+          value: _selectedEventType,
+          onChanged: (String? newValue) {
+            setState(() {
+              _selectedEventType = newValue!;
+            });
+          },
+          items: <String>['Competition', 'Workshop', 'Seminar', 'Other']
+              .map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(
+                value,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCommunityTypeDropdown() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 30),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.all(Radius.circular(15)),
+        border: Border(
+          bottom: BorderSide(color: Colors.black, width: 1.5),
+          top: BorderSide(color: Colors.black, width: 1.5),
+          left: BorderSide(color: Colors.black, width: 1.5),
+          right: BorderSide(color: Colors.black, width: 1.5),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        child: DropdownButton<String>(
+          isExpanded: true,
+          value: _selectedCommunityType,
+          onChanged: (String? newValue) {
+            setState(() {
+              _selectedCommunityType = newValue!;
+            });
+          },
+          items: <String>['IEEE', 'ACM', 'Student Council', 'Other']
+              .map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(
+                value,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            );
+          }).toList(),
+        ),
       ),
     );
   }
@@ -292,30 +373,35 @@ class _AddEventPageState extends State<AddEvent> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 30),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Upload Image',
+            'Upload Event Banner:',
             style: TextStyle(
-              fontSize: 15,
-              color: Colors.black,
               fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Colors.black,
             ),
           ),
           const SizedBox(height: 10),
-          InkWell(
-            onTap: _selectImage,
+          GestureDetector(
+            onTap: _pickImage,
             child: Container(
               height: 200,
-              width: double.infinity,
               decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(15),
                 border: Border.all(color: Colors.black, width: 1.5),
+                borderRadius: BorderRadius.circular(15),
               ),
               child: _image == null
-                  ? const Icon(Icons.add_a_photo, color: Colors.black, size: 50)
-                  : Image.file(_image!, fit: BoxFit.cover),
+                  ? const Center(
+                child: Text(
+                  'Tap to select image',
+                  style: TextStyle(color: Colors.black),
+                ),
+              )
+                  : Image.file(
+                _image!,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
         ],
@@ -323,127 +409,25 @@ class _AddEventPageState extends State<AddEvent> {
     );
   }
 
-  Future<void> _selectImage() async {
+  Future<void> _pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+
     setState(() {
       if (pickedFile != null) {
         _image = File(pickedFile.path);
+      } else {
+        print('No image selected.');
       }
     });
   }
 
-  Widget _buildEventTypeDropdown() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 30),
-      child: Stack(
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.all(Radius.circular(15)),
-              border: Border(
-                bottom: BorderSide(color: Colors.black, width: 1.5),
-                top: BorderSide(color: Colors.black, width: 1.5),
-                left: BorderSide(color: Colors.black, width: 1.5),
-                right: BorderSide(color: Colors.black, width: 1.5),
-              ),
-            ),
-            child: DropdownButtonFormField<String>(
-              value: _selectedEventType,
-              onChanged: (value) {
-                setState(() {
-                  _selectedEventType = value!;
-                });
-              },
-              items: <String>['Competition', 'Networking', 'Workshop', 'Other']
-                  .map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              decoration: InputDecoration(
-                contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                border: InputBorder.none,
-              ),
-            ),
-          ),
-          Positioned(
-            top: -10,
-            left: 10,
-            child: Container(
-              color: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-              child: Text(
-                "Type of Event",
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCommunityTypeDropdown() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 30),
-      child: Stack(
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.all(Radius.circular(15)),
-              border: Border(
-                bottom: BorderSide(color: Colors.black, width: 1.5),
-                top: BorderSide(color: Colors.black, width: 1.5),
-                left: BorderSide(color: Colors.black, width: 1.5),
-                right: BorderSide(color: Colors.black, width: 1.5),
-              ),
-            ),
-            child: DropdownButtonFormField<String>(
-              value: _selectedCommunityType,
-              onChanged: (value) {
-                setState(() {
-                  _selectedCommunityType = value!;
-                });
-              },
-              items: <String>['IEEE', 'YEC', 'BNI', 'LEO', 'LEO', 'Rotary', 'Roundtable', 'Other']
-                  .map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              decoration: InputDecoration(
-                contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                border: InputBorder.none,
-              ),
-            ),
-          ),
-          Positioned(
-            top: -10,
-            left: 10,
-            child: Container(
-              color: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-              child: Text(
-                "Type of Community",
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+  Future<String> _uploadImageToFirebase(File image) async {
+    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    Reference storageReference = FirebaseStorage.instance.ref().child('event_images/$fileName');
+    UploadTask uploadTask = storageReference.putFile(image);
+    TaskSnapshot snapshot = await uploadTask;
+    String downloadUrl = await snapshot.ref.getDownloadURL();
+    return downloadUrl;
   }
 
   Future<void> _signUp() async {
@@ -470,12 +454,16 @@ class _AddEventPageState extends State<AddEvent> {
       _errorText = '';
     });
 
+    // Assuming the user is logged in and their UID is available
+    final String userId = FirebaseAuth.instance.currentUser!.uid;
+    final DocumentReference userDoc = FirebaseFirestore.instance.collection('users').doc(userId);
+
     String? downloadUrl;
     if (_image != null) {
       downloadUrl = await _uploadImageToFirebase(_image!);
     }
 
-    await FirebaseFirestore.instance.collection('events').add({
+    await userDoc.collection('events').add({
       'name': eventName,
       'type': _selectedEventType == 'Other' ? otherEventType : _selectedEventType,
       'community': communityType,
@@ -488,49 +476,13 @@ class _AddEventPageState extends State<AddEvent> {
       'image_url': downloadUrl,
     });
 
-    if (notificationPhrase.isNotEmpty) {
-      await _sendPushNotification(notificationPhrase);
-    }
+    // Show notification
+    _showNotification("Event Created", "Your event '$eventName' has been successfully created!");
 
-    Navigator.push(context, MaterialPageRoute(builder: (context) => SocHomePage()));
-  }
-
-  Future<String?> _uploadImageToFirebase(File image) async {
-    try {
-      String fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
-      Reference storageReference = FirebaseStorage.instance.ref().child('event_images/$fileName');
-      UploadTask uploadTask = storageReference.putFile(image);
-      TaskSnapshot storageTaskSnapshot = await uploadTask.whenComplete(() {});
-      return await storageTaskSnapshot.ref.getDownloadURL();
-    } catch (e) {
-      print('Error uploading image: $e');
-      return null;
-    }
-  }
-
-  Future<void> _sendPushNotification(String notificationPhrase) async {
-    String? token = await _firebaseMessaging.getToken();
-    String? serverKey = dotenv.env['FIREBASE_SERVER_KEY'];
-    if (serverKey == null || token == null) return;
-
-    final response = await http.post(
-      Uri.parse('https://fcm.googleapis.com/fcm/send'),
-      headers: <String, String>{
-        'Content-Type': 'application/json',
-        'Authorization': 'key=$serverKey',
-      },
-      body: jsonEncode(<String, dynamic>{
-        'notification': <String, dynamic>{
-          'body': notificationPhrase,
-          'title': 'New Event Notification',
-        },
-        'priority': 'high',
-        'to': token,
-      }),
+    // Navigate to Home page after successful submission
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => SocHomePage()),
     );
-
-    if (response.statusCode != 200) {
-      print('Error sending push notification: ${response.statusCode}');
-    }
   }
 }
