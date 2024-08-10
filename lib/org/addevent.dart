@@ -481,6 +481,7 @@ class _AddEventPageState extends State<AddEvent> {
       'imageUrl': downloadUrl,
       'addedby': widget.userID,
       'isRegistrationOpen': true,
+      'isRegistrationOpen': true,
     });
 
 

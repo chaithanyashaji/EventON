@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:universe2024/Utiles/app_styles.dart';
 import 'package:gap/gap.dart';
-import 'package:universe2024/org/1.dart';
+
 
 import 'package:universe2024/org/addevent.dart';
 import 'package:universe2024/org/attendee.dart';
@@ -369,7 +369,7 @@ class HomeContent extends StatelessWidget {
                                                 eventKey: event['documentID']),
                                                     ));
                                                   },
-                                                  child: Text('Register',style: TextStyle(fontSize: 18),),
+                                                  child: Text('View',style: TextStyle(fontSize: 18),),
                                                 ),
                                               ],
                                             ),

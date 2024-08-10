@@ -21,6 +21,10 @@ class _EventDetailsState extends State<EventDetails> {
   late Stream<DocumentSnapshot> _stream;
   bool _isRegistrationOpen = true;
 
+  var _userRole = 'student';
+
+
+
   @override
   void initState() {
     super.initState();
@@ -28,6 +32,17 @@ class _EventDetailsState extends State<EventDetails> {
         .collection('EVENTS')
         .doc(widget.eventKey)
         .snapshots();
+  }
+
+  void _fetchUserRole() async {
+    String userId = getCurrentUserId();
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .get();
+    setState(() {
+      _userRole = userDoc['roll'];
+    });
   }
 
   String getCurrentUserId() {
@@ -192,6 +207,7 @@ class _EventDetailsState extends State<EventDetails> {
   }
 
   Widget _buildEventDetails(Map<String, dynamic> eventData) {
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -263,7 +279,6 @@ class _EventDetailsState extends State<EventDetails> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             _buildTicketPrice(eventData['eventPrice']),
-            if('roll' == 'student')
             _buildRegistrationButton(),
           ],
         ),
@@ -338,7 +353,9 @@ class _EventDetailsState extends State<EventDetails> {
                   )
                 else
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                     ),
