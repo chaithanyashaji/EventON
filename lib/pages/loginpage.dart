@@ -1,11 +1,7 @@
 import 'dart:ui';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
-import 'package:flutter/widgets.dart';
-
 import 'package:universe2024/Utiles/app_styles.dart';
 import 'package:gap/gap.dart';
 import 'package:universe2024/org/home.dart';
@@ -40,243 +36,171 @@ class _loginpageState extends State<loginpage> {
 
   @override
   Widget build(BuildContext context) {
+    final double fieldWidth = MediaQuery.of(context).size.width * 0.85;
+
     return Scaffold(
-      backgroundColor:Colors.white,
-      body: SingleChildScrollView(
-        physics: BouncingScrollPhysics(),
-        child: SizedBox(
-          height: MediaQuery.of(context).size.height,
-          child: Stack(
-            children: [
-              Align(
-                alignment: Alignment.topRight,
-                child: SizedBox(
-                  height: MediaQuery.of(context).size.height,
-                  child: Column(
-                    children: [
-                      const Gap(100),
-                      Text(
-                        "Sign-In",
-                        style: TextStyle(
-                          fontSize: 25,
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const Gap(40),
+      backgroundColor: Colors.white,
+      body: Stack(
+        children: [
+          // Top Corner Logo
+          Positioned(
+            top: 45,
+            right: 20,
+            child: Image.asset(
+              'assets/EventOn.png',
+              width: 100, // Adjust size as needed
+            ),
+          ),
 
-                      Container(
-                        alignment: Alignment.centerLeft,
-                        margin: EdgeInsets.symmetric(horizontal: 50),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: EdgeInsets.symmetric(vertical: 12),
-                              child: Text(
-                                "Email",
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(12)),
+          // Centered Content
+          Center(
+            child: SingleChildScrollView(
+              physics: BouncingScrollPhysics(),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Gap(150),  // Adjust the gap to push content down
 
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 5,
-                                  ),
-                                  Expanded(
-                                    child: TextFormField(
-                                      enableSuggestions: false,
-                                      autocorrect: false,
-                                      controller: _emailController,
-                                      decoration: InputDecoration(
-                                        contentPadding:
-                                            EdgeInsets.symmetric(vertical: 10),
-                                        border: InputBorder.none,
-                                        hintText: "Email",
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              ),
-                            )
-                          ],
+                  // Email Field
+                  Container(
+                    width: fieldWidth,
+                    child: TextFormField(
+                      enableSuggestions: false,
+                      autocorrect: false,
+                      controller: _emailController,
+                      decoration: InputDecoration(
+                        labelText: 'Email',
+                        labelStyle: TextStyle(color: Colors.black),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.black, width: 1.5),
                         ),
-                      ),
-                      const Gap(10),
-                      Container(
-                        alignment: Alignment.centerLeft,
-                        margin: EdgeInsets.symmetric(horizontal: 50),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: EdgeInsets.symmetric(vertical: 12),
-                              child: Text(
-                                "Password",
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ),
-                            Container(
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(12)),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black,
-                                    blurRadius: 10,
-                                    offset: Offset(2, 2),
-                                  )
-                                ],
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 5,
-                                  ),
-                                  Expanded(
-                                    child: TextFormField(
-                                      enableSuggestions: false,
-                                      autocorrect: false,
-                                      controller: _passwordController,
-                                      obscureText: true,
-                                      decoration: InputDecoration(
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                                vertical: 10),
-                                        border: InputBorder.none,
-                                        hintText: "Password",
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              ),
-                            )
-                          ],
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.black, width: 1.5),
                         ),
+                        contentPadding:
+                        EdgeInsets.symmetric(vertical: 10, horizontal: 12),
                       ),
+                      keyboardType: TextInputType.emailAddress,
+                    ),
+                  ),
 
-                      // Submit button
-                      const Gap(10),
-                      TextButton(
+                  const Gap(20),
+
+                  // Password Field
+                  Container(
+                    width: fieldWidth,
+                    child: TextFormField(
+                      enableSuggestions: false,
+                      autocorrect: false,
+                      controller: _passwordController,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        labelStyle: TextStyle(color: Colors.black),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.black, width: 1.5),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.black, width: 1.5),
+                        ),
+                        contentPadding:
+                        EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                      ),
+                    ),
+                  ),
+
+                  const Gap(20),
+
+                  // Forgot Password Link
+                  TextButton(
                     onPressed: () {
                       Navigator.push(
-                         context,
-                        MaterialPageRoute(builder: (context) => ForgotPasswordPage()),
-    );
-  },
-  child: Text(
-    'Forgot Password?',
-    style: TextStyle(
-      color: Styles.blueColor,
-    ),
-  ),
-),
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ForgotPasswordPage()),
+                      );
+                    },
+                    child: Text(
+                      'Forgotten Password?',
+                      style: TextStyle(
+                        color: Styles.blueColor,
+                      ),
+                    ),
+                  ),
 
-                      const Gap(40),
+                  const Gap(20),
 
-                      Container(
-                        height: 40,
-                        width: 200,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
+                  // Login Button
+                  Container(
+                    width: fieldWidth,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: _signIn,
+                      style: ElevatedButton.styleFrom(
+                        elevation: 0,
+                        backgroundColor: Styles.blueColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        'Login',
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const Gap(10),
+
+                  if (_loginError)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Text(
+                        'Username or password is wrong',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+
+                  const Gap(50),
+
+                  // Sign Up Section
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Don't have an account?",
+                        style: TextStyle(
+                          color: Colors.black,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => Loginas()),
+                          );
+                        },
+                        child: Text(
+                          'Sign Up',
+                          style: TextStyle(
                             color: Styles.blueColor,
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Colors.black,
-                                  blurRadius: 10,
-                                  offset: Offset(2, 2)),
-                            ]),
-                        child: ElevatedButton(
-                          onPressed: _signIn,
-                          style: ElevatedButton.styleFrom(
-                            // Set button background color to transparent
-                            elevation: 0, // Remove button elevation
-                          ),
-                          child: Text(
-                            'Login',
-                            style: TextStyle(
-                              color: Styles.blueColor,
-                            ),
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
-
-                      if (_loginError)
-                        Text(
-                          'Username or password is wrong',
-                          style: TextStyle(color: Colors.red),
-                        ),
-                      const Gap(200),
-                      // Forgot password link
-
-                      // Signup button
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "Don't have an account?",
-                          ),
-                          const Gap(10),
-                          Container(
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                color: Styles.blueColor,
-                                boxShadow: [
-                                  BoxShadow(
-                                      color: Colors.black,
-                                      blurRadius: 10,
-                                      offset: Offset(2, 2)),
-                                ]),
-                            child: ElevatedButton(
-                              style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.all(Colors
-                                      .transparent), // Make button transparent
-                                  shape: MaterialStateProperty.all<
-                                          RoundedRectangleBorder>(
-                                      RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                  ))),
-                              onPressed: () {
-                                // Navigate to the signup page
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => Loginas()),
-                                );
-                              },
-                              child: Text(
-                                'Sign Up',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      )
                     ],
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -284,57 +208,57 @@ class _loginpageState extends State<loginpage> {
   void _signIn() async {
     try {
       final user = await _auth.LoginWithEmailAndPassword(
-          _emailController.text, _passwordController.text);
+        _emailController.text,
+        _passwordController.text,
+      );
 
-      // Navigate to home page if login is successful
       if (user != null) {
-
-
         route();
       } else {
-        // Handle unsuccessful login
         setState(() {
           _loginError = true;
         });
         print("Some error occurred during login");
       }
     } catch (e) {
-      // Handle errors
       print("Error during login: $e");
-      // Show error message on the screen
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Error: $e'),
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+        ),
+      );
     }
   }
 
   void route() {
     User? user = FirebaseAuth.instance.currentUser;
-    var kk = FirebaseFirestore.instance
+    FirebaseFirestore.instance
         .collection('users')
         .doc(user!.uid)
         .get()
         .then((DocumentSnapshot documentSnapshot) {
       if (documentSnapshot.exists) {
-        if (documentSnapshot.get('roll') == 'Community' && 'status' == 'pending') {
-
+        if (documentSnapshot.get('roll') == 'Community' &&
+            documentSnapshot.get('status') == 'pending') {
           ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Admin not approved yet,Please contact the admin')));
-          print("log");
-
-
-        } else if (documentSnapshot.get('roll') == 'student'){
+            SnackBar(
+              content: Text('Admin not approved yet, Please contact the admin'),
+            ),
+          );
+        } else if (documentSnapshot.get('roll') == 'student') {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) => HomePage(),
             ),
           );
-        } else{
+        } else {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => SocHomePage(userId: documentSnapshot.id,),
+              builder: (context) => SocHomePage(
+                userId: documentSnapshot.id,
+              ),
             ),
           );
         }

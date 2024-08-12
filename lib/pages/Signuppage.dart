@@ -1,8 +1,6 @@
-import 'dart:ui';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
-
 import 'package:gap/gap.dart';
 import 'package:universe2024/Utiles/app_styles.dart';
 import 'package:universe2024/pages/firebase.dart';
@@ -40,173 +38,174 @@ class _SignupPageState extends State<SignupPage> {
 
   @override
   Widget build(BuildContext context) {
+    final double fieldWidth = MediaQuery.of(context).size.width * 0.85;
+
     return Scaffold(
-      backgroundColor: Styles.bgColor,
-      body: SingleChildScrollView(
-        physics: AlwaysScrollableScrollPhysics(),
-        child: SizedBox(
-          height: MediaQuery.of(context).size.height,
-          child: Stack(
-            children: [
-              Align(
-                alignment: const AlignmentDirectional(20, -1.2),
-                child: Container(
-                  height: MediaQuery.of(context).size.width,
-                  width: MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Styles.yellowColor,
+      backgroundColor: Colors.white,
+      body: Stack(
+        children: [
+          // Top Corner Logo
+          Positioned(
+            top: 45,
+            right: 20,
+            child: Image.asset(
+              'assets/EventOn.png',
+              width: 100, // Adjust size as needed
+            ),
+          ),
+
+          // Centered Content
+          Center(
+            child: SingleChildScrollView(
+              physics: BouncingScrollPhysics(),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Gap(150),  // Adjust the gap to push content down
+
+                  // Name Field
+                  Container(
+                    width: fieldWidth,
+                    child: _buildTextField("Name", _nameController),
                   ),
-                ),
-              ),
-              Align(
-                alignment: const AlignmentDirectional(-2.7, -1.2),
-                child: Container(
-                  height: MediaQuery.of(context).size.width / 1.3,
-                  width: MediaQuery.of(context).size.width / 1.3,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Styles.blueColor,
+
+                  const Gap(20),
+
+                  // Email Field
+                  Container(
+                    width: fieldWidth,
+                    child: _buildTextField("Email", _emailController),
                   ),
-                ),
-              ),
-              Align(
-                alignment: const AlignmentDirectional(2.7, -1.2),
-                child: Container(
-                  height: MediaQuery.of(context).size.width / 1.3,
-                  width: MediaQuery.of(context).size.width / 1.3,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Styles.lblueColor,
+
+                  const Gap(20),
+
+                  // Password Field
+                  Container(
+                    width: fieldWidth,
+                    child: _buildTextField("Password", _passwordController),
                   ),
-                ),
-              ),
-              BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 100.0, sigmaY: 100.0),
-                child: Container(),
-              ),
-              Align(
-                alignment: Alignment.topCenter,
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 50),
-                    child: Column(
-                      children: [
-                        const Gap(70),
-                        Text(
-                          "Sign-Up",
+
+                  const Gap(20),
+
+                  // Confirm Password Field
+                  Container(
+                    width: fieldWidth,
+                    child: _buildTextField("Confirm Password", _ConpasswordController),
+                  ),
+
+                  const Gap(20),
+
+                  // Mobile Number Field
+                  Container(
+                    width: fieldWidth,
+                    child: _buildTextField("Mobile Number", _mobileNumberController),
+                  ),
+
+                  const Gap(20),
+
+                  // College Name Field
+                  Container(
+                    width: fieldWidth,
+                    child: _buildTextField("College Name", _collegeNameController),
+                  ),
+
+                  const Gap(20),
+
+                  // Submit Button
+                  Container(
+                    width: fieldWidth,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: _signUp,
+                      style: ElevatedButton.styleFrom(
+                        elevation: 0,
+                        backgroundColor: Styles.blueColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        'Submit',
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const Gap(10),
+
+                  // Error Text
+                  if (_errorText.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Text(
+                        _errorText,
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+
+                  const Gap(50),
+
+                  // Sign In Section
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Already have an account?",
+                        style: TextStyle(
+                          color: Colors.black,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => loginpage()),
+                          );
+                        },
+                        child: Text(
+                          'Sign In',
                           style: TextStyle(
-                            fontSize: 25,
-                            color: Colors.white,
+                            color: Styles.blueColor,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const Gap(30),
-                        _buildTextField("Name", _nameController),
-                        const Gap(10),
-                        _buildTextField("Email", _emailController),
-                        const Gap(10),
-                        _buildTextField("Password", _passwordController),
-                        const Gap(10),
-                        _buildTextField(
-                            "Confirm Password", _ConpasswordController),
-                        const Gap(10),
-                        _buildTextField(
-                            "Mobile Number", _mobileNumberController),
-                        const Gap(10),
-                        _buildTextField("College Name", _collegeNameController),
-                        const Gap(50),
-                        ElevatedButton(
-                          onPressed: _signUp,
-                          child: Text(
-                            'Submit',
-                            style: TextStyle(fontSize: 16, color: Colors.white),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Styles.blueColor,
-                            padding: EdgeInsets.symmetric(
-                                vertical: 15, horizontal: 40),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                          ),
-                        ),
-                        Gap(60),
-                        Text("Already have an Account??"),
-                        Gap(10),
-                        ElevatedButton(
-                          onPressed: () {
-                            // Navigate to the signup page
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => loginpage()),
-                            );
-                          },
-                          child: Text(
-                            'Sign In',
-                            style: TextStyle(
-                              color: Styles.blueColor,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
 
   Widget _buildTextField(String label, TextEditingController controller) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 50),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
+      child: TextFormField(
+        controller: controller,
+        obscureText: label == 'Password' || label == 'Confirm Password',
+        enableSuggestions: false,
+        autocorrect: false,
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(color: Colors.black),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.black, width: 1.5),
           ),
-          Container(
-            height: 35,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.all(Radius.circular(12)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black,
-                  blurRadius: 10,
-                  offset: Offset(2, 2),
-                )
-              ],
-            ),
-            child: TextFormField(
-              controller: controller,
-              obscureText: label == 'Password' || label == 'Confirm Password',
-              enableSuggestions: false,
-              autocorrect: false,
-              decoration: InputDecoration(
-                contentPadding:
-                    const EdgeInsets.symmetric(vertical: 17, horizontal: 10),
-                border: InputBorder.none,
-                hintText: label,
-                hintStyle: TextStyle(fontSize: 13),
-              ),
-            ),
-          )
-        ],
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.black, width: 1.5),
+          ),
+          contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+        ),
+        keyboardType: label == 'Mobile Number'
+            ? TextInputType.phone
+            : TextInputType.text,
       ),
     );
   }
@@ -232,8 +231,9 @@ class _SignupPageState extends State<SignupPage> {
       return;
     }
     if (password != Confirmpassword) {
-      _errorText = 'Enter same password';
-      print("helo");
+      setState(() {
+        _errorText = 'Passwords do not match';
+      });
     } else {
       try {
         // Perform sign up

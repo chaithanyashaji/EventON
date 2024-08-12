@@ -192,11 +192,6 @@ class _AddEventPageState extends State<AddEvent> {
       child: Stack(
         children: [
           Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(15),
-              border: Border.all(color: Colors.black, width: 1.5),
-            ),
             child: TextFormField(
               controller: controller,
               style: const TextStyle(color: Colors.black, fontSize: 16),
