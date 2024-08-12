@@ -26,8 +26,8 @@ class _HomePageState extends State<HomePage> {
   static List<Widget> _widgetOptions = <Widget>[
     searchpage1(),
     searchpage(),
-    Profile(),
-    MyEventsPage(), // Add My Events page to the widget options
+    MyEventsPage(),
+    Profile(),// Add My Events page to the widget options
   ];
 
   void _onItemTapped(int index) {
@@ -42,7 +42,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: Colors.white, // Set the entire background color to white
       appBar: AppBar(
-        backgroundColor: Colors.white, // AppBar background color
+        backgroundColor: Colors.transparent, // AppBar background color
         elevation: 0,
         actions: [
           IconButton(
@@ -118,12 +118,12 @@ class _HomePageState extends State<HomePage> {
                 label: 'Search',
               ),
               BottomNavigationBarItem(
-                icon: _buildIcon(Icons.person, 2),
-                label: 'Profile',
+                icon: _buildIcon(Icons.event, 2),
+                label: 'My Events',
               ),
               BottomNavigationBarItem(
-                icon: _buildIcon(Icons.event, 3),
-                label: 'My Events',
+                icon: _buildIcon(Icons.person, 3),
+                label: 'Profile',
               ),
             ],
             currentIndex: _selectedIndex,
@@ -176,50 +176,6 @@ class HomeContent extends StatelessWidget {
     return SingleChildScrollView(
       child: Column(
         children: [
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.3,
-            child: Stack(
-              children: [
-                Align(
-                  alignment: const AlignmentDirectional(20, -1.2),
-                  child: Container(
-                    height: MediaQuery.of(context).size.width,
-                    width: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                Align(
-                  alignment: const AlignmentDirectional(-2.7, -1.2),
-                  child: Container(
-                    height: MediaQuery.of(context).size.width / 1.3,
-                    width: MediaQuery.of(context).size.width / 1.3,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                Align(
-                  alignment: const AlignmentDirectional(2.7, -1.2),
-                  child: Container(
-                    height: MediaQuery.of(context).size.width / 1.3,
-                    width: MediaQuery.of(context).size.width / 1.3,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 100.0, sigmaY: 100.0),
-                  child: Container(),
-                ),
-              ],
-            ),
-          ),
           Column(
             children: [
               const SizedBox(height: 20),
@@ -253,10 +209,17 @@ class HomeContent extends StatelessWidget {
                             margin: const EdgeInsets.symmetric(horizontal: 5),
                             child: Column(
                               children: [
-                                Image.asset(
-                                  'assets/3.jpeg',
-                                  height: 210,
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(15), // Adjust the radius as needed
+                                  child: Image.asset(
+                                    'assets/3.jpeg',
+                                    height: 210,
+                                    width: 210, // Ensure width matches height to maintain aspect ratio
+                                    fit: BoxFit.cover, // Adjusts the image to cover the container
+                                  ),
                                 ),
+
+                                Gap(5),
                                 Text('Event ${index + 1}', style: TextStyle(fontSize: 18)),
                               ],
                             ),
@@ -268,18 +231,10 @@ class HomeContent extends StatelessWidget {
                 ),
               ),
               Container(
-                margin: const EdgeInsets.symmetric(vertical: 10),
+                margin: const EdgeInsets.symmetric(vertical: 10,horizontal: 20),
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Colors.white, // White background for the Upcoming Events container
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black26,
-                      offset: Offset(0, 5),
-                      blurRadius: 10,
-                    ),
-                  ],
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

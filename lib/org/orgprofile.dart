@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:gap/gap.dart';
 import 'package:universe2024/Utiles/app_styles.dart';
 import 'package:universe2024/pages/loginpage.dart';
-import 'package:universe2024/org/editdetails.dart'; // Import the new form
+import 'package:universe2024/org/editdetails.dart';
 
 class OrgProfile extends StatefulWidget {
   const OrgProfile({Key? key}) : super(key: key);
@@ -92,7 +92,7 @@ class _OrgProfileState extends State<OrgProfile> {
       appBar: AppBar(
         backgroundColor: Colors.black,
         title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween, // Aligns children to the ends
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
               'Community Profile',
@@ -132,406 +132,125 @@ class _OrgProfileState extends State<OrgProfile> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
-                  height: 350,
-                  child: Stack(
+                Container(
+                  alignment: Alignment.center,
+                  padding: EdgeInsets.all(16.0),
+                  child: Column(
                     children: [
-                      ClipRRect(
-                        borderRadius: const BorderRadius.only(
-                            bottomLeft: Radius.circular(25),
-                            bottomRight: Radius.circular(25)),
-                        child: Container(
-                          width: MediaQuery.of(context).size.width,
-                          height: 150,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                                image: AssetImage('assets/ieeebanner.jpeg'),
-                                fit: BoxFit.cover),
-                          ),
-                        ),
+                      CircleAvatar(
+                        radius: 60,
+                        backgroundImage: AssetImage('assets/ieeeprofile.jpeg'),
                       ),
-                      Positioned(
-                        top: 115,
-                        left: 120,
-                        child: Container(
-                          width: 300,
-                          height: 70,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: Styles.yellowColor,
-                              width: 2,
-                            ),
-                          ),
-                          child: Center(
-                            child: Text(
-                              '$name',
-                              style: TextStyle(
-                                  color: Styles.blueColor,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        top: 90,
-                        left: 50,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Styles.yellowColor,
-                              width: 2,
-                            ),
-                          ),
-                          child: CircleAvatar(
-                            radius: 60,
-                            backgroundImage:
-                            AssetImage('assets/ieeeprofile.jpeg'),
-                          ),
+                      SizedBox(height: 10),
+                      Text(
+                        '$name',
+                        style: TextStyle(
+                          color: Styles.blueColor,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
                   ),
                 ),
-                SizedBox(
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              margin: const EdgeInsets.only(left: 27.0),
-                              child: Icon(
-                                Icons.note_alt_outlined,
-                                color: Styles.blueColor,
-                              ),
+                      Row(
+                        children: [
+                          Icon(Icons.note_alt_outlined, color: Styles.blueColor),
+                          Gap(8),
+                          Text(
+                            'About us',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Styles.blueColor,
                             ),
-                            Gap(3),
-                            Text(
-                              'About us',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                                color: Styles.blueColor,
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                       SizedBox(height: 10),
                       Container(
-                        margin: const EdgeInsets.only(left: 27.0),
-                        width: 450,
                         decoration: BoxDecoration(
-                          border:
-                          Border.all(width: 1, color: Styles.yellowColor),
+                          border: Border.all(width: 1, color: Styles.yellowColor),
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(13),
                         ),
-                        child: Padding(
-                          padding: EdgeInsets.all(20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Community Name  :  $name',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Styles.blueColor,
-                                        ),
-                                      ),
-                                      Gap(5),
-                                      Text(
-                                        'Email  :  $email',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Styles.blueColor,
-                                        ),
-                                      ),
-                                      Gap(5),
-                                      Text(
-                                        'Phone Number  : $mobileNumber',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Styles.blueColor,
-                                        ),
-                                      ),
-                                      Gap(5),
-                                      Text(
-                                        'College Name  :  $collegeName',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Styles.blueColor,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              const Gap(10),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Container(
-                                    alignment: Alignment.center,
-                                    child: TextButton(
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => EditDetailsForm(userData: userData),
-                                          ),
-                                        );
-                                      },
-                                      child: Row(
-                                        mainAxisAlignment:
-                                        MainAxisAlignment.center,
-                                        children: [
-                                          Icon(Icons.add,
-                                              color: Styles.blueColor),
-                                          Text(
-                                            'Edit Details',
-                                            style: TextStyle(
-                                              color: Styles.blueColor,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Gap(30),
-                      Container(
-                        margin: const EdgeInsets.only(left: 29.0),
-                        child: Text(
-                          'Upcoming Events',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                            color: Styles.blueColor,
-                          ),
-                        ),
-                      ),
-                      Gap(10),
-                      StreamBuilder<List<Map<String, dynamic>>>(
-                        stream: _eventsStream,
-                        builder: (BuildContext context,
-                            AsyncSnapshot<List<Map<String, dynamic>>>
-                            eventSnapshot) {
-                          if (eventSnapshot.hasError) {
-                            return Center(
-                                child: Text('Error: ${eventSnapshot.error}'));
-                          }
-                          if (eventSnapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return Center(child: CircularProgressIndicator());
-                          }
-
-                          final events = eventSnapshot.data ?? [];
-                          return Container(
-                            margin: const EdgeInsets.only(left: 27.0),
-                            height: 300,
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                  width: 1, color: Styles.yellowColor),
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(13),
+                        padding: EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Community Name: $name',
+                              style: TextStyle(fontSize: 16, color: Styles.blueColor),
                             ),
-                            child: SizedBox(
-                              height: 280,
-                              child: ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                itemCount: events.length,
-                                itemBuilder: (context, index) {
-                                  final event = events[index];
-                                  return Container(
-                                    margin: const EdgeInsets.symmetric(
-                                        horizontal: 5),
-                                    width: 200,
-                                    child: Card(
-                                      margin: EdgeInsets.only(
-                                          left: 10,
-                                          right: 10,
-                                          top: 15,
-                                          bottom: 15),
-                                      elevation: 3,
-                                      child: Column(
-                                        mainAxisAlignment:
-                                        MainAxisAlignment.center,
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Column(
-                                              children: [
-                                                Image.asset('assets/12.jpg',
-                                                    height: 125),
-                                                const SizedBox(height: 10),
-                                                Text(
-                                                  event['eventName'],
-                                                  style: TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 5),
-                                                Text(
-                                                  'Date: ${event['eventDate']}\nLocation: ${event['eventLocation']}\nPrice: ${event['eventPrice']}',
-                                                  style: TextStyle(
-                                                    fontSize: 14,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
+                            Gap(5),
+                            Text(
+                              'Email: $email',
+                              style: TextStyle(fontSize: 16, color: Styles.blueColor),
                             ),
-                          );
-                        },
-                      ),
-                      Gap(30),
-                      Container(
-                        margin: const EdgeInsets.only(left: 29.0),
-                        child: Text(
-                          'All Events',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                            color: Styles.blueColor,
-                          ),
-                        ),
-                      ),
-                      Gap(10),
-                      StreamBuilder<List<Map<String, dynamic>>>(
-                        stream: _allEventsStream,
-                        builder: (BuildContext context,
-                            AsyncSnapshot<List<Map<String, dynamic>>>
-                            allEventsSnapshot) {
-                          if (allEventsSnapshot.hasError) {
-                            return Center(
-                                child:
-                                Text('Error: ${allEventsSnapshot.error}'));
-                          }
-                          if (allEventsSnapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return Center(child: CircularProgressIndicator());
-                          }
-
-                          final allEvents = allEventsSnapshot.data ?? [];
-                          return Container(
-                            margin: const EdgeInsets.only(left: 27.0),
-                            height: 300,
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                  width: 1, color: Styles.yellowColor),
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(13),
+                            Gap(5),
+                            Text(
+                              'Phone Number: $mobileNumber',
+                              style: TextStyle(fontSize: 16, color: Styles.blueColor),
                             ),
-                            child: SizedBox(
-                              height: 280,
-                              child: ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                itemCount: allEvents.length,
-                                itemBuilder: (context, index) {
-                                  final event = allEvents[index];
-                                  return Container(
-                                    margin: const EdgeInsets.symmetric(
-                                        horizontal: 5),
-                                    width: 200,
-                                    child: Card(
-                                      margin: EdgeInsets.only(
-                                          left: 10,
-                                          right: 10,
-                                          top: 15,
-                                          bottom: 15),
-                                      elevation: 3,
-                                      child: Column(
-                                        mainAxisAlignment:
-                                        MainAxisAlignment.center,
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Column(
-                                              children: [
-                                                Image.asset('assets/3.jpeg',
-                                                    height: 125),
-                                                const SizedBox(height: 10),
-                                                Text(
-                                                  event['eventName'],
-                                                  style: TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 5),
-                                                Text(
-                                                  'Date: ${event['eventDate']}\nLocation: ${event['eventLocation']}\nPrice: ${event['eventPrice']}',
-                                                  style: TextStyle(
-                                                    fontSize: 14,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
+                            Gap(5),
+                            Text(
+                              'College Name: $collegeName',
+                              style: TextStyle(fontSize: 16, color: Styles.blueColor),
                             ),
-                          );
-                        },
-                      ),
-                      Gap(30),
-                      Center(
-                        child: Container(
-                          width: 150,
-                          height: 40,
-                          child: Material(
-                            elevation: 8,
-                            borderRadius: BorderRadius.circular(25),
-                            child: SizedBox(
+                            Gap(10),
+                            Center(
                               child: ElevatedButton(
                                 onPressed: () {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => loginpage()),
+                                      builder: (context) => EditDetailsForm(userData: userData),
+                                    ),
                                   );
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Styles.blueColor,
                                 ),
-                                child: Text(
-                                  'Logout',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                  ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.edit, color: Colors.white),
+                                    SizedBox(width: 5),
+                                    Text(
+                                      'Edit Details',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ],
                                 ),
                               ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Gap(100),
+                      Center(
+                        child: SizedBox(
+                          width: 150,
+                          height: 40,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => loginpage()),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Styles.blueColor,
+                            ),
+                            child: Text(
+                              'Logout',
+                              style: TextStyle(color: Colors.white),
                             ),
                           ),
                         ),

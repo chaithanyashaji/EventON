@@ -72,6 +72,7 @@ class _EditEventScreenState extends State<EditEventScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+
         title: Text("Edit Event"),
       ),
       body: Padding(

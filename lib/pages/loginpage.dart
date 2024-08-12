@@ -41,50 +41,13 @@ class _loginpageState extends State<loginpage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Styles.bgColor,
+      backgroundColor:Colors.white,
       body: SingleChildScrollView(
         physics: BouncingScrollPhysics(),
         child: SizedBox(
           height: MediaQuery.of(context).size.height,
           child: Stack(
             children: [
-              Align(
-                alignment: const AlignmentDirectional(20, -1.2),
-                child: Container(
-                  height: MediaQuery.of(context).size.width,
-                  width: MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Styles.yellowColor,
-                  ),
-                ),
-              ),
-              Align(
-                alignment: const AlignmentDirectional(-2.7, -1.2),
-                child: Container(
-                  height: MediaQuery.of(context).size.width / 1.3,
-                  width: MediaQuery.of(context).size.width / 1.3,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Styles.blueColor,
-                  ),
-                ),
-              ),
-              Align(
-                alignment: const AlignmentDirectional(2.7, -1.2),
-                child: Container(
-                  height: MediaQuery.of(context).size.width / 1.3,
-                  width: MediaQuery.of(context).size.width / 1.3,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Styles.lblueColor,
-                  ),
-                ),
-              ),
-              BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 100.0, sigmaY: 100.0),
-                child: Container(),
-              ),
               Align(
                 alignment: Alignment.topRight,
                 child: SizedBox(
@@ -96,7 +59,7 @@ class _loginpageState extends State<loginpage> {
                         "Sign-In",
                         style: TextStyle(
                           fontSize: 25,
-                          color: Colors.white,
+                          color: Colors.black,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -115,7 +78,7 @@ class _loginpageState extends State<loginpage> {
                                 style: TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                                  color: Colors.black,
                                 ),
                               ),
                             ),
@@ -123,14 +86,9 @@ class _loginpageState extends State<loginpage> {
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius:
+                                    Border.all(color: Colors.black),
                                     BorderRadius.all(Radius.circular(12)),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black,
-                                    blurRadius: 10,
-                                    offset: Offset(2, 2),
-                                  )
-                                ],
+
                               ),
                               child: Row(
                                 children: [
@@ -170,7 +128,7 @@ class _loginpageState extends State<loginpage> {
                                 style: TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                                  color: Colors.black,
                                 ),
                               ),
                             ),
@@ -218,9 +176,9 @@ class _loginpageState extends State<loginpage> {
                       const Gap(10),
                       TextButton(
                     onPressed: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => ForgotPasswordPage()),
+                      Navigator.push(
+                         context,
+                        MaterialPageRoute(builder: (context) => ForgotPasswordPage()),
     );
   },
   child: Text(

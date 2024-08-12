@@ -45,8 +45,11 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Details'),
-        backgroundColor: Styles.blueColor,
+        iconTheme: IconThemeData(
+          color: Colors.white, //change your color here
+        ),
+        title: Text('Edit Details',style: TextStyle(color:Colors.white),),
+        backgroundColor: Colors.black,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -64,17 +67,6 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
                   return null;
                 },
                 onSaved: (value) => name = value!,
-              ),
-              TextFormField(
-                initialValue: email,
-                decoration: InputDecoration(labelText: 'Email'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
-                  }
-                  return null;
-                },
-                onSaved: (value) => email = value!,
               ),
               TextFormField(
                 initialValue: mobileNumber,
@@ -108,7 +100,7 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
                   }
                 },
                 style: ElevatedButton.styleFrom(backgroundColor: Styles.blueColor),
-                child: Text('Save Changes'),
+                child: Text('Save',style: TextStyle(color: Colors.white),),
               ),
             ],
           ),

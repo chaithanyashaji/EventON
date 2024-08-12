@@ -2,73 +2,52 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:gap/gap.dart';
-import 'package:universe2024/Utiles/app_styles.dart';
-import 'package:universe2024/pages/loginpage.dart'; // Ensure this is correctly imported
+import 'package:universe2024/Utiles/app_styles.dart'; // Ensure this import is correct
+import 'package:universe2024/pages/loginpage.dart'; // Ensure this import is correct
 
 class Profile extends StatefulWidget {
-  const Profile({Key? key});
+  const Profile({Key? key}) : super(key: key);
 
   @override
   State<Profile> createState() => _ProfileState();
 }
 
 class _ProfileState extends State<Profile> {
-  late Stream<DocumentSnapshot> _stream;
+  Stream<DocumentSnapshot>? _stream;
 
   @override
   void initState() {
     super.initState();
     final currentUserUid = FirebaseAuth.instance.currentUser?.uid;
-    _stream = FirebaseFirestore.instance
-        .collection('users')
-        .doc(currentUserUid)
-        .snapshots();
+    if (currentUserUid != null) {
+      _stream = FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUserUid)
+          .snapshots();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Styles.yellowColor,
-                Styles.lblueColor,
-                Styles.blueColor,
-              ],
-            ),
-          ),
-        ),
-        title: Text(
-          'Profile',
-          style: TextStyle(
-              color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
-        ),
-        leading: SizedBox(
-          width: 800,
-          height: double.infinity,
-          child: Image.asset(
-            'assets/logowhite.png',
-            fit: BoxFit.fitHeight,
-          ),
-        ),
-        backgroundColor: Styles.blueColor,
-      ),
       backgroundColor: Colors.white,
-      body: StreamBuilder<DocumentSnapshot>(
+      body: _stream == null
+          ? Center(child: Text('No user data found.'))
+          : StreamBuilder<DocumentSnapshot>(
         stream: _stream,
         builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           }
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
 
-          final userData = snapshot.data?.data() as Map<String, dynamic>;
+          if (!snapshot.hasData || !snapshot.data!.exists) {
+            return Center(child: Text('No user data found.'));
+          }
+
+          final userData = snapshot.data!.data() as Map<String, dynamic>;
           final name = userData['name'] ?? '';
           final email = userData['email'] ?? '';
           final phoneNumber = userData['phoneNumber'] ?? '';
@@ -165,76 +144,65 @@ class _ProfileState extends State<Profile> {
                               ),
                               const Gap(5),
                               Text(
-                                'Community Member  :  $communityMember',
+                                'Community Name  :  $communityMember',
                                 style: TextStyle(
                                     fontSize: 16,
                                     color: Styles.blueColor),
                               ),
                               const Gap(5),
                               Text(
-                                'IEEE Membership ID  :  $ieeeMembershipId',
+                                'Membership ID  :  $ieeeMembershipId',
                                 style: TextStyle(
                                     fontSize: 16,
                                     color: Styles.blueColor),
                               ),
+                              Gap(5),
+                              Center(
+                                child: ElevatedButton.icon(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => EditDetailsForm(userData: userData),
+                                      ),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Styles.blueColor,
+                                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(17),
+                                    ),
+                                  ),
+                                  icon: Icon(Icons.edit, color: Colors.white),
+                                  label: Text('Edit Details', style: TextStyle(color: Colors.white)),
+                                ),
+                              ),
+
                             ],
                           ),
                         ),
                       ),
                     ],
                   ),
-                  const Gap(20),
-                  Container(
+                  const Gap(100), // Gap between buttons
+                  SizedBox(
                     width: 150,
                     height: 40,
-                    child: Material(
-                      elevation: 8,
-                      borderRadius: BorderRadius.circular(25),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => EditDetailsForm(
-                                userData: userData,
-                              ),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Styles.blueColor,
-                        ),
-                        child: Text(
-                          'Edit Details',
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const loginpage()),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Styles.blueColor,
                       ),
-                    ),
-                  ),
-                  const Gap(20), // Gap between buttons
-                  Container(
-                    width: 150,
-                    height: 40,
-                    child: Material(
-                      elevation: 8,
-                      borderRadius: BorderRadius.circular(25),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => loginpage()),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Styles.blueColor,
-                        ),
-                        child: Text(
-                          'Logout',
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
+                      child: const Text(
+                        'Logout',
+                        style: TextStyle(
+                          color: Colors.white,
                         ),
                       ),
                     ),
@@ -249,7 +217,6 @@ class _ProfileState extends State<Profile> {
     );
   }
 }
-
 
 class EditDetailsForm extends StatefulWidget {
   final Map<String, dynamic> userData;
@@ -302,7 +269,10 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Details'),
+        iconTheme: IconThemeData(
+          color: Colors.white, //change your color here
+        ),
+        title: const Text('Edit Details', style: TextStyle(color: Colors.white)),
         backgroundColor: Styles.blueColor,
       ),
       body: Padding(
@@ -313,7 +283,7 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
             children: [
               TextFormField(
                 initialValue: _name,
-                decoration: InputDecoration(labelText: 'Name'),
+                decoration: const InputDecoration(labelText: 'Name'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your name';
@@ -325,19 +295,8 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
                 },
               ),
               TextFormField(
-                initialValue: _email,
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                  labelStyle: TextStyle(color: Colors.grey),
-                  disabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey, width: 1.0),
-                  ),
-                ),
-                enabled: false,
-              ),
-              TextFormField(
                 initialValue: _phoneNumber,
-                decoration: InputDecoration(labelText: 'Phone Number'),
+                decoration: const InputDecoration(labelText: 'Phone Number'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your phone number';
@@ -350,7 +309,7 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
               ),
               TextFormField(
                 initialValue: _collegeName,
-                decoration: InputDecoration(labelText: 'College Name'),
+                decoration: const InputDecoration(labelText: 'College Name'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your college name';
@@ -363,27 +322,27 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
               ),
               TextFormField(
                 initialValue: _communityMember,
-                decoration: InputDecoration(labelText: 'Community Member'),
+                decoration: const InputDecoration(labelText: 'Community Member'),
                 onSaved: (value) {
                   _communityMember = value!;
                 },
               ),
               TextFormField(
                 initialValue: _ieeeMembershipId,
-                decoration: InputDecoration(labelText: 'IEEE Membership ID'),
+                decoration: const InputDecoration(labelText: 'IEEE Membership ID'),
                 onSaved: (value) {
                   _ieeeMembershipId = value!;
                 },
               ),
               const Gap(20),
-              Container(
+              SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: _saveDetails,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Styles.blueColor,
                   ),
-                  child: Text(
+                  child: const Text(
                     'Save',
                     style: TextStyle(color: Colors.white),
                   ),

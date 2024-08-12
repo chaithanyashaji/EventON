@@ -9,10 +9,10 @@ class searchpage extends StatefulWidget {
   const searchpage({Key? key}) : super(key: key);
 
   @override
-  State<searchpage> createState() => _searchpageState();
+  State<searchpage> createState() => _SearchPageState();
 }
 
-class _searchpageState extends State<searchpage> {
+class _SearchPageState extends State<searchpage> {
   late String searchQuery;
 
   @override
@@ -49,22 +49,13 @@ class _searchpageState extends State<searchpage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(60.0),
+        preferredSize: const Size.fromHeight(60.0),
         child: AppBar(
           backgroundColor: Colors.white,
           flexibleSpace: Container(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.vertical(
+              borderRadius: const BorderRadius.vertical(
                 bottom: Radius.circular(12),
-              ),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Styles.blueColor,
-                  Styles.lblueColor,
-                  Styles.yellowColor
-                ],
               ),
             ),
             child: Padding(
@@ -73,29 +64,27 @@ class _searchpageState extends State<searchpage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const Gap(23),
-                  SizedBox(
-                    height: 8.0,
-                  ),
-                  TextField(
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.white70,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                        borderSide: BorderSide.none,
+                  Expanded( // Expanded ensures the TextField takes available space
+                    child: TextField(
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.black,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                          borderSide: BorderSide.none,
+                        ),
+                        hintText: "Search",
+                        hintStyle: const TextStyle(fontSize: 20.0,color: Colors.white),
+                        prefixIcon: const Icon(Icons.search, size: 30.0),
+                        prefixIconColor: Colors.white,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 10.0),
                       ),
-                      hintText: "Search",
-                      hintStyle: TextStyle(fontSize: 20.0),
-                      prefixIcon: Icon(Icons.search, size: 30.0),
-                      prefixIconColor: Colors.black38,
-                      contentPadding: EdgeInsets.symmetric(vertical: 10.0),
+                      onChanged: (val) {
+                        setState(() {
+                          searchQuery = val;
+                        });
+                      },
                     ),
-                    onChanged: (val) {
-                      setState(() {
-                        searchQuery = val;
-                      });
-                    },
                   ),
                 ],
               ),
@@ -107,7 +96,7 @@ class _searchpageState extends State<searchpage> {
         future: _fetchData(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
+            return const Center(
               child: CircularProgressIndicator(),
             );
           } else if (snapshot.hasError) {
@@ -115,7 +104,7 @@ class _searchpageState extends State<searchpage> {
               child: Text('Error: ${snapshot.error}'),
             );
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(
+            return const Center(
               child: Text('No results found'),
             );
           } else {
@@ -150,32 +139,28 @@ class _searchpageState extends State<searchpage> {
                     }
                   },
                   child: ListTile(
-                    title: Flexible(
-                      child: Text(
-                        combinedResults[index].reference.parent.id == 'users'
-                            ? data['name']
-                            : data['eventName'],
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: Colors.black54,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    title: Text(
+                      combinedResults[index].reference.parent.id == 'users'
+                          ? data['name']
+                          : data['eventName'],
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.black54,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    subtitle: Flexible(
-                      child: Text(
-                        combinedResults[index].reference.parent.id == 'event'
-                            ? data['eventLocation']
-                            : data['collegeName'],
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: Colors.black54,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    subtitle: Text(
+                      combinedResults[index].reference.parent.id == 'event'
+                          ? data['eventLocation']
+                          : data['collegeName'],
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.black54,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
