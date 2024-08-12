@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:universe2024/Utiles/app_styles.dart';
 import 'package:gap/gap.dart';
-import 'package:universe2024/org/1.dart';
+
 
 import 'package:universe2024/org/addevent.dart';
 import 'package:universe2024/org/attendee.dart';
@@ -20,6 +20,10 @@ import 'package:universe2024/pages/qrcode.dart';
 import 'package:universe2024/pages/search1.dart';
 
 class SocHomePage extends StatefulWidget {
+
+  String userId;
+
+   SocHomePage ({ Key? key, required this.userId }): super(key: key);
   @override
   _SocHomePageState createState() => _SocHomePageState();
 }
@@ -31,7 +35,7 @@ class _SocHomePageState extends State<SocHomePage> {
   static List<Widget> _widgetOptions = <Widget>[
     searchpage1(),
     attendee(),
-    AddEvent(),
+    AddEvent(userID: ''),
     OrgProfile(),
     // Add other widget options here if needed
   ];
@@ -44,34 +48,29 @@ class _SocHomePageState extends State<SocHomePage> {
 
   void _setupStream() {
     _stream = FirebaseFirestore.instance
-        .collection('users')
+        .collection('EVENTS')  // Directly access the EVENTS collection
         .snapshots()
-        .asyncMap((usersSnapshot) async {
-          List<Map<String, dynamic>> allEvents = [];
-          
-          for (var userDoc in usersSnapshot.docs) {
-            var eventsSnapshot = await FirebaseFirestore.instance
-                .collection('users')
-                .doc(userDoc.id)
-                .collection('events')
-                .get();
-                
-            allEvents.addAll(eventsSnapshot.docs.map((eventDoc) {
-              return {
-                'eventName': eventDoc['eventName'],
-                'eventDate': eventDoc['eventDate'],
-                'eventLocation': eventDoc['eventLocation'],
-                'eventPrice': eventDoc['eventPrice'],
-		
-            	'documentID': eventDoc.id,
-              
-              };
-            }));
-          }
-          
-          return allEvents;
+        .map((eventsSnapshot) {
+      List<Map<String, dynamic>> allEvents = [];
+
+      for (var eventDoc in eventsSnapshot.docs) {
+        allEvents.add({
+          'eventName': eventDoc['eventName'],
+          'eventDate': eventDoc['eventDate'],
+          'eventLocation': eventDoc['eventLocation'],
+          'eventPrice': eventDoc['eventPrice'],
+          'documentID': eventDoc.id,
         });
+      }
+
+      return allEvents;
+    });
   }
+
+
+
+
+
 
   void _onItemTapped(int index) {
     setState(() {
@@ -370,7 +369,7 @@ class HomeContent extends StatelessWidget {
                                                 eventKey: event['documentID']),
                                                     ));
                                                   },
-                                                  child: Text('Register',style: TextStyle(fontSize: 18),),
+                                                  child: Text('View',style: TextStyle(fontSize: 18),),
                                                 ),
                                               ],
                                             ),
@@ -399,6 +398,6 @@ class HomeContent extends StatelessWidget {
 
 void main() {
   runApp(MaterialApp(
-    home: SocHomePage(), // Changed from HomePage() to SocHomePage()
+    home: SocHomePage(userId: '2CGHtfZZ2USbD0TfuUMMwKgwxAB2',), // Changed from HomePage() to SocHomePage()
   ));
 }

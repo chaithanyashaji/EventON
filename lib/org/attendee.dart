@@ -27,7 +27,9 @@ class _attendeeState extends State<attendee> {
 
     final FirebaseFirestore db = FirebaseFirestore.instance;
 
-    db.collection("REGISTRATIONS").snapshots().listen((event) {
+    String eventId="aaa";
+
+    db.collection("REGISTRATIONS").where("eventId",isEqualTo:eventId ).snapshots().listen((event) {
       if (event.docs.isNotEmpty) {
         for (var element in event.docs) {
           setState(() {

@@ -19,7 +19,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
-  CollectionReference _reference = FirebaseFirestore.instance.collection('events');
+  CollectionReference _reference = FirebaseFirestore.instance.collection('EVENTS');
 
   late Stream<QuerySnapshot> _stream;
 
@@ -77,7 +77,7 @@ class _HomePageState extends State<HomePage> {
                     'eventDate': e['eventDate'],
                     'eventLocation': e['eventLocation'],
                     'eventPrice': e['eventPrice'],
-                    'eventtype': e['eventtype'],
+                    'eventType': e['eventType'],
                     'documentID': e.id, // Capture the document ID
                   };
                 }).toList();

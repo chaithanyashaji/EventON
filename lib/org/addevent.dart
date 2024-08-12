@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -6,36 +5,35 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:universe2024/Utiles/app_styles.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:universe2024/org/home.dart';
-import 'package:http/http.dart' as http;
-import 'package:firebase_auth/firebase_auth.dart';  // Import FirebaseAuth
 
 class AddEvent extends StatefulWidget {
-  const AddEvent({Key? key}) : super(key: key);
+  final String userID;
+  AddEvent({Key? key, required this.userID}) : super(key: key);
 
   @override
   State<AddEvent> createState() => _AddEventPageState();
 }
 
 class _AddEventPageState extends State<AddEvent> {
-  String imageUrl = '';
   File? _image;
+  String _selectedEventType = '';
+  String _selectedCommunityType = '';
+  String _selectedEventPrice = 'Free';
+  String _errorText = '';
+  bool _isSubmitting = false;
+  List<String> _selectedDates = [];
 
   final TextEditingController _eventNameController = TextEditingController();
-  final TextEditingController _eventDateController = TextEditingController();
   final TextEditingController _eventLocationController = TextEditingController();
-  final TextEditingController _eventPriceController = TextEditingController();
+  final TextEditingController _eventPricePaidController = TextEditingController();
   final TextEditingController _deadlineController = TextEditingController();
   final TextEditingController _otherEventTypeController = TextEditingController();
   final TextEditingController _notificationPhraseController = TextEditingController();
   final TextEditingController _eventDescriptionController = TextEditingController();
   final TextEditingController _communityTypeController = TextEditingController();
-
-  String _selectedEventType = 'Competition';
-  String _selectedCommunityType = 'IEEE';
-  String _errorText = '';
+  final TextEditingController _eventTimeController = TextEditingController();
 
   final ImagePicker _picker = ImagePicker();
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
@@ -48,12 +46,10 @@ class _AddEventPageState extends State<AddEvent> {
   }
 
   void _initializeNotifications() {
-    const AndroidInitializationSettings initializationSettingsAndroid =
-    AndroidInitializationSettings('@mipmap/ic_launcher');
-
-    const InitializationSettings initializationSettings =
-    InitializationSettings(android: initializationSettingsAndroid);
-
+    const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings(
+        '@mipmap/ic_launcher');
+    const InitializationSettings initializationSettings = InitializationSettings(
+        android: initializationSettingsAndroid);
     flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
 
@@ -66,22 +62,23 @@ class _AddEventPageState extends State<AddEvent> {
       priority: Priority.high,
       showWhen: false,
     );
-
-    const NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
-    await flutterLocalNotificationsPlugin.show(0, title, body, platformChannelSpecifics);
+    const NotificationDetails platformChannelSpecifics = NotificationDetails(
+        android: androidPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+        0, title, body, platformChannelSpecifics);
   }
 
   @override
   void dispose() {
     _eventNameController.dispose();
-    _eventDateController.dispose();
     _eventLocationController.dispose();
-    _eventPriceController.dispose();
+    _eventPricePaidController.dispose();
     _deadlineController.dispose();
     _otherEventTypeController.dispose();
     _notificationPhraseController.dispose();
     _communityTypeController.dispose();
     _eventDescriptionController.dispose();
+    _eventTimeController.dispose();
     super.dispose();
   }
 
@@ -112,6 +109,7 @@ class _AddEventPageState extends State<AddEvent> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(vertical: 20),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 30),
@@ -120,7 +118,7 @@ class _AddEventPageState extends State<AddEvent> {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
-                  color: Styles.blueColor,
+                  color: Colors.black,
                 ),
               ),
             ),
@@ -128,36 +126,48 @@ class _AddEventPageState extends State<AddEvent> {
             _buildTextField("Name of the Event", _eventNameController),
             const SizedBox(height: 20),
             _buildCommunityTypeDropdown(),
-            if (_selectedCommunityType == 'Other') _buildTextField("Specify Community", _communityTypeController),
+            if (_selectedCommunityType == 'Other') _buildTextField(
+                "Specify Community", _communityTypeController),
             const SizedBox(height: 20),
             _buildEventTypeDropdown(),
-            if (_selectedEventType == 'Other') _buildTextField("Specify Event Type", _otherEventTypeController),
+            if (_selectedEventType == 'Other') _buildTextField(
+                "Specify Event Type", _otherEventTypeController),
             const SizedBox(height: 20),
-            _buildDateField("Date of the Event", _eventDateController),
+            _buildMultipleDatePicker(),
             const SizedBox(height: 20),
             _buildTextField("Event Location", _eventLocationController),
             const SizedBox(height: 20),
-            _buildTextField("Event Price", _eventPriceController),
+            _buildEventTimePicker(),
+            const SizedBox(height: 20),
+            _buildEventPriceDropdown(),
+            if (_selectedEventPrice == 'Paid') _buildTextField(
+                "Event Price", _eventPricePaidController),
             const SizedBox(height: 20),
             _buildDateField("Deadline", _deadlineController),
             const SizedBox(height: 20),
-            _buildTextField("Notification Phrase (Optional)", _notificationPhraseController),
+            _buildTextField("Notification Phrase (Optional)",
+                _notificationPhraseController),
             const SizedBox(height: 20),
             _buildTextField("Event Description", _eventDescriptionController),
             const SizedBox(height: 30),
             _buildImagePicker(),
             const SizedBox(height: 30),
-            ElevatedButton(
-              onPressed: _signUp,
-              child: const Text(
-                'Submit',
-                style: TextStyle(fontSize: 16, color: Colors.white),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Styles.blueColor,
-                padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 40),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
+            _isSubmitting
+                ? Center(child: CircularProgressIndicator())
+                : Center(
+              child: ElevatedButton(
+                onPressed: _isSubmitting ? null : _signUp,
+                child: const Text(
+                  'Submit',
+                  style: TextStyle(fontSize: 16, color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 15, horizontal: 40),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
                 ),
               ),
             ),
@@ -182,23 +192,19 @@ class _AddEventPageState extends State<AddEvent> {
       child: Stack(
         children: [
           Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.all(Radius.circular(15)),
-              border: Border(
-                bottom: BorderSide(color: Colors.black, width: 1.5),
-                top: BorderSide(color: Colors.black, width: 1.5),
-                left: BorderSide(color: Colors.black, width: 1.5),
-                right: BorderSide(color: Colors.black, width: 1.5),
-              ),
+              borderRadius: BorderRadius.circular(15),
+              border: Border.all(color: Colors.black, width: 1.5),
             ),
             child: TextFormField(
               controller: controller,
-              style: const TextStyle(color: Colors.black),
-              decoration: const InputDecoration(
+              style: const TextStyle(color: Colors.black, fontSize: 16),
+              decoration: InputDecoration(
                 labelText: '',
                 floatingLabelBehavior: FloatingLabelBehavior.never,
-                contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 15, vertical: 15),
                 border: InputBorder.none,
               ),
               maxLines: label == 'Event Description' ? 5 : 1,
@@ -213,7 +219,7 @@ class _AddEventPageState extends State<AddEvent> {
               child: Text(
                 label,
                 style: const TextStyle(
-                  fontSize: 15,
+                  fontSize: 16,
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
                 ),
@@ -231,24 +237,20 @@ class _AddEventPageState extends State<AddEvent> {
       child: Stack(
         children: [
           Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.all(Radius.circular(15)),
-              border: Border(
-                bottom: BorderSide(color: Colors.black, width: 1.5),
-                top: BorderSide(color: Colors.black, width: 1.5),
-                left: BorderSide(color: Colors.black, width: 1.5),
-                right: BorderSide(color: Colors.black, width: 1.5),
-              ),
+              borderRadius: BorderRadius.circular(15),
+              border: Border.all(color: Colors.black, width: 1.5),
             ),
             child: TextFormField(
               controller: controller,
-              style: const TextStyle(color: Colors.black),
+              style: const TextStyle(color: Colors.black, fontSize: 16),
               readOnly: true,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: '',
                 floatingLabelBehavior: FloatingLabelBehavior.never,
-                contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 15, vertical: 15),
                 border: InputBorder.none,
               ),
               onTap: () async {
@@ -260,7 +262,8 @@ class _AddEventPageState extends State<AddEvent> {
                 );
                 if (pickedDate != null) {
                   setState(() {
-                    controller.text = "${pickedDate.day}-${pickedDate.month}-${pickedDate.year}";
+                    controller.text =
+                    "${pickedDate.day}-${pickedDate.month}-${pickedDate.year}";
                   });
                 }
               },
@@ -275,7 +278,7 @@ class _AddEventPageState extends State<AddEvent> {
               child: Text(
                 label,
                 style: const TextStyle(
-                  fontSize: 15,
+                  fontSize: 16,
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
                 ),
@@ -288,83 +291,205 @@ class _AddEventPageState extends State<AddEvent> {
   }
 
   Widget _buildEventTypeDropdown() {
+    List<String> eventTypeOptions = [
+      'Conference',
+      'Seminar',
+      'Workshop',
+      'Meetup',
+      'Webinar',
+      'Other',
+    ];
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 30),
-      decoration: const BoxDecoration(
+      padding: const EdgeInsets.symmetric(horizontal: 15),
+      decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.all(Radius.circular(15)),
-        border: Border(
-          bottom: BorderSide(color: Colors.black, width: 1.5),
-          top: BorderSide(color: Colors.black, width: 1.5),
-          left: BorderSide(color: Colors.black, width: 1.5),
-          right: BorderSide(color: Colors.black, width: 1.5),
-        ),
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: Colors.black, width: 1.5),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-        child: DropdownButton<String>(
-          isExpanded: true,
-          value: _selectedEventType,
-          onChanged: (String? newValue) {
-            setState(() {
-              _selectedEventType = newValue!;
-            });
-          },
-          items: <String>['Competition', 'Workshop', 'Seminar', 'Other']
-              .map<DropdownMenuItem<String>>((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(
-                value,
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            );
-          }).toList(),
+      child: DropdownButtonFormField<String>(
+        value: _selectedEventType.isEmpty ? null : _selectedEventType,
+        items: eventTypeOptions.map((String eventType) {
+          return DropdownMenuItem<String>(
+            value: eventType,
+            child: Text(eventType, style: const TextStyle(color: Colors.black)),
+          );
+        }).toList(),
+        onChanged: (String? newValue) {
+          setState(() {
+            _selectedEventType = newValue!;
+          });
+        },
+        decoration: const InputDecoration(
+          labelText: 'Event Type',
+          border: InputBorder.none,
         ),
       ),
     );
   }
 
   Widget _buildCommunityTypeDropdown() {
+    List<String> communityTypeOptions = [
+      'Technology',
+      'Art',
+      'Science',
+      'Culture',
+      'Other',
+    ];
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 30),
-      decoration: const BoxDecoration(
+      padding: const EdgeInsets.symmetric(horizontal: 15),
+      decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.all(Radius.circular(15)),
-        border: Border(
-          bottom: BorderSide(color: Colors.black, width: 1.5),
-          top: BorderSide(color: Colors.black, width: 1.5),
-          left: BorderSide(color: Colors.black, width: 1.5),
-          right: BorderSide(color: Colors.black, width: 1.5),
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: Colors.black, width: 1.5),
+      ),
+      child: DropdownButtonFormField<String>(
+        value: _selectedCommunityType.isEmpty ? null : _selectedCommunityType,
+        items: communityTypeOptions.map((String communityType) {
+          return DropdownMenuItem<String>(
+            value: communityType,
+            child: Text(
+                communityType, style: const TextStyle(color: Colors.black)),
+          );
+        }).toList(),
+        onChanged: (String? newValue) {
+          setState(() {
+            _selectedCommunityType = newValue!;
+          });
+        },
+        decoration: const InputDecoration(
+          labelText: 'Community Type',
+          border: InputBorder.none,
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-        child: DropdownButton<String>(
-          isExpanded: true,
-          value: _selectedCommunityType,
-          onChanged: (String? newValue) {
-            setState(() {
-              _selectedCommunityType = newValue!;
-            });
-          },
-          items: <String>['IEEE', 'IEDC', 'CSI', 'Other']
-              .map<DropdownMenuItem<String>>((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(
-                value,
-                style: const TextStyle(
+    );
+  }
+
+  Widget _buildEventPriceDropdown() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 30),
+      padding: const EdgeInsets.symmetric(horizontal: 15),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: Colors.black, width: 1.5),
+      ),
+      child: DropdownButtonFormField<String>(
+        value: _selectedEventPrice,
+        items: [
+          DropdownMenuItem<String>(
+            value: 'Free',
+            child: Text('Free', style: const TextStyle(color: Colors.black)),
+          ),
+          DropdownMenuItem<String>(
+            value: 'Paid',
+            child: Text('Paid', style: const TextStyle(color: Colors.black)),
+          ),
+        ],
+        onChanged: (String? newValue) {
+          setState(() {
+            _selectedEventPrice = newValue!;
+          });
+        },
+        decoration: const InputDecoration(
+          labelText: 'Event Price',
+          border: InputBorder.none,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMultipleDatePicker() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 30),
+      padding: const EdgeInsets.symmetric(horizontal: 15),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: Colors.black, width: 1.5),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                "Event Dates",
+                style: TextStyle(
+                  fontSize: 16,
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-            );
-          }).toList(),
+              IconButton(
+                onPressed: () async {
+                  DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime(2101),
+                  );
+                  if (pickedDate != null) {
+                    setState(() {
+                      _selectedDates.add(
+                          "${pickedDate.day}-${pickedDate.month}-${pickedDate
+                              .year}");
+                    });
+                  }
+                },
+                icon: const Icon(Icons.add, color: Colors.black),
+              ),
+            ],
+          ),
+          Wrap(
+            children: _selectedDates.map((date) {
+              return Chip(
+                label: Text(date),
+                deleteIcon: const Icon(Icons.close),
+                onDeleted: () {
+                  setState(() {
+                    _selectedDates.remove(date);
+                  });
+                },
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEventTimePicker() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 30),
+      padding: const EdgeInsets.symmetric(horizontal: 15),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: Colors.black, width: 1.5),
+      ),
+      child: TextFormField(
+        controller: _eventTimeController,
+        style: const TextStyle(color: Colors.black, fontSize: 16),
+        readOnly: true,
+        decoration: const InputDecoration(
+          labelText: 'Event Time',
+          border: InputBorder.none,
         ),
+        onTap: () async {
+          TimeOfDay? pickedTime = await showTimePicker(
+            context: context,
+            initialTime: TimeOfDay.now(),
+          );
+          if (pickedTime != null) {
+            setState(() {
+              _eventTimeController.text = pickedTime.format(context);
+            });
+          }
+        },
       ),
     );
   }
@@ -373,9 +498,10 @@ class _AddEventPageState extends State<AddEvent> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 30),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Upload Event Banner:',
+            "Upload Image",
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 16,
@@ -386,22 +512,21 @@ class _AddEventPageState extends State<AddEvent> {
           GestureDetector(
             onTap: _pickImage,
             child: Container(
+              width: double.infinity,
               height: 200,
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.black, width: 1.5),
-                borderRadius: BorderRadius.circular(15),
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(10),
+                image: _image != null
+                    ? DecorationImage(
+                  image: FileImage(_image!),
+                  fit: BoxFit.cover,
+                )
+                    : null,
               ),
               child: _image == null
-                  ? const Center(
-                child: Text(
-                  'Tap to select image',
-                  style: TextStyle(color: Colors.black),
-                ),
-              )
-                  : Image.file(
-                _image!,
-                fit: BoxFit.cover,
-              ),
+                  ? const Icon(Icons.add_a_photo, color: Colors.black, size: 50)
+                  : null,
             ),
           ),
         ],
@@ -410,79 +535,85 @@ class _AddEventPageState extends State<AddEvent> {
   }
 
   Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-
-    setState(() {
-      if (pickedFile != null) {
-        _image = File(pickedFile.path);
-      } else {
-        print('No image selected.');
-      }
-    });
-  }
-
-  Future<String> _uploadImageToFirebase(File image) async {
-    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-    Reference storageReference = FirebaseStorage.instance.ref().child('event_images/$fileName');
-    UploadTask uploadTask = storageReference.putFile(image);
-    TaskSnapshot snapshot = await uploadTask;
-    String downloadUrl = await snapshot.ref.getDownloadURL();
-    return downloadUrl;
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      setState(() {
+        _image = File(image.path);
+      });
+    }
   }
 
   Future<void> _signUp() async {
-    final eventName = _eventNameController.text;
-    final eventDate = _eventDateController.text;
-    final eventLocation = _eventLocationController.text;
-    final eventPrice = _eventPriceController.text;
-    final deadline = _deadlineController.text;
-    final otherEventType = _otherEventTypeController.text;
-    final notificationPhrase = _notificationPhraseController.text;
-    final eventDescription = _eventDescriptionController.text;
-    final communityType = _selectedCommunityType == 'Other'
-        ? _communityTypeController.text
-        : _selectedCommunityType;
-
-    if (eventName.isEmpty || eventDate.isEmpty || eventLocation.isEmpty || eventPrice.isEmpty || deadline.isEmpty) {
+    if (_eventNameController.text.isEmpty ||
+        _selectedEventType.isEmpty ||
+        _eventLocationController.text.isEmpty ||
+        _eventTimeController.text.isEmpty ||
+        _selectedDates.isEmpty ||
+        _deadlineController.text.isEmpty ||
+        _eventDescriptionController.text.isEmpty) {
       setState(() {
-        _errorText = 'Please fill all required fields.';
+        _errorText = 'Please fill in all required fields';
       });
       return;
     }
 
     setState(() {
-      _errorText = '';
+      _isSubmitting = true;
     });
 
-    // Assuming the user is logged in and their UID is available
-    final String userId = FirebaseAuth.instance.currentUser!.uid;
-    final DocumentReference userDoc = FirebaseFirestore.instance.collection('users').doc(userId);
+    try {
+      String? imageUrl;
+      if (_image != null) {
+        final storageRef = FirebaseStorage.instance.ref().child(
+            'event_images/${DateTime
+                .now()
+                .millisecondsSinceEpoch}.jpg');
+        final uploadTask = storageRef.putFile(_image!);
+        final snapshot = await uploadTask;
+        imageUrl = await snapshot.ref.getDownloadURL();
+      }
 
-    String? downloadUrl;
-    if (_image != null) {
-      downloadUrl = await _uploadImageToFirebase(_image!);
+      final eventDetails = {
+        'eventName': _eventNameController.text,
+        'eventType': _selectedEventType == 'Other' ? _otherEventTypeController
+            .text : _selectedEventType,
+        'eventLocation': _eventLocationController.text,
+        'eventTime': _eventTimeController.text,
+        'eventDates': _selectedDates,
+        'eventPrice': _selectedEventPrice == 'Paid' ? _eventPricePaidController
+            .text : _selectedEventPrice,
+        'communityType': _selectedCommunityType == 'Other'
+            ? _communityTypeController.text
+            : _selectedCommunityType,
+        'deadline': _deadlineController.text,
+        'notificationPhrase': _notificationPhraseController.text,
+        'eventDescription': _eventDescriptionController.text,
+        'image': imageUrl,
+        'addedBy': widget.userID,
+      };
+
+      await FirebaseFirestore.instance.collection('EVENTS').add(eventDetails);
+
+      await _firebaseMessaging.subscribeToTopic(_selectedCommunityType);
+
+      await _showNotification(
+          'Event Added', 'Your event has been added successfully!');
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => SocHomePage(userId: '')),
+      );
+    } catch (e) {
+      setState(() {
+        _errorText = 'Failed to add event. Please try again.';
+      });
+    } finally {
+      setState(() {
+        _isSubmitting = false;
+      });
     }
-
-    await userDoc.collection('events').add({
-      'eventName': eventName,
-      'eventType': _selectedEventType == 'Other' ? otherEventType : _selectedEventType,
-      'community': communityType,
-      'eventDate': eventDate,
-      'eventLocation': eventLocation,
-      'eventPrice': eventPrice,
-      'deadline': deadline,
-      'notificationPhrase': notificationPhrase,
-      'description': eventDescription,
-      'imageUrl': downloadUrl,
-    });
-
-    // Show notification
-    _showNotification("Event Created", "Your event '$eventName' has been successfully created!");
-
-    // Navigate to Home page after successful submission
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => SocHomePage()),
-    );
   }
+
 }
+
+
