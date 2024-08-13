@@ -180,7 +180,6 @@ class HomeContent extends StatelessWidget {
             children: [
               const SizedBox(height: 20),
               Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Colors.white, // White background for the container
@@ -205,33 +204,37 @@ class HomeContent extends StatelessWidget {
                         itemCount: 5,
                         itemBuilder: (context, index) {
                           return Container(
-                            height: 0,
                             margin: const EdgeInsets.symmetric(horizontal: 5),
                             child: Column(
                               children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(15), // Adjust the radius as needed
-                                  child: Image.asset(
-                                    'assets/3.jpeg',
-                                    height: 210,
-                                    width: 210, // Ensure width matches height to maintain aspect ratio
-                                    fit: BoxFit.cover, // Adjusts the image to cover the container
+                                Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.black, width: 2), // Black border with width of 2
+                                    borderRadius: BorderRadius.circular(15), // Same radius as ClipRRect
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(13), // Slightly smaller radius to fit inside the border
+                                    child: Image.asset(
+                                      'assets/3.jpeg',
+                                      height: 210,
+                                      width: 210,
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
                                 ),
-
                                 Gap(5),
-                                Text('Event ${index + 1}', style: TextStyle(fontSize: 18)),
+                                Text('Event ${index + 1}', style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold)),
                               ],
                             ),
                           );
                         },
                       ),
                     ),
+
                   ],
                 ),
               ),
               Container(
-                margin: const EdgeInsets.symmetric(vertical: 10,horizontal: 20),
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Colors.white, // White background for the Upcoming Events container
@@ -256,57 +259,54 @@ class HomeContent extends StatelessWidget {
                         itemBuilder: (context, index) {
                           Map event = items[index];
                           return Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 5),
                             width: 220, // Constrained width for each card
                             child: Card(
-                              color: Colors.grey[80], // Background color for the card
+                              color: Colors.white, // Background color for the card
                               elevation: 5, // Add shadow
                               shape: RoundedRectangleBorder(
+                                side: BorderSide(color: Colors.black,width: 1.5),
                                 borderRadius: BorderRadius.circular(15),
                               ),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Column(
-                                      children: [
-                                        ClipRRect(
-                                          borderRadius: BorderRadius.circular(15), // Curved edges for the image
-                                          child: Image.asset(
-                                            'assets/13.jpg',
-                                            height: 160, // Increased height for the image
-                                            width: double.infinity, // Ensure image takes full width
-                                            fit: BoxFit.cover, // Ensure image fits within the constraints
-                                          ),
+                                  Column(
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(15), // Curved edges for the image
+                                        child: Image.asset(
+                                          'assets/13.jpg',
+                                          height: 160, // Increased height for the image
+                                          width: double.infinity, // Ensure image takes full width
+                                          fit: BoxFit.cover, // Ensure image fits within the constraints
                                         ),
-                                        const SizedBox(height: 10),
-                                        Text(
-                                          event['eventName'],
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold, // Bold event name
-                                            color: Colors.black, // Black text color
-                                          ),
-                                          maxLines: 1, // Limit event name to one line
-                                          overflow: TextOverflow.ellipsis, // Handle overflow with ellipsis
+                                      ),
+                                      const SizedBox(height: 10),
+                                      Text(
+                                        event['eventName'],
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold, // Bold event name
+                                          color: Colors.black, // Black text color
                                         ),
-                                        const SizedBox(height: 5),
-                                        Text(
-                                          'Date: ${event['eventDate']}\nEvent Type: ${event['eventtype']}\nPrice: ${event['eventPrice']}',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            color: Colors.black, // Black text color
-                                          ),
-                                          maxLines: 2, // Limit to two lines if necessary
-                                          overflow: TextOverflow.ellipsis, // Handle overflow with ellipsis
+                                        maxLines: 1, // Limit event name to one line
+                                        overflow: TextOverflow.ellipsis, // Handle overflow with ellipsis
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Text(
+                                        'Date: ${event['eventDate']}\nEvent Type: ${event['eventtype']}\nPrice: ${event['eventPrice']}',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.black, // Black text color
                                         ),
-                                      ],
-                                    ),
+                                        maxLines: 2, // Limit to two lines if necessary
+                                        overflow: TextOverflow.ellipsis, // Handle overflow with ellipsis
+                                      ),
+                                    ],
                                   ),
                                   Spacer(),
                                   Padding(
-                                    padding: const EdgeInsets.all(2.0),
+                                    padding: const EdgeInsets.all(8.0),
                                     child: ElevatedButton(
                                       onPressed: () {
                                         Navigator.push(

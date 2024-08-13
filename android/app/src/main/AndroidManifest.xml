@@ -11,7 +11,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/> <!-- Added permission -->
 
     <application
-        android:label="UniVerse"
+        android:label="EventOn"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
 

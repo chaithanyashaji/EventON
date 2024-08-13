@@ -6,8 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:universe2024/Utiles/app_styles.dart';
 import 'package:gap/gap.dart';
-
-
 import 'package:universe2024/org/addevent.dart';
 import 'package:universe2024/org/attendee.dart';
 import 'package:universe2024/org/qrscanner.dart';
@@ -20,10 +18,10 @@ import 'package:universe2024/pages/qrcode.dart';
 import 'package:universe2024/pages/search1.dart';
 
 class SocHomePage extends StatefulWidget {
+  final String userId;
 
-  String userId;
+  SocHomePage({Key? key, required this.userId}) : super(key: key);
 
-   SocHomePage ({ Key? key, required this.userId }): super(key: key);
   @override
   _SocHomePageState createState() => _SocHomePageState();
 }
@@ -37,7 +35,6 @@ class _SocHomePageState extends State<SocHomePage> {
     attendee(),
     AddEvent(userID: ''),
     OrgProfile(),
-    // Add other widget options here if needed
   ];
 
   @override
@@ -48,7 +45,7 @@ class _SocHomePageState extends State<SocHomePage> {
 
   void _setupStream() {
     _stream = FirebaseFirestore.instance
-        .collection('EVENTS')  // Directly access the EVENTS collection
+        .collection('EVENTS')
         .snapshots()
         .map((eventsSnapshot) {
       List<Map<String, dynamic>> allEvents = [];
@@ -67,11 +64,6 @@ class _SocHomePageState extends State<SocHomePage> {
     });
   }
 
-
-
-
-
-
   void _onItemTapped(int index) {
     setState(() {
       if (index != 5) {
@@ -88,7 +80,22 @@ class _SocHomePageState extends State<SocHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Styles.bgColor,
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.notifications, color: Colors.black),
+            onPressed: () {
+              // Add your notification navigation here
+            },
+          ),
+          SizedBox(width: 10),
+          Image.asset('assets/EventOn.png', height: 32),
+          SizedBox(width: 10),
+        ],
+      ),
       body: Stack(
         children: [
           StreamBuilder<List<Map<String, dynamic>>>(
@@ -108,33 +115,53 @@ class _SocHomePageState extends State<SocHomePage> {
               return Center(child: Text('No events available'));
             },
           ),
-          _widgetOptions[_selectedIndex],
+          if (_selectedIndex != 0) _widgetOptions.elementAt(_selectedIndex),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+      bottomNavigationBar: Container(
+        margin: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+        decoration: BoxDecoration(
+          color: Colors.black,
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black26,
+              offset: Offset(0, 5),
+              blurRadius: 15,
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(30),
+          child: BottomNavigationBar(
+            backgroundColor: Colors.black,
+            type: BottomNavigationBarType.fixed,
+            items: <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: _buildIcon(Icons.home, 0),
+                label: 'Home',
+              ),
+              BottomNavigationBarItem(
+                icon: _buildIcon(Icons.person_3, 1),
+                label: 'Registrants',
+              ),
+              BottomNavigationBarItem(
+                icon: _buildIcon(Icons.add, 2),
+                label: 'Add Events',
+              ),
+              BottomNavigationBarItem(
+                icon: _buildIcon(Icons.person, 3),
+                label: 'Profile',
+              ),
+            ],
+            currentIndex: _selectedIndex,
+            selectedItemColor: Colors.white,
+            unselectedItemColor: Colors.transparent,
+            showSelectedLabels: false,
+            showUnselectedLabels: false,
+            onTap: _onItemTapped,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_3),
-            label: 'Registrants',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add),
-            label: 'Add Events',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
-        unselectedItemColor: Styles.blueColor,
-        onTap: _onItemTapped,
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -143,8 +170,23 @@ class _SocHomePageState extends State<SocHomePage> {
             MaterialPageRoute(builder: (context) => Chat()),
           );
         },
-        child: Icon(Icons.chat, color: Styles.blueColor),
-        backgroundColor: Styles.yellowColor,
+        child: Icon(Icons.chat, color: Colors.white),
+        backgroundColor: Colors.black,
+      ),
+    );
+  }
+
+  Widget _buildIcon(IconData icon, int index) {
+    return Container(
+      padding: EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.white),
+        shape: BoxShape.circle,
+        color: _selectedIndex == index ? Colors.white : Colors.transparent,
+      ),
+      child: Icon(
+        icon,
+        color: _selectedIndex == index ? Colors.black : Colors.white,
       ),
     );
   }
@@ -158,246 +200,178 @@ class HomeContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      physics: BouncingScrollPhysics(),
-      child: SizedBox(
-        height: MediaQuery.of(context).size.height,
-        child: Stack(
-          children: [
-            Align(
-              alignment: const AlignmentDirectional(20, -1.2),
-              child: Container(
-                height: MediaQuery.of(context).size.width,
-                width: MediaQuery.of(context).size.width,
+      child: Column(
+        children: [
+          Column(
+            children: [
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Styles.yellowColor,
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
                 ),
-              ),
-            ),
-            Align(
-              alignment: const AlignmentDirectional(-2.7, -1.2),
-              child: Container(
-                height: MediaQuery.of(context).size.width / 1.3,
-                width: MediaQuery.of(context).size.width / 1.3,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Styles.blueColor,
-                ),
-              ),
-            ),
-            Align(
-              alignment: const AlignmentDirectional(2.7, -1.2),
-              child: Container(
-                height: MediaQuery.of(context).size.width / 1.3,
-                width: MediaQuery.of(context).size.width / 1.3,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Styles.lblueColor,
-                ),
-              ),
-            ),
-            BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 100.0, sigmaY: 100.0),
-              child: Container(),
-            ),
-            Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Image.asset(
-                      'assets/logowhite.png',
-                      width: 200,
-                      height: 100,
-                    ),
                     Text(
-                      "UniVerse",
+                      "Events",
                       style: TextStyle(
-                        fontSize: 25,
-                        color: Colors.white,
+                        fontSize: 21.5,
                         fontWeight: FontWeight.bold,
+                        color: Colors.black,
                       ),
                     ),
-                    Expanded(
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            Container(
-                              margin: const EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 10),
-                              padding: const EdgeInsets.all(20),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Events",
-                                    style: TextStyle(
-                                      fontSize: 21.5,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black,
+                    const Gap(10),
+                    SizedBox(
+                      height: 250,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: items.length,
+                        itemBuilder: (context, index) {
+                          return Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 5),
+                            child: Column(
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.black, width: 2), // Black border with width of 2
+                                    borderRadius: BorderRadius.circular(15), // Same radius as ClipRRect
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(15),
+                                    child: Image.asset(
+                                      'assets/3.jpeg',
+                                      height: 210,
+                                      width: 210,
+                                      fit: BoxFit.cover,
                                     ),
                                   ),
-                                  const Gap(10),
-                                  // Add posters and event names here
-                                  SizedBox(
-                                    height: 250, // Adjust poster height
-                                    child: ListView.builder(
-                                      scrollDirection: Axis.horizontal,
-                                      itemCount: items.length,
-                                      itemBuilder: (context, index) {
-                                        return Container(
-                                          margin: const EdgeInsets.symmetric(
-                                              horizontal: 5),
-                                          child: Row(
-                                            children: [
-                                              Column(
-                                                children: [
-                                                  Image.asset(
-                                                    'assets/3.jpeg',
-                                                    height: 210,
-                                                  ),
-                                                  Text('Event ${index + 1}',style: TextStyle(fontSize: 18),),
-                                                ],
-                                              ),
-                                              Gap(10),
-                                              Column(
-                                                children: [
-                                                  Image.asset(
-                                                    'assets/2.jpeg',
-                                                    height: 210,
-                                                  ),
-                                                  Text('Event ${index + 1}',style: TextStyle(fontSize: 18),),
-                                                ],
-                                              ),
-                                              Gap(10),
-                                              Column(
-                                                children: [
-                                                  Image.asset(
-                                                    'assets/1.jpeg',
-                                                    height: 210,
-                                                  ),
-                                                  Text('Event ${index + 1}',style: TextStyle(fontSize: 18),),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                                Gap(5),
+                                Text('Event ${index + 1}', style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold)),
+                              ],
                             ),
-                            Container(
-                              margin: const EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 10),
-                              padding: const EdgeInsets.all(20),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Upcoming Events",
-                                    style: TextStyle(
-                                      fontSize: 21.5,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  const Gap(10),
-                                  // Add registration cards with posters for upcoming events here
-                                  SizedBox(
-                                    height: 325, // Adjust card height
-                                    child: ListView.builder(
-                                      scrollDirection: Axis.horizontal,
-                                      itemCount: items.length,
-                                      itemBuilder: (context, index) {
-                                        Map<String, dynamic> event = items[index];
-                                        return Container(
-                                          margin: const EdgeInsets.symmetric(
-                                              horizontal: 5),
-                                          width: 220, // Adjust card width
-                                          child: Card(
-                                            elevation: 3,
-                                            child: Column(
-                                              mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                              children: [
-                                                Padding(
-                                                  padding:
-                                                  const EdgeInsets.all(8.0),
-                                                  child: Column(
-                                                    children: [
-                                                      Image.asset(
-                                                        'assets/3.jpeg',
-                                                        height: 135,
-                                                      ),
-                                                      const SizedBox(
-                                                          height: 10),
-                                                      Text(
-                                                        event['eventName'],
-                                                        style: TextStyle(
-                                                          fontSize: 18,
-                                                          fontWeight:
-                                                          FontWeight.bold,
-                                                        ),
-                                                      ),
-                                                      const SizedBox(height: 5),
-                                                      Text(
-                                                        'Date: ${event['eventDate']}\nEvent Type: ${event['eventtype']}\nPrice: ${event['eventPrice']}',
-                                                        style: TextStyle(
-                                                          fontSize: 16,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                                TextButton(
-                                                  onPressed: () {
-                                                    Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                          builder: (context) => EventDetails(
-                                                eventKey: event['documentID']),
-                                                    ));
-                                                  },
-                                                  child: Text('View',style: TextStyle(fontSize: 18),),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
+                          );
+                        },
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
-          ],
-        ),
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white, // White background for the Upcoming Events container
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Upcoming Events",
+                      style: TextStyle(
+                        fontSize: 21.5,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black, // Black text color
+                      ),
+                    ),
+                    const Gap(10),
+                    SizedBox(
+                      height: 325,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: items.length,
+                        itemBuilder: (context, index) {
+                          Map<String, dynamic> event = items[index];
+                          return Container(
+                            width: 220, // Constrained width for each card
+                            child: Card(
+                              color: Colors.white, // Light grey background for the card
+                              elevation: 5, // Add shadow
+                              shape: RoundedRectangleBorder(
+                                side: BorderSide(color: Colors.black,width: 1.5),
+                                borderRadius: BorderRadius.circular(15),
+
+                              ),
+                              child: Column(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(15), // Curved edges for the image
+                                    child: Image.asset(
+                                      'assets/13.jpg',
+                                      height: 160, // Height for the image
+                                      width: double.infinity, // Ensure image takes full width
+                                      fit: BoxFit.cover, // Ensure image fits within the constraints
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    event['eventName'],
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold, // Bold event name
+                                      color: Colors.black, // Black text color
+                                    ),
+                                    maxLines: 1, // Limit event name to one line
+                                    overflow: TextOverflow.ellipsis, // Handle overflow with ellipsis
+                                    textAlign: TextAlign.center, // Center align the event name
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Text(
+                                    'Date: ${event['eventDate']}\nEvent Type: ${event['eventtype']}\nPrice: ${event['eventPrice']}',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.black, // Black text color
+                                    ),
+                                    maxLines: 2, // Limit to two lines if necessary
+                                    overflow: TextOverflow.ellipsis, // Handle overflow with ellipsis
+                                    textAlign: TextAlign.center, // Center align the event details
+                                  ),
+                                  Spacer(), // Pushes the button to the bottom of the card
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => EventDetails(eventKey: event['documentID']),
+                                          ),
+                                        );
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.black, // Black background for the button
+                                        minimumSize: Size(double.infinity, 40), // Adjusted button size to avoid overflow
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(15), // Rounded corners for the button
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'View Details',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.white, // White text color
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+
+
+            ],
+          ),
+        ],
       ),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: SocHomePage(userId: '2CGHtfZZ2USbD0TfuUMMwKgwxAB2',), // Changed from HomePage() to SocHomePage()
-  ));
 }

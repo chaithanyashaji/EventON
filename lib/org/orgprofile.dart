@@ -89,26 +89,6 @@ class _OrgProfileState extends State<OrgProfile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Community Profile',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 17,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Image.asset(
-              "assets/EventOn.png",
-              height: 33,
-            ),
-          ],
-        ),
-      ),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         physics: AlwaysScrollableScrollPhysics(),
