@@ -6,7 +6,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:universe2024/org/home.dart';
 
 class AddEvent extends StatefulWidget {
   final String userID;
@@ -34,6 +33,7 @@ class _AddEventPageState extends State<AddEvent> {
   final TextEditingController _eventDescriptionController = TextEditingController();
   final TextEditingController _communityTypeController = TextEditingController();
   final TextEditingController _eventTimeController = TextEditingController();
+  final TextEditingController _eventContactController = TextEditingController();
 
   final ImagePicker _picker = ImagePicker();
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
@@ -46,10 +46,8 @@ class _AddEventPageState extends State<AddEvent> {
   }
 
   void _initializeNotifications() {
-    const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings(
-        '@mipmap/ic_launcher');
-    const InitializationSettings initializationSettings = InitializationSettings(
-        android: initializationSettingsAndroid);
+    const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const InitializationSettings initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
     flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
 
@@ -62,10 +60,8 @@ class _AddEventPageState extends State<AddEvent> {
       priority: Priority.high,
       showWhen: false,
     );
-    const NotificationDetails platformChannelSpecifics = NotificationDetails(
-        android: androidPlatformChannelSpecifics);
-    await flutterLocalNotificationsPlugin.show(
-        0, title, body, platformChannelSpecifics);
+    const NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(0, title, body, platformChannelSpecifics);
   }
 
   @override
@@ -79,6 +75,7 @@ class _AddEventPageState extends State<AddEvent> {
     _communityTypeController.dispose();
     _eventDescriptionController.dispose();
     _eventTimeController.dispose();
+    _eventContactController.dispose();
     super.dispose();
   }
 
@@ -96,22 +93,21 @@ class _AddEventPageState extends State<AddEvent> {
               child: Text(
                 "Give your event details here:",
                 style: TextStyle(
+
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
                   color: Colors.black,
                 ),
               ),
             ),
-            const SizedBox(height: 35),
+            const SizedBox(height: 20),
             _buildTextField("Name of the Event", _eventNameController),
             const SizedBox(height: 20),
             _buildCommunityTypeDropdown(),
-            if (_selectedCommunityType == 'Other') _buildTextField(
-                "Specify Community", _communityTypeController),
+            if (_selectedCommunityType == 'Other') _buildTextField("Specify Community", _communityTypeController),
             const SizedBox(height: 20),
             _buildEventTypeDropdown(),
-            if (_selectedEventType == 'Other') _buildTextField(
-                "Specify Event Type", _otherEventTypeController),
+            if (_selectedEventType == 'Other') _buildTextField("Specify Event Type", _otherEventTypeController),
             const SizedBox(height: 20),
             _buildMultipleDatePicker(),
             const SizedBox(height: 20),
@@ -120,15 +116,15 @@ class _AddEventPageState extends State<AddEvent> {
             _buildEventTimePicker(),
             const SizedBox(height: 20),
             _buildEventPriceDropdown(),
-            if (_selectedEventPrice == 'Paid') _buildTextField(
-                "Event Price", _eventPricePaidController),
+            if (_selectedEventPrice == 'Paid') _buildTextField("Event Price", _eventPricePaidController),
             const SizedBox(height: 20),
             _buildDateField("Deadline", _deadlineController),
             const SizedBox(height: 20),
-            _buildTextField("Notification Phrase (Optional)",
-                _notificationPhraseController),
+            _buildTextField("Notification Phrase (Optional)", _notificationPhraseController),
             const SizedBox(height: 20),
             _buildTextField("Event Description", _eventDescriptionController),
+            const SizedBox(height: 20),
+            _buildTextField("Event Contact", _eventContactController),
             const SizedBox(height: 30),
             _buildImagePicker(),
             const SizedBox(height: 30),
@@ -136,15 +132,14 @@ class _AddEventPageState extends State<AddEvent> {
                 ? Center(child: CircularProgressIndicator())
                 : Center(
               child: ElevatedButton(
-                onPressed: _isSubmitting ? null : _signUp,
+                onPressed: _isSubmitting ? null : _submitEvent,
                 child: const Text(
                   'Submit',
                   style: TextStyle(fontSize: 16, color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 15, horizontal: 40),
+                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 40),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
@@ -168,37 +163,24 @@ class _AddEventPageState extends State<AddEvent> {
 
   Widget _buildTextField(String label, TextEditingController controller) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 30),
+      margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
       child: Stack(
-        children: [
-          Container(
-            child: TextFormField(
-              controller: controller,
-              style: const TextStyle(color: Colors.black, fontSize: 16),
-              decoration: InputDecoration(
-                labelText: '',
-                floatingLabelBehavior: FloatingLabelBehavior.never,
-                contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 15, vertical: 15),
-                border: InputBorder.none,
+        children: [  // Changed `child` to `children`
+          TextFormField(
+            controller: controller,
+            maxLines: label == 'Event Description' ? 5 : 1,
+            decoration: InputDecoration(
+              labelText: label,  // Adjusted to use the label passed to the function
+              labelStyle: const TextStyle(color: Colors.black),  // Label text color to black
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.black, width: 2)  // Border color to black
               ),
-              maxLines: label == 'Event Description' ? 5 : 1,
-            ),
-          ),
-          Positioned(
-            top: -10,
-            left: 10,
-            child: Container(
-              color: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-              child: Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
+              focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.black, width: 2)  // Border color when focused
               ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
             ),
           ),
         ],
@@ -206,253 +188,277 @@ class _AddEventPageState extends State<AddEvent> {
     );
   }
 
+
+
   Widget _buildDateField(String label, TextEditingController controller) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 30),
+      margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
       child: Stack(
         children: [
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(15),
-              border: Border.all(color: Colors.black, width: 1.5),
-            ),
-            child: TextFormField(
-              controller: controller,
-              style: const TextStyle(color: Colors.black, fontSize: 16),
-              readOnly: true,
-              decoration: InputDecoration(
-                labelText: '',
-                floatingLabelBehavior: FloatingLabelBehavior.never,
-                contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 15, vertical: 15),
-                border: InputBorder.none,
+          TextFormField(
+            controller: controller,
+            decoration: InputDecoration(
+              labelText: label,  // Use the label passed to the function
+              labelStyle: const TextStyle(color: Colors.black),  // Label text color to black
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.black, width: 2) // Border color to black
               ),
-              onTap: () async {
-                DateTime? pickedDate = await showDatePicker(
-                  context: context,
-                  initialDate: DateTime.now(),
-                  firstDate: DateTime(2000),
-                  lastDate: DateTime(2101),
-                );
-                if (pickedDate != null) {
-                  setState(() {
-                    controller.text =
-                    "${pickedDate.day}-${pickedDate.month}-${pickedDate.year}";
-                  });
-                }
-              },
-            ),
-          ),
-          Positioned(
-            top: -10,
-            left: 10,
-            child: Container(
-              color: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-              child: Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
+              focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.black, width: 2) // Border color when focused
               ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
             ),
+            readOnly: true,  // Make the TextField read-only
+            onTap: () async {
+              DateTime? pickedDate = await showDatePicker(
+                context: context,
+                initialDate: DateTime.now(),
+                firstDate: DateTime(2000),
+                lastDate: DateTime(2101),
+              );
+
+              if (pickedDate != null) {
+                // Format the date and set it to the controller
+                String formattedDate = "${pickedDate.day}-${pickedDate.month}-${pickedDate.year}";
+                controller.text = formattedDate;
+              }
+            },
           ),
         ],
       ),
     );
   }
+
+
 
   Widget _buildEventTypeDropdown() {
     List<String> eventTypeOptions = [
       'Conference',
-      'Seminar',
       'Workshop',
-      'Meetup',
+      'Competition',
       'Webinar',
       'Other',
     ];
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 30),
-      padding: const EdgeInsets.symmetric(horizontal: 15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.black, width: 1.5),
-      ),
-      child: DropdownButtonFormField<String>(
-        value: _selectedEventType.isEmpty ? null : _selectedEventType,
-        items: eventTypeOptions.map((String eventType) {
-          return DropdownMenuItem<String>(
-            value: eventType,
-            child: Text(eventType, style: const TextStyle(color: Colors.black)),
-          );
-        }).toList(),
-        onChanged: (String? newValue) {
-          setState(() {
-            _selectedEventType = newValue!;
-          });
-        },
-        decoration: const InputDecoration(
-          labelText: 'Event Type',
-          border: InputBorder.none,
-        ),
+      margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+
+      child: Stack(
+        children: [
+          TextFormField(
+            controller: TextEditingController(text: _selectedEventType),
+            readOnly: true,
+            decoration: InputDecoration(
+              labelText: 'Event Type',
+              labelStyle: const TextStyle(color: Colors.black),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.black, width: 2)
+              ),
+              focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.black, width: 2)
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+
+            ),
+          ),
+          Positioned.fill(
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: DropdownButton<String>(
+
+                onChanged: (newValue) {
+                  setState(() {
+                    _selectedEventType = newValue!;
+                  });
+                },
+                items: eventTypeOptions.map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                underline: SizedBox(), // No underline
+                isExpanded: true,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
+
   Widget _buildCommunityTypeDropdown() {
     List<String> communityTypeOptions = [
-      'Technology',
-      'Art',
-      'Science',
-      'Culture',
+      'IEEE',
+      'CSI',
+      'IEDC',
       'Other',
     ];
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 30),
-      padding: const EdgeInsets.symmetric(horizontal: 15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.black, width: 1.5),
-      ),
-      child: DropdownButtonFormField<String>(
-        value: _selectedCommunityType.isEmpty ? null : _selectedCommunityType,
-        items: communityTypeOptions.map((String communityType) {
-          return DropdownMenuItem<String>(
-            value: communityType,
-            child: Text(
-                communityType, style: const TextStyle(color: Colors.black)),
-          );
-        }).toList(),
-        onChanged: (String? newValue) {
-          setState(() {
-            _selectedCommunityType = newValue!;
-          });
-        },
-        decoration: const InputDecoration(
-          labelText: 'Community Type',
-          border: InputBorder.none,
-        ),
+      margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+
+      child: Stack(
+        children: [
+          TextFormField(
+            controller: TextEditingController(text: _selectedCommunityType),
+            readOnly: true,
+            decoration: InputDecoration(
+              labelText: 'Community Type',
+              labelStyle: const TextStyle(color: Colors.black),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.black, width: 2)
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.black, width: 2),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+
+            ),
+          ),
+          Positioned.fill(
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: DropdownButton<String>(
+
+                onChanged: (newValue) {
+                  setState(() {
+                    _selectedCommunityType = newValue!;
+                  });
+                },
+                items: communityTypeOptions.map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                underline: SizedBox(), // No underline
+                isExpanded: true,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
+
+
   Widget _buildEventPriceDropdown() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 30),
-      padding: const EdgeInsets.symmetric(horizontal: 15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.black, width: 1.5),
+      margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+
+      child: Stack(
+          children: [
+      TextFormField(
+      controller: TextEditingController(text: _selectedEventPrice),
+      readOnly: true,
+      decoration: InputDecoration(
+        labelText: 'Event Price',
+        labelStyle: const TextStyle(color: Colors.black),
+        border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.black, width: 2)
+        ),
+        focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.black, width: 2)
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+
       ),
-      child: DropdownButtonFormField<String>(
-        value: _selectedEventPrice,
-        items: [
-          DropdownMenuItem<String>(
-            value: 'Free',
-            child: Text('Free', style: const TextStyle(color: Colors.black)),
-          ),
-          DropdownMenuItem<String>(
-            value: 'Paid',
-            child: Text('Paid', style: const TextStyle(color: Colors.black)),
-          ),
-        ],
-        onChanged: (String? newValue) {
+    ),
+      DropdownButton<String>(
+
+
+        isExpanded: true,
+
+        underline: SizedBox(),
+        onChanged: (newValue) {
           setState(() {
             _selectedEventPrice = newValue!;
           });
         },
-        decoration: const InputDecoration(
-          labelText: 'Event Price',
-          border: InputBorder.none,
-        ),
+        items: ['Free', 'Paid'].map<DropdownMenuItem<String>>((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          );
+        }).toList(),
+      ),],
       ),
+
     );
   }
 
   Widget _buildMultipleDatePicker() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 30),
-      padding: const EdgeInsets.symmetric(horizontal: 15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.black, width: 1.5),
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "Event Dates",
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              IconButton(
-                onPressed: () async {
-                  DateTime? pickedDate = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime(2000),
-                    lastDate: DateTime(2101),
-                  );
-                  if (pickedDate != null) {
-                    setState(() {
-                      _selectedDates.add(
-                          "${pickedDate.day}-${pickedDate.month}-${pickedDate
-                              .year}");
-                    });
-                  }
-                },
-                icon: const Icon(Icons.add, color: Colors.black),
-              ),
-            ],
+      margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+      child:Stack(
+      children: [ TextFormField(
+        controller: TextEditingController(text: _selectedDates.join(', ')),
+        readOnly: true,
+        decoration: InputDecoration(
+          labelText: 'Event Date(s)',
+          labelStyle: const TextStyle(color: Colors.black),
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.black, width: 2)  // Border color to black
           ),
-          Wrap(
-            children: _selectedDates.map((date) {
-              return Chip(
-                label: Text(date),
-                deleteIcon: const Icon(Icons.close),
-                onDeleted: () {
-                  setState(() {
-                    _selectedDates.remove(date);
-                  });
-                },
-              );
-            }).toList(),
+          focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.black, width: 2)  // Border color when focused
           ),
-        ],
+          contentPadding: const EdgeInsets.symmetric(horizontal:15,vertical: 15),
+        ),
+        onTap: () async {
+          final DateTimeRange? pickedDateRange = await showDateRangePicker(
+            context: context,
+            firstDate: DateTime(2000),
+            lastDate: DateTime(2100),
+          );
+
+          if (pickedDateRange != null) {
+            setState(() {
+              _selectedDates = [
+                "${pickedDateRange.start.day}-${pickedDateRange.start.month}-${pickedDateRange.start.year}",
+                "${pickedDateRange.end.day}-${pickedDateRange.end.month}-${pickedDateRange.end.year}"
+              ];
+            });
+          }
+        },
       ),
+    ]
+    )
     );
   }
 
+
   Widget _buildEventTimePicker() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 30),
-      padding: const EdgeInsets.symmetric(horizontal: 15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.black, width: 1.5),
-      ),
+      margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
       child: TextFormField(
         controller: _eventTimeController,
-        style: const TextStyle(color: Colors.black, fontSize: 16),
         readOnly: true,
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           labelText: 'Event Time',
-          border: InputBorder.none,
+          labelStyle: const TextStyle(color: Colors.black),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.black, width: 2),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.black, width: 2),
+          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
         ),
         onTap: () async {
           TimeOfDay? pickedTime = await showTimePicker(
@@ -469,6 +475,7 @@ class _AddEventPageState extends State<AddEvent> {
     );
   }
 
+
   Widget _buildImagePicker() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 30),
@@ -476,21 +483,28 @@ class _AddEventPageState extends State<AddEvent> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            "Upload Image",
+            "Upload Image:",
             style: TextStyle(
-              fontWeight: FontWeight.bold,
               fontSize: 16,
               color: Colors.black,
+              fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 10),
           GestureDetector(
-            onTap: _pickImage,
+            onTap: () async {
+              final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+              if (pickedFile != null) {
+                setState(() {
+                  _image = File(pickedFile.path);
+                });
+              }
+            },
             child: Container(
               width: double.infinity,
               height: 200,
               decoration: BoxDecoration(
-                color: Colors.grey[300],
+                color: Colors.grey[200],
                 borderRadius: BorderRadius.circular(10),
                 image: _image != null
                     ? DecorationImage(
@@ -500,7 +514,13 @@ class _AddEventPageState extends State<AddEvent> {
                     : null,
               ),
               child: _image == null
-                  ? const Icon(Icons.add_a_photo, color: Colors.black, size: 50)
+                  ? const Center(
+                child: Icon(
+                  Icons.add_a_photo,
+                  color: Colors.black,
+                  size: 50,
+                ),
+              )
                   : null,
             ),
           ),
@@ -509,78 +529,75 @@ class _AddEventPageState extends State<AddEvent> {
     );
   }
 
-  Future<void> _pickImage() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      setState(() {
-        _image = File(image.path);
-      });
-    }
-  }
-
-  Future<void> _signUp() async {
-    if (_eventNameController.text.isEmpty ||
-        _selectedEventType.isEmpty ||
-        _eventLocationController.text.isEmpty ||
-        _eventTimeController.text.isEmpty ||
-        _selectedDates.isEmpty ||
-        _deadlineController.text.isEmpty ||
-        _eventDescriptionController.text.isEmpty) {
-      setState(() {
-        _errorText = 'Please fill in all required fields';
-      });
-      return;
-    }
-
+  Future<void> _submitEvent() async {
     setState(() {
       _isSubmitting = true;
+      _errorText = '';
     });
 
     try {
-      String? imageUrl;
-      if (_image != null) {
-        final storageRef = FirebaseStorage.instance.ref().child(
-            'event_images/${DateTime
-                .now()
-                .millisecondsSinceEpoch}.jpg');
-        final uploadTask = storageRef.putFile(_image!);
-        final snapshot = await uploadTask;
-        imageUrl = await snapshot.ref.getDownloadURL();
+      if (_eventNameController.text.isEmpty) {
+        setState(() {
+          _errorText = 'Event name is required';
+        });
+        return;
       }
 
-      final eventDetails = {
+      if (_selectedEventType.isEmpty) {
+        setState(() {
+          _errorText = 'Please select an event type';
+        });
+        return;
+      }
+
+      if (_selectedCommunityType.isEmpty) {
+        setState(() {
+          _errorText = 'Please select a community type';
+        });
+        return;
+      }
+
+      if (_selectedDates.isEmpty) {
+        setState(() {
+          _errorText = 'Please select at least one event date';
+        });
+        return;
+      }
+
+      String imageUrl = '';
+      if (_image != null) {
+        final storageRef = FirebaseStorage.instance.ref().child('event_images').child('${DateTime.now()}.jpg');
+        await storageRef.putFile(_image!);
+        imageUrl = await storageRef.getDownloadURL();
+      }
+
+      final newEvent = {
         'eventName': _eventNameController.text,
-        'eventType': _selectedEventType == 'Other' ? _otherEventTypeController
-            .text : _selectedEventType,
+        'eventType': _selectedEventType == 'Other' ? _otherEventTypeController.text : _selectedEventType,
+        'communityType': _selectedCommunityType == 'Other' ? _communityTypeController.text : _selectedCommunityType,
+        'eventDates': _selectedDates,
         'eventLocation': _eventLocationController.text,
         'eventTime': _eventTimeController.text,
-        'eventDates': _selectedDates,
-        'eventPrice': _selectedEventPrice == 'Paid' ? _eventPricePaidController
-            .text : _selectedEventPrice,
-        'communityType': _selectedCommunityType == 'Other'
-            ? _communityTypeController.text
-            : _selectedCommunityType,
+        'eventPrice': _selectedEventPrice == 'Paid' ? _eventPricePaidController.text : 'Free',
         'deadline': _deadlineController.text,
         'notificationPhrase': _notificationPhraseController.text,
         'eventDescription': _eventDescriptionController.text,
-        'image': imageUrl,
-        'addedBy': widget.userID,
+        'eventContact': _eventContactController.text,
+        'imageUrl': imageUrl,
+        'createdBy': widget.userID,
+        'createdAt': Timestamp.now(),
       };
 
-      await FirebaseFirestore.instance.collection('EVENTS').add(eventDetails);
+      await FirebaseFirestore.instance.collection('events').add(newEvent);
 
-      await _firebaseMessaging.subscribeToTopic(_selectedCommunityType);
+      if (_notificationPhraseController.text.isNotEmpty) {
+        await _showNotification("A new Event has been added", _notificationPhraseController.text);
+      }
 
-      await _showNotification(
-          'Event Added', 'Your event has been added successfully!');
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => SocHomePage(userId: '')),
-      );
-    } catch (e) {
+      Navigator.pop(context);
+    } catch (error) {
       setState(() {
-        _errorText = 'Failed to add event. Please try again.';
+        _errorText = error.toString();
       });
     } finally {
       setState(() {
@@ -589,6 +606,37 @@ class _AddEventPageState extends State<AddEvent> {
     }
   }
 
+  Future<List<DateTime>> showDatePickerRange({required BuildContext context}) async {
+    final pickedDates = <DateTime>[];
+
+    DateTime? firstDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    if (firstDate != null) {
+      pickedDates.add(firstDate);
+
+      bool continueAdding = true;
+      while (continueAdding) {
+        DateTime? additionalDate = await showDatePicker(
+          context: context,
+          initialDate: DateTime.now(),
+          firstDate: DateTime(2000),
+          lastDate: DateTime(2101),
+        );
+
+        if (additionalDate != null) {
+          pickedDates.add(additionalDate);
+        } else {
+          continueAdding = false;
+        }
+      }
+    }
+
+    return pickedDates;
+  }
+
 }
-
-

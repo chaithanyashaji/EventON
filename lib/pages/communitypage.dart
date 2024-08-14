@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:gap/gap.dart';
-import 'package:universe2024/Utiles/app_styles.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:universe2024/pages/Eventdetails.dart';
 
 class CommunityPage extends StatefulWidget {
-  final String communityId; // Add communityId parameter to the constructor
+  final String communityId;
 
   const CommunityPage({Key? key, required this.communityId}) : super(key: key);
 
@@ -16,369 +16,321 @@ class _CommunityPageState extends State<CommunityPage> {
   bool isFollowed = false;
   late String communityName = "";
   late String communityEmail = "";
-  late String communityPhone = "";
+  late String communityPhone = "No Phone Provided";
   late String communityCollege = "";
+  late String profileImageUrl = ""; // Fetch profile image URL
+  int followersCount = 0;
+  int eventsCount = 0;  // Variable to store the number of events
+  String currentUserId = FirebaseAuth.instance.currentUser!.uid;
+  late Stream<DocumentSnapshot> _stream;
 
   @override
   void initState() {
     super.initState();
+    _stream = FirebaseFirestore.instance
+        .collection('users')
+        .doc(widget.communityId)
+        .snapshots();
     fetchCommunityDetails();
+    checkIfFollowed();
+    fetchFollowersCount();
+    fetchEventsCount();  // Fetch the number of events
   }
 
-  void toggleFollow() {
+  void toggleFollow() async {
     setState(() {
       isFollowed = !isFollowed;
+      followersCount += isFollowed ? 1 : -1;
     });
+
+    if (isFollowed) {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.communityId)
+          .collection('followers')
+          .doc(currentUserId)
+          .set({});
+    } else {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.communityId)
+          .collection('followers')
+          .doc(currentUserId)
+          .delete();
+    }
   }
 
   void fetchCommunityDetails() async {
     try {
       DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
           .collection('users')
-          .doc(widget.communityId) // Use the communityId passed from previous page
+          .doc(widget.communityId)
           .get();
 
-      setState(() {
-        communityName = documentSnapshot['name'];
-        communityEmail = documentSnapshot['email']; // Adjust with your field names
-        communityPhone = documentSnapshot['mobileNumber']; // Adjust with your field names
-        communityCollege = documentSnapshot['collegeName']; // Adjust with your field names
-      });
+      if (documentSnapshot.exists) {
+        Map<String, dynamic>? data = documentSnapshot.data() as Map<String, dynamic>?;
+        print('Document Data: $data');  // Debugging output
+
+        setState(() {
+          communityName = data?['name'] ?? 'Unknown Community';
+          communityEmail = data?['email'] ?? 'No Email Provided';
+          communityCollege = data?['collegeName'] ?? 'No College Provided';
+          communityPhone = data?['phone'] ?? 'No Phone Provided';
+          profileImageUrl = data?['imageUrl'] ?? ''; // Fetch image URL
+        });
+      } else {
+        setState(() {
+          communityName = "Community not found";
+        });
+      }
     } catch (e) {
       setState(() {
-        communityName = "Error loading community name";
+        communityName = "Error loading community details: ${e.toString()}";
       });
+      print("Error fetching community details: $e");
     }
+  }
+
+  void checkIfFollowed() async {
+    DocumentSnapshot doc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(widget.communityId)
+        .collection('followers')
+        .doc(currentUserId)
+        .get();
+
+    setState(() {
+      isFollowed = doc.exists;
+    });
+  }
+
+  void fetchFollowersCount() async {
+    QuerySnapshot followersSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(widget.communityId)
+        .collection('followers')
+        .get();
+
+    setState(() {
+      followersCount = followersSnapshot.docs.length;
+    });
+  }
+
+  void fetchEventsCount() async {
+    QuerySnapshot eventsSnapshot = await FirebaseFirestore.instance
+        .collection('EVENTS')
+        .where('addedBy', isEqualTo: widget.communityId)
+        .get();
+
+    setState(() {
+      eventsCount = eventsSnapshot.docs.length;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        physics: AlwaysScrollableScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              height: 240,
-              child: Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(25),
-                      bottomRight: Radius.circular(25),
-                    ),
-                    child: Container(
-                      width: MediaQuery.of(context).size.width,
-                      height: 150,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: AssetImage('assets/ieeebanner.jpeg'),
-                          fit: BoxFit.cover,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: IconThemeData(color: Colors.black),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.notifications, color: Colors.black),
+            onPressed: () {
+              // Add your notification navigation here
+            },
+          ),
+          SizedBox(width: 10),
+          Image.asset('assets/EventOn.png', height: 32),
+          SizedBox(width: 10),
+        ],
+        title: Text(
+          communityName,
+          style: TextStyle(color: Colors.black),
+        ),
+      ),
+      body: StreamBuilder<DocumentSnapshot>(
+        stream: _stream,
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          if (!snapshot.hasData || !snapshot.data!.exists) {
+            return Center(child: Text('Community not found'));
+          }
+
+          DocumentSnapshot communityDoc = snapshot.data!;
+          Map<String, dynamic> communityData = communityDoc.data() as Map<String, dynamic>;
+
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 150,
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        bottom: 0,
+                        left: 16,
+                        child: CircleAvatar(
+                          radius: 50,
+                          backgroundImage: profileImageUrl.isNotEmpty
+                              ? NetworkImage(profileImageUrl)
+                              : AssetImage('assets/ieeeprofile.jpeg') as ImageProvider,
                         ),
                       ),
-                    ),
+                      Positioned(
+                        bottom: 20,
+                        left: 140,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              communityName,
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              '$followersCount followers • $eventsCount events',
+                              style: TextStyle(fontSize: 16, color: Colors.grey),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  Positioned(
-                    top: 115,
-                    left: 120,
-                    child: Container(
-                      width: 300,
-                      height: 70,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: Styles.yellowColor,
-                          width: 2,
-                        ),
-                      ),
-                      child: Center(
-                        child: Text(
-                          communityName,
-                          style: TextStyle(
-                            color: Styles.blueColor,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: 90,
-                    left: 50,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Styles.yellowColor,
-                          width: 2,
-                        ),
-                      ),
-                      child: CircleAvatar(
-                        radius: 60,
-                        backgroundImage: AssetImage('assets/ieeeprofile.jpeg'),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.only(left: 50.0),
-                    width: 200,
-                    height: 35,
-                    child: ElevatedButton(
-                      onPressed: toggleFollow,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Styles.blueColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                      ),
-                      child: Text(
-                        isFollowed ? 'Followed' : 'Follow Community',
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Gap(30),
-                  Container(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.only(left: 27.0),
-                          child: Icon(
-                            Icons.note_alt_outlined,
-                            color: Styles.blueColor,
-                          ),
-                        ),
-                        Gap(3),
-                        Text(
-                          'About us',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                            color: Styles.blueColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Container(
-                    margin: const EdgeInsets.only(left: 27.0),
-                    width: 450,
-                    height: 150,
-                    decoration: BoxDecoration(
-                      border: Border.all(width: 1, color: Styles.yellowColor),
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(13),
-                    ),
-                    child: Padding(
-                      padding: EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                ),
+                SizedBox(height: 16),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Community Name  :  $communityName',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Styles.blueColor,
-                                    ),
-                                  ),
-                                  Gap(5),
-                                  Text(
-                                    'Email  :  $communityEmail',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Styles.blueColor,
-                                    ),
-                                  ),
-                                  Gap(5),
-                                  Text(
-                                    'Phone Number  :  $communityPhone',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Styles.blueColor,
-                                    ),
-                                  ),
-                                  Gap(5),
-                                  Text(
-                                    'College Name  :  $communityCollege',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Styles.blueColor,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                          Icon(Icons.email, color: Colors.black),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              communityEmail,
+                              style: TextStyle(fontSize: 16, color: Colors.black),
+                            ),
                           ),
                         ],
                       ),
-                    ),
-                  ),
-                  Gap(30),
-                  Container(
-                    margin: const EdgeInsets.only(left: 29.0),
-                    child: Text(
-                      'Upcoming Events',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: Styles.blueColor,
-                      ),
-                    ),
-                  ),
-                  Gap(10),
-                  Container(
-                    margin: const EdgeInsets.only(left: 27.0),
-                    width: 450,
-                    height: 290,
-                    decoration: BoxDecoration(
-                      border: Border.all(width: 1, color: Styles.yellowColor),
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(13),
-                    ),
-                    child: SizedBox(
-                      height: 280,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemBuilder: (context, index) {
-                          return Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 5),
-                            width: 200,
-                            child: Card(
-                              margin: EdgeInsets.all(10),
-                              elevation: 3,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Column(
-                                      children: [
-                                        Image.asset(
-                                          'assets/2.jpeg',
-                                          height: 125,
-                                        ),
-                                        const SizedBox(height: 10),
-                                        Text(
-                                          'Name',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 5),
-                                        Text(
-                                          'Date: \nLocation:\nPrice:',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
+                      SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Icon(Icons.phone, color: Colors.black),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              communityPhone,
+                              style: TextStyle(fontSize: 16, color: Colors.black),
                             ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Icon(Icons.school, color: Colors.black),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              communityCollege,
+                              style: TextStyle(fontSize: 16, color: Colors.black),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: toggleFollow,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: isFollowed ? Colors.grey[300] : Colors.blueAccent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                        ),
+                        child: Text(
+                          isFollowed ? 'Following' : 'Follow',
+                          style: TextStyle(
+                            color: isFollowed ? Colors.black : Colors.white,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      Divider(),
+                      SizedBox(height: 16),
+                      Text(
+                        'Events',
+                        style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black),
+                      ),
+                      SizedBox(height: 16),
+                      StreamBuilder<QuerySnapshot>(
+                        stream: FirebaseFirestore.instance
+                            .collection('EVENTS')
+                            .where('addedBy', isEqualTo: widget.communityId)
+                            .snapshots(),
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return Center(child: CircularProgressIndicator());
+                          }
+
+                          var events = snapshot.data!.docs;
+
+                          const int columns = 2;
+                          int rows = (events.length / columns).ceil();
+
+                          return GridView.builder(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: columns,
+                              crossAxisSpacing: 8.0,
+                              mainAxisSpacing: 8.0,
+                            ),
+                            itemCount: events.length,
+                            itemBuilder: (context, index) {
+                              var event = events[index];
+                              return GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => EventDetails(eventKey: event.id),
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                  color: Colors.grey[300],
+                                  child: Image.network(
+                                    event['imageUrl'],
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              );
+                            },
                           );
                         },
                       ),
-                    ),
+                    ],
                   ),
-                  Gap(30),
-                  Container(
-                    margin: const EdgeInsets.only(left: 29.0),
-                    child: Text(
-                      'All Events',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: Styles.blueColor,
-                      ),
-                    ),
-                  ),
-                  Gap(10),
-                  Container(
-                    margin: const EdgeInsets.only(left: 27.0),
-                    width: 450,
-                    height: 290,
-                    decoration: BoxDecoration(
-                      border: Border.all(width: 1, color: Styles.yellowColor),
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(13),
-                    ),
-                    child: SizedBox(
-                      height: 280,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemBuilder: (context, index) {
-                          return Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 5),
-                            width: 200,
-                            child: Card(
-                              margin: EdgeInsets.all(10),
-                              elevation: 3,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Column(
-                                      children: [
-                                        Image.asset(
-                                          'assets/2.jpeg',
-                                          height: 125,
-                                        ),
-                                        const SizedBox(height: 10),
-                                        Text(
-                                          'Name',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 5),
-                                        Text(
-                                          'Date: \nLocation:\nPrice:',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

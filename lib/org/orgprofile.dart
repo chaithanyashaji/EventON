@@ -16,7 +16,7 @@ class OrgProfile extends StatefulWidget {
 class _OrgProfileState extends State<OrgProfile> {
   late Stream<DocumentSnapshot> _userStream;
   late Stream<List<Map<String, dynamic>>> _eventsStream;
-  late Stream<List<Map<String, dynamic>>> _allEventsStream;
+  bool _isFollowing = false;
 
   @override
   void initState() {
@@ -26,33 +26,27 @@ class _OrgProfileState extends State<OrgProfile> {
         .collection('users')
         .doc(currentUserUid)
         .snapshots();
-    _eventsStream = _fetchAllEvents(currentUserUid);
-    _allEventsStream = _fetchAllUsersEvents();
+    _eventsStream = _fetchEventsForCommunity(currentUserUid);
   }
 
-  Stream<List<Map<String, dynamic>>> _fetchAllEvents(String? userId) async* {
+  Stream<List<Map<String, dynamic>>> _fetchEventsForCommunity(String? userId) async* {
     if (userId == null) {
       yield [];
       return;
     }
-    final now = DateTime.now();
 
     final eventsSnapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(userId)
-        .collection('events')
-        .where('eventDate', isGreaterThanOrEqualTo: now)
-        .orderBy('eventDate')
+        .collection('EVENTS')
+        .where('addedBy', isEqualTo: userId)
         .get();
 
     final events = eventsSnapshot.docs.map((doc) {
       final data = doc.data();
       return {
         'eventName': data['eventName'],
-        'eventDate': (data['eventDate'] as Timestamp).toDate(),
+        'imageUrl': data['imageUrl'],
+        'eventDate': data['eventDate'], // Keep this as a string
         'eventLocation': data['eventLocation'],
-        'eventPrice': data['eventPrice'],
-        'eventType': data['eventType'],
         'documentID': doc.id,
       };
     }).toList();
@@ -60,30 +54,34 @@ class _OrgProfileState extends State<OrgProfile> {
     yield events;
   }
 
-  Stream<List<Map<String, dynamic>>> _fetchAllUsersEvents() async* {
-    final usersSnapshot =
-    await FirebaseFirestore.instance.collection('users').get();
+  Future<void> _toggleFollow(String communityId) async {
+    final currentUserUid = FirebaseAuth.instance.currentUser?.uid;
+    final communityRef =
+    FirebaseFirestore.instance.collection('users').doc(communityId);
 
-    List<Map<String, dynamic>> allEvents = [];
+    final currentUserRef =
+    FirebaseFirestore.instance.collection('users').doc(currentUserUid);
 
-    for (final userDoc in usersSnapshot.docs) {
-      final eventsSnapshot = await userDoc.reference.collection('events').get();
-      final userEvents = eventsSnapshot.docs.map((doc) {
-        final data = doc.data();
-        return {
-          'eventName': data['eventName'],
-          'eventDate': (data['eventDate'] as Timestamp).toDate(),
-          'eventLocation': data['eventLocation'],
-          'eventPrice': data['eventPrice'],
-          'eventType': data['eventType'],
-          'documentID': doc.id,
-        };
-      }).toList();
+    final currentUserSnapshot = await currentUserRef.get();
+    final communitySnapshot = await communityRef.get();
 
-      allEvents.addAll(userEvents);
+    final currentUserFollowing = currentUserSnapshot.data()?['following'] ?? [];
+    final communityFollowers = communitySnapshot.data()?['followers'] ?? [];
+
+    setState(() {
+      _isFollowing = !_isFollowing;
+    });
+
+    if (_isFollowing) {
+      currentUserFollowing.add(communityId);
+      communityFollowers.add(currentUserUid);
+    } else {
+      currentUserFollowing.remove(communityId);
+      communityFollowers.remove(currentUserUid);
     }
 
-    yield allEvents;
+    await currentUserRef.update({'following': currentUserFollowing});
+    await communityRef.update({'followers': communityFollowers});
   }
 
   @override
@@ -94,8 +92,7 @@ class _OrgProfileState extends State<OrgProfile> {
         physics: AlwaysScrollableScrollPhysics(),
         child: StreamBuilder<DocumentSnapshot>(
           stream: _userStream,
-          builder: (BuildContext context,
-              AsyncSnapshot<DocumentSnapshot> userSnapshot) {
+          builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> userSnapshot) {
             if (userSnapshot.hasError) {
               return Center(child: Text('Error: ${userSnapshot.error}'));
             }
@@ -108,6 +105,8 @@ class _OrgProfileState extends State<OrgProfile> {
             final email = userData['email'] ?? '';
             final mobileNumber = userData['mobileNumber'] ?? '';
             final name = userData['name'] ?? '';
+            final followers = userData['followers']?.length ?? 0;
+            final isCommunity = userData['roll'] == 'Community';
 
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -126,8 +125,47 @@ class _OrgProfileState extends State<OrgProfile> {
                         '$name',
                         style: TextStyle(
                           color: Styles.blueColor,
-                          fontSize: 18,
+                          fontSize: 22,
                           fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 5),
+                      Text(
+                        '$followers followers',
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 16,
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      isCommunity
+                          ? ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  EditDetailsForm(userData: userData),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Styles.blueColor,
+                        ),
+                        child: Text(
+                          'Edit Profile',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      )
+                          : ElevatedButton(
+                        onPressed: () => _toggleFollow(userData['uid']),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                          _isFollowing ? Colors.grey : Styles.blueColor,
+                        ),
+                        child: Text(
+                          _isFollowing ? 'Unfollow' : 'Follow',
+                          style: TextStyle(color: Colors.white),
                         ),
                       ),
                     ],
@@ -138,81 +176,136 @@ class _OrgProfileState extends State<OrgProfile> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Gap(10),
                       Row(
                         children: [
-                          Icon(Icons.note_alt_outlined, color: Styles.blueColor),
+                          Icon(Icons.school, color: Styles.blueColor),
                           Gap(8),
                           Text(
-                            'About us',
+                            'College: $collegeName',
                             style: TextStyle(
                               fontSize: 15,
-                              fontWeight: FontWeight.bold,
                               color: Styles.blueColor,
                             ),
                           ),
                         ],
                       ),
-                      SizedBox(height: 10),
-                      Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(width: 1, color: Styles.yellowColor),
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(13),
+                      SizedBox(height: 5),
+                      Row(
+                        children: [
+                          Icon(Icons.email_outlined, color: Styles.blueColor),
+                          Gap(8),
+                          Text(
+                            'Email: $email',
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Styles.blueColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 5),
+                      Row(
+                        children: [
+                          Icon(Icons.phone_outlined, color: Styles.blueColor),
+                          Gap(8),
+                          Text(
+                            'Phone: $mobileNumber',
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Styles.blueColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Gap(30),
+                      Divider(),
+                      Gap(10),
+                      Text(
+                        'Events',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Styles.blueColor,
                         ),
-                        padding: EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Community Name: $name',
-                              style: TextStyle(fontSize: 16, color: Styles.blueColor),
+                      ),
+                      StreamBuilder<List<Map<String, dynamic>>>(
+                        stream: _eventsStream,
+                        builder: (BuildContext context,
+                            AsyncSnapshot<List<Map<String, dynamic>>> eventsSnapshot) {
+                          if (eventsSnapshot.hasError) {
+                            return Center(
+                                child: Text('Error: ${eventsSnapshot.error}'));
+                          }
+                          if (eventsSnapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(child: CircularProgressIndicator());
+                          }
+
+                          final events = eventsSnapshot.data ?? [];
+                          return GridView.builder(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: events.length,
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 10,
+                              mainAxisSpacing: 10,
+                              childAspectRatio: 0.8,
                             ),
-                            Gap(5),
-                            Text(
-                              'Email: $email',
-                              style: TextStyle(fontSize: 16, color: Styles.blueColor),
-                            ),
-                            Gap(5),
-                            Text(
-                              'Phone Number: $mobileNumber',
-                              style: TextStyle(fontSize: 16, color: Styles.blueColor),
-                            ),
-                            Gap(5),
-                            Text(
-                              'College Name: $collegeName',
-                              style: TextStyle(fontSize: 16, color: Styles.blueColor),
-                            ),
-                            Gap(10),
-                            Center(
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => EditDetailsForm(userData: userData),
-                                    ),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Styles.blueColor,
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
+                            itemBuilder: (context, index) {
+                              final event = events[index];
+                              return Card(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+
                                   children: [
-                                    Icon(Icons.edit, color: Colors.white),
-                                    SizedBox(width: 5),
-                                    Text(
-                                      'Edit Details',
-                                      style: TextStyle(color: Colors.white),
+                                    Image.network(
+                                      event['imageUrl'],
+                                      fit: BoxFit.cover,
+                                      width: double.infinity,
+                                      height: 120,
+                                    ),
+
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            event['eventName'],
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          Gap(5),
+                                          Text(
+                                            event['eventDate'],
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                          Gap(5),
+                                          Text(
+                                            event['eventLocation'],
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ],
                                 ),
-                              ),
-                            ),
-                          ],
-                        ),
+                              );
+                            },
+                          );
+                        },
                       ),
-                      Gap(100),
+                      Gap(30),
                       Center(
                         child: SizedBox(
                           width: 150,
@@ -221,8 +314,7 @@ class _OrgProfileState extends State<OrgProfile> {
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                    builder: (context) => loginpage()),
+                                MaterialPageRoute(builder: (context) => loginpage()),
                               );
                             },
                             style: ElevatedButton.styleFrom(
@@ -235,7 +327,6 @@ class _OrgProfileState extends State<OrgProfile> {
                           ),
                         ),
                       ),
-                      Gap(30),
                     ],
                   ),
                 ),
