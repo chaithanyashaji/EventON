@@ -184,19 +184,7 @@ class _EventDetailsState extends State<EventDetails> {
                   ),
                 ),
               ),
-              if ( _addedBy == _currentUserId) ...[
-                _buildIconButton(
-                  icon: Icons.edit,
-                  onPressed: _editEvent,
-                  color: Colors.black,
-                ),
-                Gap(8),
-                _buildIconButton(
-                  icon: Icons.delete,
-                  onPressed: _deleteEvent,
-                  color: Colors.black,
-                ),
-              ],
+
             ],
           ),
           SizedBox(height: 8),
