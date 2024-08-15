@@ -55,6 +55,7 @@ dependencies:
   readmore: ^3.0.0
   flutter_local_notifications: ^17.2.1+2
   flutter_dotenv: ^5.1.0
+  flutter_launcher_icons: ^0.13.1
 
 
 
@@ -62,7 +63,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_launcher_icons: "^0.13.1"
+
 
 
 
@@ -73,10 +74,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^3.0.0
-flutter_launcher_icons:
-  android: "launcher_icon"
-  ios: true
-  image_path: "assets/EventOn.png"
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -90,22 +88,18 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/logowhite.png
-    - assets/unibb.png
     - assets/dialog_flow_auth.json
     - assets/qrbg.png
-    - assets/1.jpeg
+
     - assets/2.jpeg
     - assets/3.jpeg
     - assets/11.jpg
     - assets/12.jpg
     - assets/13.jpg
-    - assets/logoblue.png
-    - assets/logosplash.png
-    - assets/ieeebanner.jpeg
     - assets/ieeeprofile.jpeg
     - .env
     - assets/EventOn.png
+    - assets/eventonapplogo.png
   #   - images/a_dot_ham.jpeg
 
 
