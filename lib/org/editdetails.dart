@@ -7,7 +7,7 @@ import 'package:gap/gap.dart';
 import 'package:universe2024/Utiles/app_styles.dart';
 
 class EditDetailsForm extends StatefulWidget {
-  final Map<String, dynamic> userData;
+  final Map<String, dynamic>? userData;
 
   const EditDetailsForm({required this.userData, Key? key}) : super(key: key);
 
@@ -27,10 +27,10 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
   @override
   void initState() {
     super.initState();
-    name = widget.userData['name'];
-    email = widget.userData['email'];
-    mobileNumber = widget.userData['mobileNumber'];
-    collegeName = widget.userData['collegeName'];
+    name = widget.userData?['name'] ?? '';
+    email = widget.userData?['email'] ?? '';
+    mobileNumber = widget.userData?['mobileNumber'] ?? '';
+    collegeName = widget.userData?['collegeName'] ?? '';
   }
 
   Future<void> _updateUserData() async {
@@ -80,21 +80,21 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
                   // Name Field
                   Container(
                     width: fieldWidth,
-                    child: _buildTextField('Name', initialValue: name, onSaved: (value) => name = value!),
+                    child: _buildTextField('Name', initialValue: name, onSaved: (value) => name = value ?? ''),
                   ),
                   const Gap(20),
 
                   // Mobile Number Field
                   Container(
                     width: fieldWidth,
-                    child: _buildTextField('Mobile Number', initialValue: mobileNumber, onSaved: (value) => mobileNumber = value!),
+                    child: _buildTextField('Mobile Number', initialValue: mobileNumber, onSaved: (value) => mobileNumber = value ?? ''),
                   ),
                   const Gap(20),
 
                   // College Name Field
                   Container(
                     width: fieldWidth,
-                    child: _buildTextField('College Name', initialValue: collegeName, onSaved: (value) => collegeName = value!),
+                    child: _buildTextField('College Name', initialValue: collegeName, onSaved: (value) => collegeName = value ?? ''),
                   ),
                   const Gap(20),
 

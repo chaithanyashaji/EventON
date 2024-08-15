@@ -46,7 +46,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         textTheme: GoogleFonts.poppinsTextTheme(),
       ),
-      home: Splashscreen(),
+      home:  Splashscreen(),
 
       
 

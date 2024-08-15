@@ -142,7 +142,7 @@ class _SocHomePageState extends State<SocHomePage> {
                 label: 'Home',
               ),
               BottomNavigationBarItem(
-                icon: _buildIcon(Icons.person_3, 1),
+                icon: _buildIcon(Icons.event_available, 1),
                 label: 'Registrants',
               ),
               BottomNavigationBarItem(
@@ -318,7 +318,7 @@ class HomeContent extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 5),
                                   Text(
-                                    'Date: ${event['eventDate']}\nEvent Type: ${event['eventtype']}\nPrice: ${event['eventPrice']}',
+                                    'Date: ${event['eventDate']}\nEvent Type: ${event['eventType']}\nPrice: ${event['eventPrice']}',
                                     style: TextStyle(
                                       fontSize: 16,
                                       color: Colors.black, // Black text color

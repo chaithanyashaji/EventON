@@ -25,7 +25,7 @@ class _HomePageState extends State<HomePage> {
 
   static List<Widget> _widgetOptions = <Widget>[
     searchpage1(),
-    searchpage(),
+    SearchPage(),
     MyEventsPage(),
     Profile(),// Add My Events page to the widget options
   ];
@@ -118,7 +118,7 @@ class _HomePageState extends State<HomePage> {
                 label: 'Search',
               ),
               BottomNavigationBarItem(
-                icon: _buildIcon(Icons.event, 2),
+                icon: _buildIcon(Icons.event_available, 2),
                 label: 'My Events',
               ),
               BottomNavigationBarItem(
@@ -294,7 +294,7 @@ class HomeContent extends StatelessWidget {
                                       ),
                                       const SizedBox(height: 5),
                                       Text(
-                                        'Date: ${event['eventDate']}\nEvent Type: ${event['eventtype']}\nPrice: ${event['eventPrice']}',
+                                        'Date: ${event['eventDate']}\nEvent Type: ${event['eventType']}\nPrice: ${event['eventPrice']}',
                                         style: TextStyle(
                                           fontSize: 16,
                                           color: Colors.black, // Black text color

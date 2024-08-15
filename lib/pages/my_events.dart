@@ -19,7 +19,7 @@ class MyEventsPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('My Events'),
+        title: Text('Registered Events'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
