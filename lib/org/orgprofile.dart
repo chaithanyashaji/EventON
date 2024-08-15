@@ -61,8 +61,7 @@ class _OrgProfileState extends State<OrgProfile> {
   }
 
   Stream<List<Map<String, dynamic>>> _fetchAllUsersEvents() async* {
-    final usersSnapshot =
-    await FirebaseFirestore.instance.collection('users').get();
+    final usersSnapshot = await FirebaseFirestore.instance.collection('users').get();
 
     List<Map<String, dynamic>> allEvents = [];
 
@@ -91,16 +90,15 @@ class _OrgProfileState extends State<OrgProfile> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
-        physics: AlwaysScrollableScrollPhysics(),
+        physics: const AlwaysScrollableScrollPhysics(),
         child: StreamBuilder<DocumentSnapshot>(
           stream: _userStream,
-          builder: (BuildContext context,
-              AsyncSnapshot<DocumentSnapshot> userSnapshot) {
+          builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> userSnapshot) {
             if (userSnapshot.hasError) {
               return Center(child: Text('Error: ${userSnapshot.error}'));
             }
             if (userSnapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
+              return const Center(child: CircularProgressIndicator());
             }
 
             final userData = userSnapshot.data?.data() as Map<String, dynamic>;
@@ -114,16 +112,16 @@ class _OrgProfileState extends State<OrgProfile> {
               children: [
                 Container(
                   alignment: Alignment.center,
-                  padding: EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(16.0),
                   child: Column(
                     children: [
-                      CircleAvatar(
+                      const CircleAvatar(
                         radius: 60,
                         backgroundImage: AssetImage('assets/ieeeprofile.jpeg'),
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       Text(
-                        '$name',
+                        name,
                         style: TextStyle(
                           color: Styles.blueColor,
                           fontSize: 18,
@@ -140,8 +138,10 @@ class _OrgProfileState extends State<OrgProfile> {
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.note_alt_outlined, color: Styles.blueColor),
-                          Gap(8),
+                          Container(
+                              margin: const EdgeInsets.only(left: 27.0),
+                              child: Icon(Icons.note_alt_outlined, color: Styles.blueColor)),
+                          const Gap(8),
                           Text(
                             'About us',
                             style: TextStyle(
@@ -152,14 +152,16 @@ class _OrgProfileState extends State<OrgProfile> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 24.0),
+                        width: double.infinity,
                         decoration: BoxDecoration(
                           border: Border.all(width: 1, color: Styles.yellowColor),
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(13),
                         ),
-                        padding: EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -167,22 +169,22 @@ class _OrgProfileState extends State<OrgProfile> {
                               'Community Name: $name',
                               style: TextStyle(fontSize: 16, color: Styles.blueColor),
                             ),
-                            Gap(5),
+                            const Gap(5),
                             Text(
                               'Email: $email',
                               style: TextStyle(fontSize: 16, color: Styles.blueColor),
                             ),
-                            Gap(5),
+                            const Gap(5),
                             Text(
                               'Phone Number: $mobileNumber',
                               style: TextStyle(fontSize: 16, color: Styles.blueColor),
                             ),
-                            Gap(5),
+                            const Gap(5),
                             Text(
                               'College Name: $collegeName',
                               style: TextStyle(fontSize: 16, color: Styles.blueColor),
                             ),
-                            Gap(10),
+                            const Gap(10),
                             Center(
                               child: ElevatedButton(
                                 onPressed: () {
@@ -198,7 +200,7 @@ class _OrgProfileState extends State<OrgProfile> {
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
-                                  children: [
+                                  children: const [
                                     Icon(Icons.edit, color: Colors.white),
                                     SizedBox(width: 5),
                                     Text(
@@ -212,7 +214,7 @@ class _OrgProfileState extends State<OrgProfile> {
                           ],
                         ),
                       ),
-                      Gap(100),
+                      const Gap(100),
                       Center(
                         child: SizedBox(
                           width: 150,
@@ -221,21 +223,20 @@ class _OrgProfileState extends State<OrgProfile> {
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                    builder: (context) => loginpage()),
+                                MaterialPageRoute(builder: (context) => const loginpage()),
                               );
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Styles.blueColor,
                             ),
-                            child: Text(
+                            child: const Text(
                               'Logout',
                               style: TextStyle(color: Colors.white),
                             ),
                           ),
                         ),
                       ),
-                      Gap(30),
+                      const Gap(30),
                     ],
                   ),
                 ),

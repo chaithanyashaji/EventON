@@ -62,16 +62,20 @@ class _ProfileState extends State<Profile> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const Gap(20),
-                  Icon(
-                    Icons.person,
-                    size: 90,
-                    color: Styles.blueColor,
+                  CircleAvatar(
+                    radius: 45,
+                    backgroundColor: Styles.blueColor.withOpacity(0.2),
+                    child: Icon(
+                      Icons.person,
+                      size: 70,
+                      color: Styles.blueColor,
+                    ),
                   ),
                   const Gap(10),
                   Text(
                     name,
                     style: TextStyle(
-                      fontSize: 22,
+                      fontSize: 24,
                       color: Styles.blueColor,
                       fontWeight: FontWeight.bold,
                     ),
@@ -218,6 +222,7 @@ class _ProfileState extends State<Profile> {
   }
 }
 
+
 class EditDetailsForm extends StatefulWidget {
   final Map<String, dynamic> userData;
 
@@ -247,26 +252,27 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
     _ieeeMembershipId = widget.userData['ieeeMembershipId'] ?? '';
   }
 
-  void _saveDetails() {
+  void _saveDetails() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       final currentUserUid = FirebaseAuth.instance.currentUser?.uid;
-      FirebaseFirestore.instance.collection('users').doc(currentUserUid).update({
-        'name': _name,
-        'phoneNumber': _phoneNumber,
-        'collegeName': _collegeName,
-        'communityMember': _communityMember,
-        'ieeeMembershipId': _ieeeMembershipId,
-      }).then((value) {
+      if (currentUserUid != null) {
+        await FirebaseFirestore.instance.collection('users').doc(currentUserUid).update({
+          'name': _name,
+          'phoneNumber': _phoneNumber,
+          'collegeName': _collegeName,
+          'communityMember': _communityMember,
+          'ieeeMembershipId': _ieeeMembershipId,
+        });
         Navigator.pop(context);
-      }).catchError((error) {
-        print('Error updating user details: $error');
-      });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final double fieldWidth = MediaQuery.of(context).size.width * 0.85;
+
     return Scaffold(
       appBar: AppBar(
         iconTheme: IconThemeData(
@@ -275,83 +281,91 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
         title: const Text('Edit Details', style: TextStyle(color: Colors.white)),
         backgroundColor: Styles.blueColor,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              TextFormField(
-                initialValue: _name,
-                decoration: const InputDecoration(labelText: 'Name'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your name';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  _name = value!;
-                },
-              ),
-              TextFormField(
-                initialValue: _phoneNumber,
-                decoration: const InputDecoration(labelText: 'Phone Number'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your phone number';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  _phoneNumber = value!;
-                },
-              ),
-              TextFormField(
-                initialValue: _collegeName,
-                decoration: const InputDecoration(labelText: 'College Name'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your college name';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  _collegeName = value!;
-                },
-              ),
-              TextFormField(
-                initialValue: _communityMember,
-                decoration: const InputDecoration(labelText: 'Community Member'),
-                onSaved: (value) {
-                  _communityMember = value!;
-                },
-              ),
-              TextFormField(
-                initialValue: _ieeeMembershipId,
-                decoration: const InputDecoration(labelText: 'IEEE Membership ID'),
-                onSaved: (value) {
-                  _ieeeMembershipId = value!;
-                },
-              ),
-              const Gap(20),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _saveDetails,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Styles.blueColor,
+      body: Center(
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  Container(
+                    width: fieldWidth,
+                    child: _buildTextField('Name', initialValue: _name, onSaved: (value) => _name = value!),
                   ),
-                  child: const Text(
-                    'Save',
-                    style: TextStyle(color: Colors.white),
+                  const Gap(20),
+                  Container(
+                    width: fieldWidth,
+                    child: _buildTextField('Phone Number', initialValue: _phoneNumber, onSaved: (value) => _phoneNumber = value!),
                   ),
-                ),
+                  const Gap(20),
+                  Container(
+                    width: fieldWidth,
+                    child: _buildTextField('College Name', initialValue: _collegeName, onSaved: (value) => _collegeName = value!),
+                  ),
+                  const Gap(20),
+                  Container(
+                    width: fieldWidth,
+                    child: _buildTextField('Community Member', initialValue: _communityMember, onSaved: (value) => _communityMember = value!),
+                  ),
+                  const Gap(20),
+                  Container(
+                    width: fieldWidth,
+                    child: _buildTextField('IEEE Membership ID', initialValue: _ieeeMembershipId, onSaved: (value) => _ieeeMembershipId = value!),
+                  ),
+                  const Gap(20),
+                  Container(
+                    width: fieldWidth,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: _saveDetails,
+                      style: ElevatedButton.styleFrom(
+                        elevation: 0,
+                        backgroundColor: Styles.blueColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Save',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
+
+  Widget _buildTextField(String label, {required String initialValue, required void Function(String?) onSaved}) {
+    return TextFormField(
+      initialValue: initialValue,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: Colors.black),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.black, width: 1.5),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.black, width: 1.5),
+        ),
+        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please enter your $label';
+        }
+        return null;
+      },
+      onSaved: onSaved,
+    );
+  }
 }
+
