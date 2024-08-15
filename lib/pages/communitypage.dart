@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:gap/gap.dart';
 import 'package:universe2024/pages/Eventdetails.dart';
 
 class CommunityPage extends StatefulWidget {
@@ -295,28 +296,109 @@ class _CommunityPageState extends State<CommunityPage> {
                           return GridView.builder(
                             shrinkWrap: true,
                             physics: NeverScrollableScrollPhysics(),
+                            itemCount: events.length,
                             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: columns,
-                              crossAxisSpacing: 8.0,
-                              mainAxisSpacing: 8.0,
+                              crossAxisSpacing: 10,
+                              mainAxisSpacing: 10,
+                              childAspectRatio: 0.75, // Adjusted aspect ratio
                             ),
-                            itemCount: events.length,
                             itemBuilder: (context, index) {
-                              var event = events[index];
+                              final eventDoc = events[index];
+                              final eventData = eventDoc.data() as Map<String, dynamic>;
+                              final documentID = eventDoc.id;
+
                               return GestureDetector(
                                 onTap: () {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => EventDetails(eventKey: event.id),
+                                      builder: (context) =>
+                                          EventDetails(eventKey: documentID),
                                     ),
                                   );
                                 },
-                                child: Container(
-                                  color: Colors.grey[300],
-                                  child: Image.network(
-                                    event['imageUrl'],
-                                    fit: BoxFit.cover,
+                                child: Card(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    side: BorderSide(color: Colors.black, width: 2.0), // Black border
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      AspectRatio(
+                                        aspectRatio: 2 / 1, // Adjust aspect ratio if needed
+                                        child: Image.network(
+                                          eventData['imageUrl'] ?? '',
+                                          fit: BoxFit.cover,
+                                          width: double.infinity,
+                                          errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              eventData['eventName'] ?? 'Unknown Event',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            Gap(5),
+                                            Row(
+                                              children: [
+                                                Icon(Icons.calendar_today, size: 14, color: Colors.grey),
+                                                SizedBox(width: 4),
+                                                Text(
+                                                  eventData['eventDate'] ?? '',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.grey,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Gap(5),
+                                            Row(
+                                              children: [
+                                                Icon(Icons.location_on, size: 14, color: Colors.grey),
+                                                SizedBox(width: 4),
+                                                Text(
+                                                  eventData['eventLocation'] ?? '',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.grey,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Gap(5),
+                                            Row(
+                                              children: [
+                                                Icon(
+                                                  eventData['eventType'] == 'Paid'
+                                                      ? Icons.attach_money
+                                                      : Icons.event_available,
+                                                  size: 14,
+                                                  color: Colors.grey,
+                                                ),
+                                                SizedBox(width: 4),
+                                                Text(
+                                                  eventData['eventType'] ?? 'Unknown Type',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.grey,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               );

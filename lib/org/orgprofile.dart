@@ -3,8 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:gap/gap.dart';
 import 'package:universe2024/Utiles/app_styles.dart';
-import 'package:universe2024/pages/loginpage.dart';
 import 'package:universe2024/org/editdetails.dart';
+import '../pages/Eventdetails.dart';
+import '../pages/loginpage.dart';
+ // Import EventDetails page
 
 class OrgProfile extends StatefulWidget {
   const OrgProfile({Key? key}) : super(key: key);
@@ -16,7 +18,7 @@ class OrgProfile extends StatefulWidget {
 class _OrgProfileState extends State<OrgProfile> {
   late Stream<DocumentSnapshot> _userStream;
   late Stream<List<Map<String, dynamic>>> _eventsStream;
-  bool _isFollowing = false;
+  int followersCount = 0;
 
   @override
   void initState() {
@@ -27,6 +29,27 @@ class _OrgProfileState extends State<OrgProfile> {
         .doc(currentUserUid)
         .snapshots();
     _eventsStream = _fetchEventsForCommunity(currentUserUid);
+
+    if (currentUserUid != null) {
+      fetchFollowersCount(currentUserUid);
+    }
+  }
+
+  // Fetching followers count
+  void fetchFollowersCount(String communityId) async {
+    try {
+      QuerySnapshot followersSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(communityId)
+          .collection('followers')
+          .get();
+
+      setState(() {
+        followersCount = followersSnapshot.docs.length;
+      });
+    } catch (e) {
+      print("Error fetching followers count: $e");
+    }
   }
 
   Stream<List<Map<String, dynamic>>> _fetchEventsForCommunity(String? userId) async* {
@@ -45,43 +68,13 @@ class _OrgProfileState extends State<OrgProfile> {
       return {
         'eventName': data['eventName'],
         'imageUrl': data['imageUrl'],
-        'eventDate': data['eventDate'], // Keep this as a string
+        'eventDate': data['eventDate'],
         'eventLocation': data['eventLocation'],
         'documentID': doc.id,
       };
     }).toList();
 
     yield events;
-  }
-
-  Future<void> _toggleFollow(String communityId) async {
-    final currentUserUid = FirebaseAuth.instance.currentUser?.uid;
-    final communityRef =
-    FirebaseFirestore.instance.collection('users').doc(communityId);
-
-    final currentUserRef =
-    FirebaseFirestore.instance.collection('users').doc(currentUserUid);
-
-    final currentUserSnapshot = await currentUserRef.get();
-    final communitySnapshot = await communityRef.get();
-
-    final currentUserFollowing = currentUserSnapshot.data()?['following'] ?? [];
-    final communityFollowers = communitySnapshot.data()?['followers'] ?? [];
-
-    setState(() {
-      _isFollowing = !_isFollowing;
-    });
-
-    if (_isFollowing) {
-      currentUserFollowing.add(communityId);
-      communityFollowers.add(currentUserUid);
-    } else {
-      currentUserFollowing.remove(communityId);
-      communityFollowers.remove(currentUserUid);
-    }
-
-    await currentUserRef.update({'following': currentUserFollowing});
-    await communityRef.update({'followers': communityFollowers});
   }
 
   @override
@@ -105,7 +98,7 @@ class _OrgProfileState extends State<OrgProfile> {
             final email = userData['email'] ?? '';
             final mobileNumber = userData['mobileNumber'] ?? '';
             final name = userData['name'] ?? '';
-            final followers = userData['followers']?.length ?? 0;
+            final imageUrl = userData['imageUrl'] ?? 'assets/default_profile.png'; // Default image if none provided
             final isCommunity = userData['roll'] == 'Community';
 
             return Column(
@@ -118,7 +111,9 @@ class _OrgProfileState extends State<OrgProfile> {
                     children: [
                       CircleAvatar(
                         radius: 60,
-                        backgroundImage: AssetImage('assets/ieeeprofile.jpeg'),
+                        backgroundImage: imageUrl.startsWith('http')
+                            ? NetworkImage(imageUrl)
+                            : AssetImage(imageUrl) as ImageProvider,
                       ),
                       SizedBox(height: 10),
                       Text(
@@ -131,42 +126,54 @@ class _OrgProfileState extends State<OrgProfile> {
                       ),
                       SizedBox(height: 5),
                       Text(
-                        '$followers followers',
+                        '$followersCount followers',
                         style: TextStyle(
                           color: Colors.grey,
                           fontSize: 16,
                         ),
                       ),
                       SizedBox(height: 20),
-                      isCommunity
-                          ? ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  EditDetailsForm(userData: userData),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          isCommunity
+                              ? ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => EditDetailsForm(userData: userData),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Styles.blueColor,
                             ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Styles.blueColor,
-                        ),
-                        child: Text(
-                          'Edit Profile',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      )
-                          : ElevatedButton(
-                        onPressed: () => _toggleFollow(userData['uid']),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                          _isFollowing ? Colors.grey : Styles.blueColor,
-                        ),
-                        child: Text(
-                          _isFollowing ? 'Unfollow' : 'Follow',
-                          style: TextStyle(color: Colors.white),
-                        ),
+                            child: Text(
+                              'Edit Profile',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          )
+                              : Container(),
+                          SizedBox(width: 10),
+                          ElevatedButton(
+                            onPressed: () {
+                              FirebaseAuth.instance.signOut().then((_) {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => loginpage()),
+                                );
+                              });
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Styles.blueColor,
+                            ),
+                            child: Text(
+                              'Logout',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -255,50 +262,70 @@ class _OrgProfileState extends State<OrgProfile> {
                             ),
                             itemBuilder: (context, index) {
                               final event = events[index];
-                              return Card(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-
-                                  children: [
-                                    Image.network(
-                                      event['imageUrl'],
-                                      fit: BoxFit.cover,
-                                      width: double.infinity,
-                                      height: 120,
+                              return GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => EventDetails(eventKey: event['documentID']),
                                     ),
-
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            event['eventName'],
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          Gap(5),
-                                          Text(
-                                            event['eventDate'],
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-                                          Gap(5),
-                                          Text(
-                                            event['eventLocation'],
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-                                        ],
+                                  );
+                                },
+                                child: Card(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Image.network(
+                                        event['imageUrl'],
+                                        fit: BoxFit.cover,
+                                        width: double.infinity,
+                                        height: 120,
                                       ),
-                                    ),
-                                  ],
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              event['eventName'],
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            Gap(5),
+                                            Row(
+                                              children: [
+                                                Icon(Icons.date_range, size: 12, color: Colors.grey),
+                                                Gap(4),
+                                                Text(
+                                                  event['eventDate'],
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.grey,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Gap(5),
+                                            Row(
+                                              children: [
+                                                Icon(Icons.location_on, size: 12, color: Colors.grey),
+                                                Gap(4),
+                                                Text(
+                                                  event['eventLocation'],
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.grey,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               );
                             },
@@ -306,27 +333,6 @@ class _OrgProfileState extends State<OrgProfile> {
                         },
                       ),
                       Gap(30),
-                      Center(
-                        child: SizedBox(
-                          width: 150,
-                          height: 40,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => loginpage()),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Styles.blueColor,
-                            ),
-                            child: Text(
-                              'Logout',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                 ),
