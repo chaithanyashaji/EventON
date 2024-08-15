@@ -38,51 +38,55 @@ class _ChatState extends State<Chat> {
 
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(60.0),
-        child: AppBar(
-          backgroundColor: Colors.transparent,
-          flexibleSpace: Container(
-            padding: EdgeInsets.only(right: 40.0),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.vertical(
-                bottom: Radius.circular(10),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        elevation: 0,
+        iconTheme: IconThemeData(
+          color: Colors.white, // Set the back button color to white
+        ),
+        flexibleSpace: Container(
+          margin: EdgeInsets.only(left: 40, top: 45),
+          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.vertical(
+              bottom: Radius.circular(10),
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                "EON",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "EON",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                Image.asset(
-                  'assets/logowhite.png',
-                  fit: BoxFit.fitHeight,
-                ),
-
-              ],
-            ),
+              Image.asset(
+                'assets/EventOn.png',
+                height: 40,
+                fit: BoxFit.fitHeight,
+              ),
+            ],
           ),
         ),
       ),
+
       body: Column(
         children: [
           Expanded(child: MessagesScreen(messages: messages)),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            color: Styles.lyellow,
+            color: Colors.black, // Changed to black
             child: Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: _controller,
-                    style: TextStyle(color: Styles.blueColor),
+                    style: TextStyle(color: Colors.white), // Set text color to white
                   ),
                 ),
                 IconButton(
@@ -90,7 +94,7 @@ class _ChatState extends State<Chat> {
                     sendMessage(_controller.text);
                     _controller.clear();
                   },
-                  icon: Icon(Icons.send),
+                  icon: Icon(Icons.send, color: Colors.white), // Icon color set to white
                 ),
               ],
             ),
@@ -123,16 +127,16 @@ class _ChatState extends State<Chat> {
           String eventDetails = formatEventDetails(eventData);
 
           setState(() {
-            addMessage(Message(text: DialogText(text: [eventDetails])));
+            addMessage(Message(text: DialogText(text: [eventDetails])), false); // Bot message in white
           });
         } else {
           setState(() {
-            addMessage(Message(text: DialogText(text: ["Sorry, I couldn't find any event with that name."])));
+            addMessage(Message(text: DialogText(text: ["Sorry, I couldn't find any event with that name."])), false);
           });
         }
       } else {
         setState(() {
-          addMessage(response.message!);
+          addMessage(response.message!, false); // Bot message in white
         });
       }
     }
@@ -164,6 +168,7 @@ class _ChatState extends State<Chat> {
     messages.add({
       'message': message,
       'isUserMessage': isUserMessage,
+      'textStyle': TextStyle(color: Colors.white) // Ensures both user and bot messages are white
     });
   }
 }

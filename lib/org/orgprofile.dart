@@ -6,7 +6,7 @@ import 'package:universe2024/Utiles/app_styles.dart';
 import 'package:universe2024/org/editdetails.dart';
 import '../pages/Eventdetails.dart';
 import '../pages/loginpage.dart';
- // Import EventDetails page
+// Import EventDetails page
 
 class OrgProfile extends StatefulWidget {
   const OrgProfile({Key? key}) : super(key: key);

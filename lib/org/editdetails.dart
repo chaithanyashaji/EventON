@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:gap/gap.dart';
 import 'package:universe2024/Utiles/app_styles.dart';
 
@@ -19,6 +21,8 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
   late String email;
   late String mobileNumber;
   late String collegeName;
+  File? _image; // Variable to store the selected image
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -32,11 +36,22 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
   Future<void> _updateUserData() async {
     final currentUserUid = FirebaseAuth.instance.currentUser?.uid;
     if (currentUserUid != null) {
+      // Updating user data in Firestore
       await FirebaseFirestore.instance.collection('users').doc(currentUserUid).update({
         'name': name,
         'email': email,
         'mobileNumber': mobileNumber,
         'collegeName': collegeName,
+        if (_image != null) 'imageUrl': 'path/to/your/uploaded/image', // Update this with the actual URL
+      });
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      setState(() {
+        _image = File(image.path);
       });
     }
   }
@@ -80,6 +95,13 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
                   Container(
                     width: fieldWidth,
                     child: _buildTextField('College Name', initialValue: collegeName, onSaved: (value) => collegeName = value ?? ''),
+                  ),
+                  const Gap(20),
+
+                  // Profile Image Picker
+                  Container(
+                    width: fieldWidth,
+                    child: _buildImagePicker(),
                   ),
                   const Gap(20),
 
@@ -140,6 +162,44 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
         return null;
       },
       onSaved: onSaved,
+    );
+  }
+
+  Widget _buildImagePicker() {
+    return Container(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextFormField(
+            readOnly: true, // Make the field read-only
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.black, width: 1.5),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.black, width: 1.5),
+              ),
+              contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+              suffixIcon: GestureDetector(
+                onTap: _pickImage,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _image == null
+                        ? Icon(Icons.add_a_photo, color: Colors.black)
+                        : Image.file(_image!, width: 40, height: 40),
+                  ],
+                ),
+              ),
+            ),
+            controller: TextEditingController(
+              text: _image == null ? 'Edit Profile Image' : 'Image selected',
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

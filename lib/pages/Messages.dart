@@ -24,6 +24,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                   : MainAxisAlignment.start,
               children: [
                 Container(
+                  margin: EdgeInsets.only(top: 10),
                     padding: EdgeInsets.symmetric(vertical: 14, horizontal: 14),
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.only(
@@ -37,11 +38,11 @@ class _MessagesScreenState extends State<MessagesScreen> {
                               widget.messages[index]['isUserMessage'] ? 20 : 0),
                         ),
                         color: widget.messages[index]['isUserMessage']
-                            ? Styles.lyellow
-                            : Colors.orangeAccent.withOpacity(0.8)),
+                            ? Colors.black
+                            : Colors.black),
                     constraints: BoxConstraints(maxWidth: w * 2 / 3),
                     child:
-                        Text(widget.messages[index]['message'].text.text[0])),
+                        Text(widget.messages[index]['message'].text.text[0],style: TextStyle(color: Colors.white),)),
               ],
             ),
           );
