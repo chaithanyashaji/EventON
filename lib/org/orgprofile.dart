@@ -6,7 +6,7 @@ import 'package:universe2024/Utiles/app_styles.dart';
 import 'package:universe2024/org/editdetails.dart';
 import '../pages/Eventdetails.dart';
 import '../pages/loginpage.dart';
- // Import EventDetails page
+// Import EventDetails page
 
 class OrgProfile extends StatefulWidget {
   const OrgProfile({Key? key}) : super(key: key);
@@ -77,40 +77,12 @@ class _OrgProfileState extends State<OrgProfile> {
     yield events;
   }
 
-<<<<<<< HEAD
-  Stream<List<Map<String, dynamic>>> _fetchAllUsersEvents() async* {
-    final usersSnapshot = await FirebaseFirestore.instance.collection('users').get();
-
-    List<Map<String, dynamic>> allEvents = [];
-
-    for (final userDoc in usersSnapshot.docs) {
-      final eventsSnapshot = await userDoc.reference.collection('events').get();
-      final userEvents = eventsSnapshot.docs.map((doc) {
-        final data = doc.data();
-        return {
-          'eventName': data['eventName'],
-          'eventDate': (data['eventDate'] as Timestamp).toDate(),
-          'eventLocation': data['eventLocation'],
-          'eventPrice': data['eventPrice'],
-          'eventType': data['eventType'],
-          'documentID': doc.id,
-        };
-      }).toList();
-
-      allEvents.addAll(userEvents);
-    }
-
-    yield allEvents;
-  }
-
-=======
->>>>>>> f3e68e1b3c2fca737d38d5a729ff6c4b32e99c63
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
+        physics: AlwaysScrollableScrollPhysics(),
         child: StreamBuilder<DocumentSnapshot>(
           stream: _userStream,
           builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> userSnapshot) {
@@ -118,7 +90,7 @@ class _OrgProfileState extends State<OrgProfile> {
               return Center(child: Text('Error: ${userSnapshot.error}'));
             }
             if (userSnapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
+              return Center(child: CircularProgressIndicator());
             }
 
             final userData = userSnapshot.data?.data() as Map<String, dynamic>;
@@ -134,18 +106,18 @@ class _OrgProfileState extends State<OrgProfile> {
               children: [
                 Container(
                   alignment: Alignment.center,
-                  padding: const EdgeInsets.all(16.0),
+                  padding: EdgeInsets.all(16.0),
                   child: Column(
                     children: [
-                      const CircleAvatar(
+                      CircleAvatar(
                         radius: 60,
                         backgroundImage: imageUrl.startsWith('http')
                             ? NetworkImage(imageUrl)
                             : AssetImage(imageUrl) as ImageProvider,
                       ),
-                      const SizedBox(height: 10),
+                      SizedBox(height: 10),
                       Text(
-                        name,
+                        '$name',
                         style: TextStyle(
                           color: Styles.blueColor,
                           fontSize: 22,
@@ -164,94 +136,6 @@ class _OrgProfileState extends State<OrgProfile> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-<<<<<<< HEAD
-                          Container(
-                              margin: const EdgeInsets.only(left: 27.0),
-                              child: Icon(Icons.note_alt_outlined, color: Styles.blueColor)),
-                          const Gap(8),
-                          Text(
-                            'About us',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: Styles.blueColor,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 24.0),
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          border: Border.all(width: 1, color: Styles.yellowColor),
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(13),
-                        ),
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Community Name: $name',
-                              style: TextStyle(fontSize: 16, color: Styles.blueColor),
-                            ),
-                            const Gap(5),
-                            Text(
-                              'Email: $email',
-                              style: TextStyle(fontSize: 16, color: Styles.blueColor),
-                            ),
-                            const Gap(5),
-                            Text(
-                              'Phone Number: $mobileNumber',
-                              style: TextStyle(fontSize: 16, color: Styles.blueColor),
-                            ),
-                            const Gap(5),
-                            Text(
-                              'College Name: $collegeName',
-                              style: TextStyle(fontSize: 16, color: Styles.blueColor),
-                            ),
-                            const Gap(10),
-                            Center(
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => EditDetailsForm(userData: userData),
-                                    ),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Styles.blueColor,
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: const [
-                                    Icon(Icons.edit, color: Colors.white),
-                                    SizedBox(width: 5),
-                                    Text(
-                                      'Edit Details',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Gap(100),
-                      Center(
-                        child: SizedBox(
-                          width: 150,
-                          height: 40,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const loginpage()),
-=======
                           isCommunity
                               ? ElevatedButton(
                             onPressed: () {
@@ -260,15 +144,11 @@ class _OrgProfileState extends State<OrgProfile> {
                                 MaterialPageRoute(
                                   builder: (context) => EditDetailsForm(userData: userData),
                                 ),
->>>>>>> f3e68e1b3c2fca737d38d5a729ff6c4b32e99c63
                               );
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Styles.blueColor,
                             ),
-<<<<<<< HEAD
-                            child: const Text(
-=======
                             child: Text(
                               'Edit Profile',
                               style: TextStyle(color: Colors.white),
@@ -289,7 +169,6 @@ class _OrgProfileState extends State<OrgProfile> {
                               backgroundColor: Styles.blueColor,
                             ),
                             child: Text(
->>>>>>> f3e68e1b3c2fca737d38d5a729ff6c4b32e99c63
                               'Logout',
                               style: TextStyle(color: Colors.white),
                             ),
@@ -357,9 +236,6 @@ class _OrgProfileState extends State<OrgProfile> {
                           color: Styles.blueColor,
                         ),
                       ),
-<<<<<<< HEAD
-                      const Gap(30),
-=======
                       StreamBuilder<List<Map<String, dynamic>>>(
                         stream: _eventsStream,
                         builder: (BuildContext context,
@@ -457,7 +333,6 @@ class _OrgProfileState extends State<OrgProfile> {
                         },
                       ),
                       Gap(30),
->>>>>>> f3e68e1b3c2fca737d38d5a729ff6c4b32e99c63
                     ],
                   ),
                 ),
