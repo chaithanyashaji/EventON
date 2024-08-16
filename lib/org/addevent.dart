@@ -34,6 +34,8 @@ class _AddEventPageState extends State<AddEvent> {
   final TextEditingController _communityTypeController = TextEditingController();
   final TextEditingController _eventTimeController = TextEditingController();
   final TextEditingController _eventContactController = TextEditingController();
+  final TextEditingController _whatsappGroupLinkController = TextEditingController();
+
 
   final ImagePicker _picker = ImagePicker();
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
@@ -90,13 +92,15 @@ class _AddEventPageState extends State<AddEvent> {
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 30),
-              child: Text(
-                "Give your event details here:",
-                style: TextStyle(
+              child: Center(
+                child: Text(
+                  "Add your Event",
+                  style: TextStyle(
 
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: Colors.black,
+                  ),
                 ),
               ),
             ),
@@ -125,7 +129,10 @@ class _AddEventPageState extends State<AddEvent> {
             _buildTextField("Event Description", _eventDescriptionController),
             const SizedBox(height: 20),
             _buildTextField("Event Contact", _eventContactController),
+            const SizedBox(height: 20),
+            _buildTextField("WhatsApp Group Link (Optional)", _whatsappGroupLinkController),
             const SizedBox(height: 30),
+
             _buildImagePicker(),
             const SizedBox(height: 30),
             _isSubmitting
@@ -486,8 +493,7 @@ class _AddEventPageState extends State<AddEvent> {
             "Upload Image:",
             style: TextStyle(
               fontSize: 16,
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
+              color: Colors.black
             ),
           ),
           const SizedBox(height: 10),
@@ -583,6 +589,7 @@ class _AddEventPageState extends State<AddEvent> {
         'notificationPhrase': _notificationPhraseController.text,
         'eventDescription': _eventDescriptionController.text,
         'eventContact': _eventContactController.text,
+        'whatsappGroupLink': _whatsappGroupLinkController.text,
         'imageUrl': imageUrl,
         'createdBy': widget.userID,
         'createdAt': Timestamp.now(),

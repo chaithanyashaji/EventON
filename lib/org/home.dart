@@ -56,6 +56,7 @@ class _SocHomePageState extends State<SocHomePage> {
           'eventDate': eventDoc['eventDate'],
           'eventLocation': eventDoc['eventLocation'],
           'eventPrice': eventDoc['eventPrice'],
+          'eventType': eventDoc['eventType'],
           'documentID': eventDoc.id,
         });
       }
@@ -81,22 +82,18 @@ class _SocHomePageState extends State<SocHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.notifications, color: Colors.black),
-            onPressed: () {
-              // Add your notification navigation here
-            },
-          ),
-          SizedBox(width: 10),
-          Image.asset('assets/EventOn.png', height: 32),
-          SizedBox(width: 10),
-        ],
-      ),
-      body: Stack(
+        appBar:AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          automaticallyImplyLeading: false,  // Removes the back button
+          actions: [
+            SizedBox(width: 10),
+            Image.asset('assets/EventOn.png', height: 32),
+            SizedBox(width: 10),
+          ],
+        ),
+
+        body: Stack(
         children: [
           StreamBuilder<List<Map<String, dynamic>>>(
             stream: _stream,
@@ -277,7 +274,7 @@ class HomeContent extends StatelessWidget {
                     ),
                     const Gap(10),
                     SizedBox(
-                      height: 325,
+                      height: 350,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
                         itemCount: items.length,
@@ -323,7 +320,7 @@ class HomeContent extends StatelessWidget {
                                       fontSize: 16,
                                       color: Colors.black, // Black text color
                                     ),
-                                    maxLines: 2, // Limit to two lines if necessary
+                                    maxLines: 3, // Limit to two lines if necessary
                                     overflow: TextOverflow.ellipsis, // Handle overflow with ellipsis
                                     textAlign: TextAlign.center, // Center align the event details
                                   ),

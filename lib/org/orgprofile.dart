@@ -272,51 +272,66 @@ class _OrgProfileState extends State<OrgProfile> {
                                   );
                                 },
                                 child: Card(
+                                  color: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    side: BorderSide(color: Colors.black, width: 1.5), // Black border for the card
+                                    borderRadius: BorderRadius.circular(15), // Rounded edges for the card
+                                  ),
+                                  elevation: 5, // Shadow for the card
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Image.network(
-                                        event['imageUrl'],
-                                        fit: BoxFit.cover,
-                                        width: double.infinity,
-                                        height: 120,
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(15),
+                                          topRight: Radius.circular(15),
+                                          bottomLeft: Radius.circular(15),
+                                          bottomRight: Radius.circular(15),
+                                        ), // Rounded edges only for the top of the image
+                                        child: Image.network(
+                                          event['imageUrl'],
+                                          fit: BoxFit.cover,
+                                          width: double.infinity,
+                                          height: 180,
+                                        ),
                                       ),
                                       Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment: CrossAxisAlignment.center,
                                           children: [
                                             Text(
                                               event['eventName'],
                                               style: TextStyle(
-                                                fontSize: 14,
+                                                fontSize: 17,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
-                                            Gap(5),
+                                            SizedBox(height: 5), // Gap between event name and other details
                                             Row(
+                                              mainAxisAlignment: MainAxisAlignment.center,
                                               children: [
-                                                Icon(Icons.date_range, size: 12, color: Colors.grey),
-                                                Gap(4),
+                                                Icon(Icons.date_range, size: 15, color: Colors.grey),
+                                                SizedBox(width: 4), // Space between icon and text
                                                 Text(
                                                   event['eventDate'],
                                                   style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.grey,
+                                                    fontSize: 15,
+                                                    color: Colors.black,
                                                   ),
                                                 ),
                                               ],
                                             ),
-                                            Gap(5),
+                                            SizedBox(height: 5), // Gap between date and location
                                             Row(
+                                              mainAxisAlignment: MainAxisAlignment.center,
                                               children: [
-                                                Icon(Icons.location_on, size: 12, color: Colors.grey),
-                                                Gap(4),
+                                                Icon(Icons.location_on, size: 15, color: Colors.grey),
+                                                SizedBox(width: 4), // Space between icon and text
                                                 Text(
                                                   event['eventLocation'],
                                                   style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.grey,
+                                                    fontSize: 15,
+                                                    color: Colors.black,
                                                   ),
                                                 ),
                                               ],
@@ -327,6 +342,7 @@ class _OrgProfileState extends State<OrgProfile> {
                                     ],
                                   ),
                                 ),
+
                               );
                             },
                           );
