@@ -327,7 +327,7 @@ class _CommunityPageState extends State<CommunityPage> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       AspectRatio(
-                                        aspectRatio: 2 / 1, // Adjust aspect ratio if needed
+                                        aspectRatio: 1/ 1, // Adjust aspect ratio if needed
                                         child: Image.network(
                                           eventData['imageUrl'] ?? '',
                                           fit: BoxFit.cover,
@@ -376,25 +376,7 @@ class _CommunityPageState extends State<CommunityPage> {
                                               ],
                                             ),
                                             Gap(5),
-                                            Row(
-                                              children: [
-                                                Icon(
-                                                  eventData['eventType'] == 'Paid'
-                                                      ? Icons.attach_money
-                                                      : Icons.event_available,
-                                                  size: 14,
-                                                  color: Colors.grey,
-                                                ),
-                                                SizedBox(width: 4),
-                                                Text(
-                                                  eventData['eventType'] ?? 'Unknown Type',
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.grey,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
+
                                           ],
                                         ),
                                       ),

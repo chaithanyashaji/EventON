@@ -236,7 +236,7 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
   final _formKey = GlobalKey<FormState>();
   late String _name;
   late String _email;
-  late String _phoneNumber;
+  late String _mobileNumber;
   late String _collegeName;
   late String _communityMember;
   late String _ieeeMembershipId;
@@ -246,7 +246,7 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
     super.initState();
     _name = widget.userData['name'] ?? '';
     _email = widget.userData['email'] ?? '';
-    _phoneNumber = widget.userData['phoneNumber'] ?? '';
+    _mobileNumber = widget.userData['mobileNumber'] ?? '';
     _collegeName = widget.userData['collegeName'] ?? '';
     _communityMember = widget.userData['communityMember'] ?? '';
     _ieeeMembershipId = widget.userData['ieeeMembershipId'] ?? '';
@@ -259,7 +259,7 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
       if (currentUserUid != null) {
         await FirebaseFirestore.instance.collection('users').doc(currentUserUid).update({
           'name': _name,
-          'phoneNumber': _phoneNumber,
+          'mobileNumber': _mobileNumber,
           'collegeName': _collegeName,
           'communityMember': _communityMember,
           'ieeeMembershipId': _ieeeMembershipId,
@@ -297,7 +297,7 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
                   const Gap(20),
                   Container(
                     width: fieldWidth,
-                    child: _buildTextField('Phone Number', initialValue: _phoneNumber, onSaved: (value) => _phoneNumber = value!),
+                    child: _buildTextField('Mobile Number', initialValue: _mobileNumber, onSaved: (value) => _mobileNumber = value!),
                   ),
                   const Gap(20),
                   Container(

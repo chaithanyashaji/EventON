@@ -166,6 +166,8 @@ class _EventDetailsState extends State<EventDetails> {
   }
 
   Widget _buildEventDetails(Map<String, dynamic> eventData) {
+
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
       child: Column(
@@ -194,13 +196,19 @@ class _EventDetailsState extends State<EventDetails> {
               SizedBox(width: 8),
               Text(eventData['eventType'] ?? 'Type Unavailable', style: TextStyle(color: Colors.black)),
               Spacer(),
-              Icon(Icons.date_range, color: Colors.black),
-              SizedBox(width: 8),
-              Text(eventData['eventDate'] ?? 'Date Unavailable', style: TextStyle(color: Colors.black)),
+
               Spacer(),
               Icon(Icons.access_time, color: Colors.black),
               SizedBox(width: 8),
               Text(eventData['eventTime'] ?? 'Time Unavailable', style: TextStyle(color: Colors.black)),
+            ],
+          ),
+          SizedBox(height: 16),
+          Row(
+            children: [
+              Icon(Icons.date_range, color: Colors.black),
+              SizedBox(width: 8),
+              Text(eventData['eventDate'] ?? 'Date unavailable', style: TextStyle(color: Colors.black)),
             ],
           ),
           SizedBox(height: 16),

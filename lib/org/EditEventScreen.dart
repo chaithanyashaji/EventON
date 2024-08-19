@@ -6,8 +6,7 @@ import 'package:image_picker/image_picker.dart';
 class EditEventScreen extends StatefulWidget {
   final String eventKey;
 
-  const EditEventScreen({Key? key, required this.eventKey})
-      : super(key: key);
+  const EditEventScreen({Key? key, required this.eventKey}) : super(key: key);
 
   @override
   _EditEventScreenState createState() => _EditEventScreenState();
@@ -81,8 +80,7 @@ class _EditEventScreenState extends State<EditEventScreen> {
       String? posterImageUrl;
       if (_posterImage != null) {
         // Add your image upload logic here and get the URL
-        posterImageUrl =
-        'path/to/your/uploaded/image'; // Replace with actual URL
+        posterImageUrl = 'path/to/your/uploaded/image'; // Replace with actual URL
       }
 
       await FirebaseFirestore.instance
@@ -122,6 +120,7 @@ class _EditEventScreenState extends State<EditEventScreen> {
           key: _formKey,
           child: SingleChildScrollView(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _buildTextField("Event Name", _nameController),
                 SizedBox(height: 16),
@@ -275,151 +274,127 @@ class _EditEventScreenState extends State<EditEventScreen> {
           );
 
           if (pickedTime != null) {
-            controller.text = pickedTime.format(context);
+            final now = DateTime.now();
+            final formattedTime = TimeOfDay(
+              hour: pickedTime.hour,
+              minute: pickedTime.minute,
+            );
+            controller.text = formattedTime.format(context);
           }
         },
       ),
     );
   }
 
-  Widget _buildEventTypeDropdown() {
-    List<String> eventTypeOptions = [
-      'Conference',
-      'Workshop',
-      'Competition',
-      'Webinar',
-      'Other',
-    ];
-
+  Widget _buildImagePicker() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-
-      child: Stack(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TextFormField(
-            controller: TextEditingController(text: _selectedEventType),
-            readOnly: true,
-            decoration: InputDecoration(
-              labelText: 'Event Type',
-              labelStyle: const TextStyle(color: Colors.black),
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.black, width: 2)
-              ),
-              focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.black, width: 2)
-              ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-
-            ),
+          Text(
+            "Event Poster",
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
-          Positioned.fill(
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: DropdownButton<String>(
-
-                onChanged: (newValue) {
-                  setState(() {
-                    _selectedEventType = newValue!;
-                  });
-                },
-                items: eventTypeOptions.map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                underline: SizedBox(), // No underline
-                isExpanded: true,
+          SizedBox(height: 8),
+          Row(
+            children: [
+              _posterImage != null
+                  ? Image.file(
+                _posterImage!,
+                height: 100,
+                width: 100,
+                fit: BoxFit.cover,
+              )
+                  : Container(
+                height: 100,
+                width: 100,
+                color: Colors.grey[300],
+                child: Icon(Icons.image, color: Colors.grey[800]),
               ),
-            ),
+              SizedBox(width: 16),
+              ElevatedButton(
+                onPressed: _pickPosterImage,
+                child: Text("Pick Image"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
-
 
   Widget _buildCommunityTypeDropdown() {
-    List<String> communityTypeOptions = [
-      'IEEE',
-      'CSI',
-      'IEDC',
-      'Other',
-    ];
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-
-      child: Stack(
-        children: [
-          TextFormField(
-            controller: TextEditingController(text: _selectedCommunityType),
-            readOnly: true,
-            decoration: InputDecoration(
-              labelText: 'Community Type',
-              labelStyle: const TextStyle(color: Colors.black),
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.black, width: 2)
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.black, width: 2),
-              ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-
-            ),
-          ),
-          Positioned.fill(
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: DropdownButton<String>(
-
-                onChanged: (newValue) {
-                  setState(() {
-                    _selectedCommunityType = newValue!;
-                  });
-                },
-                items: communityTypeOptions.map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                underline: SizedBox(), // No underline
-                isExpanded: true,
-              ),
-            ),
-          ),
-        ],
+    return DropdownButtonFormField<String>(
+      value: _selectedCommunityType.isNotEmpty ? _selectedCommunityType : null,
+      onChanged: (String? newValue) {
+        setState(() {
+          _selectedCommunityType = newValue ?? '';
+        });
+      },
+      decoration: InputDecoration(
+        labelText: "Community Type",
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.black),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.black),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.black),
+        ),
+        contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
       ),
+      items: <String>['Technical', 'Cultural', 'Other']
+          .map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
     );
   }
 
-  Widget _buildImagePicker() {
-    return Column(
-      children: [
-        if (_posterImage != null)
-          Image.file(
-            _posterImage!,
-            width: 100,
-            height: 100,
-            fit: BoxFit.cover,
-          ),
-        ElevatedButton(
-          onPressed: _pickPosterImage,
-          child: Text("Choose Event Poster"),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.black,
-            minimumSize: Size(double.infinity, 50),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
+  Widget _buildEventTypeDropdown() {
+    return DropdownButtonFormField<String>(
+      value: _selectedEventType.isNotEmpty ? _selectedEventType : null,
+      onChanged: (String? newValue) {
+        setState(() {
+          _selectedEventType = newValue ?? '';
+        });
+      },
+      decoration: InputDecoration(
+        labelText: "Event Type",
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.black),
         ),
-      ],
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.black),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.black),
+        ),
+        contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+      ),
+      items: <String>['Workshop', 'Seminar', 'Hackathon', 'Other']
+          .map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
     );
   }
 }

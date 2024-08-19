@@ -6,10 +6,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:universe2024/org/home.dart';
 
 class AddEvent extends StatefulWidget {
-  final String userID;
-  AddEvent({Key? key, required this.userID}) : super(key: key);
+
+  String userID;
+  AddEvent({Key? key ,required this.userID}) : super(key: key);
+
 
   @override
   State<AddEvent> createState() => _AddEventPageState();
@@ -27,6 +30,8 @@ class _AddEventPageState extends State<AddEvent> {
   final TextEditingController _eventNameController = TextEditingController();
   final TextEditingController _eventLocationController = TextEditingController();
   final TextEditingController _eventPricePaidController = TextEditingController();
+  final TextEditingController _eventDateController = TextEditingController();
+  final TextEditingController _endDateController = TextEditingController();
   final TextEditingController _deadlineController = TextEditingController();
   final TextEditingController _otherEventTypeController = TextEditingController();
   final TextEditingController _notificationPhraseController = TextEditingController();
@@ -71,6 +76,8 @@ class _AddEventPageState extends State<AddEvent> {
     _eventNameController.dispose();
     _eventLocationController.dispose();
     _eventPricePaidController.dispose();
+    _eventDateController.dispose();
+    _endDateController.dispose();
     _deadlineController.dispose();
     _otherEventTypeController.dispose();
     _notificationPhraseController.dispose();
@@ -113,7 +120,9 @@ class _AddEventPageState extends State<AddEvent> {
             _buildEventTypeDropdown(),
             if (_selectedEventType == 'Other') _buildTextField("Specify Event Type", _otherEventTypeController),
             const SizedBox(height: 20),
-            _buildMultipleDatePicker(),
+            _buildDateField("Event Date", _eventDateController),
+            const SizedBox(height: 20),
+            _buildDateField("End Date", _endDateController),
             const SizedBox(height: 20),
             _buildTextField("Event Location", _eventLocationController),
             const SizedBox(height: 20),
@@ -172,7 +181,7 @@ class _AddEventPageState extends State<AddEvent> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
       child: Stack(
-        children: [  // Changed `child` to `children`
+        children: [  // Changed child to children
           TextFormField(
             controller: controller,
             maxLines: label == 'Event Description' ? 5 : 1,
@@ -363,89 +372,50 @@ class _AddEventPageState extends State<AddEvent> {
       margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
 
       child: Stack(
-          children: [
-      TextFormField(
-      controller: TextEditingController(text: _selectedEventPrice),
-      readOnly: true,
-      decoration: InputDecoration(
-        labelText: 'Event Price',
-        labelStyle: const TextStyle(color: Colors.black),
-        border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.black, width: 2)
-        ),
-        focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.black, width: 2)
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+        children: [
+          TextFormField(
+            controller: TextEditingController(text: _selectedEventPrice),
+            readOnly: true,
+            decoration: InputDecoration(
+              labelText: 'Event Price',
+              labelStyle: const TextStyle(color: Colors.black),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.black, width: 2)
+              ),
+              focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.black, width: 2)
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
 
-      ),
-    ),
-      DropdownButton<String>(
+            ),
+          ),
+          DropdownButton<String>(
 
 
-        isExpanded: true,
+            isExpanded: true,
 
-        underline: SizedBox(),
-        onChanged: (newValue) {
-          setState(() {
-            _selectedEventPrice = newValue!;
-          });
-        },
-        items: ['Free', 'Paid'].map<DropdownMenuItem<String>>((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Text(value),
-          );
-        }).toList(),
-      ),],
+            underline: SizedBox(),
+            onChanged: (newValue) {
+              setState(() {
+                _selectedEventPrice = newValue!;
+              });
+            },
+            items: ['Free', 'Paid'].map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+          ),],
       ),
 
     );
   }
 
-  Widget _buildMultipleDatePicker() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-      child:Stack(
-      children: [ TextFormField(
-        controller: TextEditingController(text: _selectedDates.join(', ')),
-        readOnly: true,
-        decoration: InputDecoration(
-          labelText: 'Event Date(s)',
-          labelStyle: const TextStyle(color: Colors.black),
-          border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.black, width: 2)  // Border color to black
-          ),
-          focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.black, width: 2)  // Border color when focused
-          ),
-          contentPadding: const EdgeInsets.symmetric(horizontal:15,vertical: 15),
-        ),
-        onTap: () async {
-          final DateTimeRange? pickedDateRange = await showDateRangePicker(
-            context: context,
-            firstDate: DateTime(2000),
-            lastDate: DateTime(2100),
-          );
 
-          if (pickedDateRange != null) {
-            setState(() {
-              _selectedDates = [
-                "${pickedDateRange.start.day}-${pickedDateRange.start.month}-${pickedDateRange.start.year}",
-                "${pickedDateRange.end.day}-${pickedDateRange.end.month}-${pickedDateRange.end.year}"
-              ];
-            });
-          }
-        },
-      ),
-    ]
-    )
-    );
-  }
+
 
 
   Widget _buildEventTimePicker() {
@@ -492,8 +462,8 @@ class _AddEventPageState extends State<AddEvent> {
           const Text(
             "Upload Image:",
             style: TextStyle(
-              fontSize: 16,
-              color: Colors.black
+                fontSize: 16,
+                color: Colors.black
             ),
           ),
           const SizedBox(height: 10),
@@ -542,6 +512,7 @@ class _AddEventPageState extends State<AddEvent> {
     });
 
     try {
+      // Check if fields are filled properly
       if (_eventNameController.text.isEmpty) {
         setState(() {
           _errorText = 'Event name is required';
@@ -563,13 +534,9 @@ class _AddEventPageState extends State<AddEvent> {
         return;
       }
 
-      if (_selectedDates.isEmpty) {
-        setState(() {
-          _errorText = 'Please select at least one event date';
-        });
-        return;
-      }
 
+
+      // Upload image if exists
       String imageUrl = '';
       if (_image != null) {
         final storageRef = FirebaseStorage.instance.ref().child('event_images').child('${DateTime.now()}.jpg');
@@ -577,31 +544,62 @@ class _AddEventPageState extends State<AddEvent> {
         imageUrl = await storageRef.getDownloadURL();
       }
 
-      final newEvent = {
+      // Retrieve the current user's ID from Firebase Auth
+      User? currentUser = FirebaseAuth.instance.currentUser;
+
+      // Check if user is logged in
+      if (currentUser == null) {
+        setState(() {
+          _errorText = 'User not authenticated';
+        });
+        return;
+      }
+
+      // Generate a unique ID for the event
+      String id = DateTime.now().microsecondsSinceEpoch.toString();
+
+      // Submit event to Firestore with addedBy field
+      await FirebaseFirestore.instance.collection('EVENTS').doc(id).set({
         'eventName': _eventNameController.text,
         'eventType': _selectedEventType == 'Other' ? _otherEventTypeController.text : _selectedEventType,
         'communityType': _selectedCommunityType == 'Other' ? _communityTypeController.text : _selectedCommunityType,
-        'eventDates': _selectedDates,
+        'eventDate': _deadlineController.text,
+        'endDate':_endDateController.text,
         'eventLocation': _eventLocationController.text,
         'eventTime': _eventTimeController.text,
         'eventPrice': _selectedEventPrice == 'Paid' ? _eventPricePaidController.text : 'Free',
         'deadline': _deadlineController.text,
         'notificationPhrase': _notificationPhraseController.text,
-        'eventDescription': _eventDescriptionController.text,
+        'description': _eventDescriptionController.text,
         'eventContact': _eventContactController.text,
         'whatsappGroupLink': _whatsappGroupLinkController.text,
         'imageUrl': imageUrl,
-        'createdBy': widget.userID,
-        'createdAt': Timestamp.now(),
-      };
+        'addedBy': currentUser.uid, // Include addedBy field
+        'timestamp': FieldValue.serverTimestamp(),
+      });
 
-      await FirebaseFirestore.instance.collection('events').add(newEvent);
+
+      FirebaseFirestore.instance.collection('EVENTS').where("addedBy",isEqualTo:widget.userID ).get().then((value) {
+
+
+        //   add to user profile list
+
+
+
+
+
+      });
+
 
       if (_notificationPhraseController.text.isNotEmpty) {
         await _showNotification("A new Event has been added", _notificationPhraseController.text);
       }
 
-      Navigator.pop(context);
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => SocHomePage(userId: '',)),
+      );
     } catch (error) {
       setState(() {
         _errorText = error.toString();
