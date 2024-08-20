@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class EditEventScreen extends StatefulWidget {
   final String eventKey;
@@ -20,15 +21,16 @@ class _EditEventScreenState extends State<EditEventScreen> {
   late TextEditingController _detailsController;
   late TextEditingController _locationController;
   late TextEditingController _whatsappLinkController;
+  late TextEditingController _startDateController;
+  late TextEditingController _endDateController;
   late TextEditingController _deadlineController;
   late TextEditingController _ticketPriceController;
-  List<String> _selectedDates = [];
-  String _selectedEventType = '';
-  String _selectedCommunityType = '';
-  String _selectedEventPrice = '';
+  String? _selectedEventType;
+  String? _selectedCommunityType;
+  String? _selectedEventPrice;
   bool _isRegistrationOpen = true;
-  File? _posterImage;
-  String? _posterImageUrl;
+  File? _image;
+  String? _imageUrl;
   final ImagePicker _picker = ImagePicker();
   bool _isPaidSelected = false;
 
@@ -41,6 +43,8 @@ class _EditEventScreenState extends State<EditEventScreen> {
     _detailsController = TextEditingController();
     _locationController = TextEditingController();
     _whatsappLinkController = TextEditingController();
+    _startDateController = TextEditingController();
+    _endDateController = TextEditingController();
     _deadlineController = TextEditingController();
     _ticketPriceController = TextEditingController();
     _fetchEventDetails();
@@ -59,25 +63,55 @@ class _EditEventScreenState extends State<EditEventScreen> {
         setState(() {
           _nameController.text = data['eventName'] ?? '';
           _selectedEventType = data['eventType'] ?? '';
-          _selectedDates = List<String>.from(data['eventDates'] ?? []);
+
+          // Parse and format dates
+          _startDateController.text = _formatDate(data['eventDate']);
+          _endDateController.text = _formatDate(data['endDate']);
+          _deadlineController.text = _formatDate(data['deadline']);
+
           _contactController.text = data['eventContact'] ?? '';
           _detailsController.text = data['description'] ?? '';
           _locationController.text = data['eventLocation'] ?? '';
           _selectedEventPrice = data['eventPrice'] ?? '';
           _whatsappLinkController.text = data['whatsappLink'] ?? '';
           _selectedCommunityType = data['communityType'] ?? '';
-          _deadlineController.text = data['deadlineDate'] ?? '';
-          _posterImageUrl = data['eventPosterUrl'] ?? '';
-          _isPaidSelected = _selectedEventPrice == 'Paid';
+          _imageUrl = data['imageUrl'] ?? '';
           _isRegistrationOpen = data['isRegistrationOpen'] ?? true;
         });
       } else {
-        // Handle the case when the document does not exist.
         print("Document does not exist");
       }
     } catch (e) {
       print("Failed to fetch event details: $e");
-      // You can also show an error message to the user here if needed.
+    }
+  }
+
+  String _formatDate(dynamic date) {
+    if (date is Timestamp) {
+      return date.toDate().toString().substring(0, 10); // Format as yyyy-MM-dd
+    } else if (date is String) {
+      return date;
+    } else {
+      return '';
+    }
+  }
+
+
+  Future<String?> _uploadImage(File image) async {
+    try {
+      String fileName =
+          'EVENTS/${widget.eventKey}/${DateTime.now().millisecondsSinceEpoch}.jpg';
+
+      TaskSnapshot snapshot = await FirebaseStorage.instance
+          .ref()
+          .child(fileName)
+          .putFile(image);
+
+      String downloadUrl = await snapshot.ref.getDownloadURL();
+      return downloadUrl;
+    } catch (e) {
+      print("Image upload failed: $e");
+      return null;
     }
   }
 
@@ -85,39 +119,43 @@ class _EditEventScreenState extends State<EditEventScreen> {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
       setState(() {
-        _posterImage = File(image.path);
+        _image = File(image.path);
       });
     }
   }
 
   void _saveChanges() async {
     if (_formKey.currentState!.validate()) {
-      String? posterImageUrl = _posterImageUrl;
+      String? imageUrl = _imageUrl;
 
-      if (_posterImage != null) {
-        // Add your image upload logic here and get the URL
-        posterImageUrl = 'path/to/your/uploaded/image'; // Replace with actual URL
+      if (_image != null) {
+        _imageUrl = await _uploadImage(_image!);
       }
 
-      await FirebaseFirestore.instance
-          .collection('EVENTS')
-          .doc(widget.eventKey)
-          .update({
-        'eventName': _nameController.text,
-        'eventType': _selectedEventType,
-        'eventDates': _selectedDates,
-        'eventContact': _contactController.text,
-        'description': _detailsController.text,
-        'eventLocation': _locationController.text,
-        'eventPrice': _selectedEventPrice,
-        'ticketPrice': _isPaidSelected ? _ticketPriceController.text : null,
-        'whatsappLink': _whatsappLinkController.text,
-        'communityType': _selectedCommunityType,
-        'deadlineDate': _deadlineController.text,
-        'isRegistrationOpen': _isRegistrationOpen,
-        if (posterImageUrl != null) 'eventPosterUrl': posterImageUrl,
-      });
-      Navigator.pop(context);
+      if (imageUrl != null || _imageUrl != null) {
+        await FirebaseFirestore.instance
+            .collection('EVENTS')
+            .doc(widget.eventKey)
+            .update({
+          'eventName': _nameController.text,
+          'eventType': _selectedEventType,
+          'eventDate': _startDateController.text,
+          'endDate': _endDateController.text,
+          'eventContact': _contactController.text,
+          'description': _detailsController.text,
+          'eventLocation': _locationController.text,
+          'eventPrice': _selectedEventPrice,
+
+          'whatsappLink': _whatsappLinkController.text,
+          'communityType': _selectedCommunityType,
+          'deadline': _deadlineController.text,
+          'isRegistrationOpen': _isRegistrationOpen,
+          if (imageUrl != null) 'imageUrl': imageUrl,
+        });
+        Navigator.pop(context);
+      } else {
+        print("Image upload failed, changes not saved.");
+      }
     }
   }
 
@@ -137,6 +175,7 @@ class _EditEventScreenState extends State<EditEventScreen> {
           key: _formKey,
           child: SingleChildScrollView(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _buildTextField("Event Name", _nameController),
                 SizedBox(height: 16),
@@ -148,7 +187,9 @@ class _EditEventScreenState extends State<EditEventScreen> {
                 if (_selectedEventType == 'Other')
                   _buildTextField("Specify Event Type", _typeController),
                 SizedBox(height: 16),
-                _buildMultipleDatePicker(),
+                _buildDatePicker("Start Date", _startDateController),
+                SizedBox(height: 16),
+                _buildDatePicker("End Date", _endDateController),
                 SizedBox(height: 16),
                 _buildDatePicker("Deadline Date", _deadlineController),
                 SizedBox(height: 16),
@@ -164,7 +205,7 @@ class _EditEventScreenState extends State<EditEventScreen> {
                 SizedBox(height: 16),
                 _buildTextField("WhatsApp Group Link", _whatsappLinkController),
                 SizedBox(height: 16),
-                _buildImagePicker(),
+                _buildImagePickerSection(),  // Updated to include the new section
                 SizedBox(height: 16),
                 SwitchListTile(
                   title: Text("Registration Open"),
@@ -196,6 +237,7 @@ class _EditEventScreenState extends State<EditEventScreen> {
     );
   }
 
+
   Widget _buildTextField(String label, TextEditingController controller,
       {int maxLines = 1}) {
     return Container(
@@ -223,223 +265,209 @@ class _EditEventScreenState extends State<EditEventScreen> {
     );
   }
 
-  Widget _buildMultipleDatePicker() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-      child: Stack(
-        children: [
-          TextFormField(
-            controller: TextEditingController(text: _selectedDates.join(', ')),
-            readOnly: true,
-            decoration: InputDecoration(
-              labelText: 'Event Date(s)',
-              labelStyle: const TextStyle(color: Colors.black),
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.black, width: 2)
-              ),
-              focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.black, width: 2)
-              ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-            ),
-            onTap: () async {
-              final DateTimeRange? pickedDateRange = await showDateRangePicker(
-                context: context,
-                firstDate: DateTime(2000),
-                lastDate: DateTime(2100),
-              );
-
-              if (pickedDateRange != null) {
-                final selectedDates = _getFormattedDateList(pickedDateRange);
-                setState(() {
-                  _selectedDates = selectedDates;
-                });
-              }
-            },
-          ),
-          Positioned(
-            right: 5,
-            top: 10,
-            child: IconButton(
-              icon: Icon(Icons.clear, color: Colors.black),
-              onPressed: () {
-                setState(() {
-                  _selectedDates.clear();
-                });
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  List<String> _getFormattedDateList(DateTimeRange dateRange) {
-    List<String> formattedDates = [];
-    for (DateTime date = dateRange.start;
-    date.isBefore(dateRange.end.add(const Duration(days: 1)));
-    date = date.add(const Duration(days: 1))) {
-      formattedDates.add(
-        '${date.day}-${date.month}-${date.year}',
-      );
-    }
-    return formattedDates;
-  }
-
-  Widget _buildDatePicker(
-      String label, TextEditingController controller) {
-    return GestureDetector(
+  Widget _buildDatePicker(String label, TextEditingController controller) {
+    return InkWell(
       onTap: () async {
-        final DateTime? pickedDate = await showDatePicker(
+        DateTime? pickedDate = await showDatePicker(
           context: context,
           initialDate: DateTime.now(),
           firstDate: DateTime(2000),
-          lastDate: DateTime(2100),
+          lastDate: DateTime(2101),
         );
-
         if (pickedDate != null) {
           setState(() {
-            controller.text =
-            '${pickedDate.day}-${pickedDate.month}-${pickedDate.year}';
+            controller.text = pickedDate.toString().substring(0, 10);
           });
         }
       },
-      child: AbsorbPointer(
-        child: _buildTextField(label, controller),
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        child: AbsorbPointer(
+          child: TextFormField(
+            controller: controller,
+            decoration: InputDecoration(
+              labelText: label,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.black),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.black),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.black),
+              ),
+              contentPadding:
+              EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+            ),
+          ),
+        ),
       ),
-    );
-  }
-
-  Widget _buildCommunityTypeDropdown() {
-    List<String> communityTypes = [
-      "IEEE",
-      "IEDC",
-      "CSI",
-      "Other"
-    ];
-    return _buildDropdown(
-      label: 'Community Type',
-      value: _selectedCommunityType,
-      items: communityTypes,
-      onChanged: (String? newValue) {
-        setState(() {
-          _selectedCommunityType = newValue!;
-        });
-      },
     );
   }
 
   Widget _buildEventTypeDropdown() {
     List<String> eventTypes = [
-      "Workshop",
-      "Webinar",
-      "Competition",
-      "Other"
+      'Conference',
+      'Workshop',
+      'Seminar',
+      'Webinar',
+      'Other'
     ];
-    return _buildDropdown(
-      label: 'Event Type',
-      value: _selectedEventType,
-      items: eventTypes,
-      onChanged: (String? newValue) {
+    return DropdownButtonFormField<String>(
+      value: eventTypes.contains(_selectedEventType)
+          ? _selectedEventType
+          : eventTypes.first,
+      decoration: InputDecoration(
+        labelText: "Event Type",
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.black),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.black),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.black),
+        ),
+        contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+      ),
+      items: eventTypes.map((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+      onChanged: (newValue) {
         setState(() {
-          _selectedEventType = newValue!;
+          _selectedEventType = newValue;
+        });
+      },
+    );
+  }
+
+  Widget _buildCommunityTypeDropdown() {
+    List<String> communityTypes = [
+      'IEEE',
+      'IEDC',
+      'CSI',
+      'Other'
+    ];
+    return DropdownButtonFormField<String>(
+      value: communityTypes.contains(_selectedCommunityType)
+          ? _selectedCommunityType
+          : communityTypes.first,
+      decoration: InputDecoration(
+        labelText: "Community Type",
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.black),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.black),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.black),
+        ),
+        contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+      ),
+      items: communityTypes.map((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+      onChanged: (newValue) {
+        setState(() {
+          _selectedCommunityType = newValue;
         });
       },
     );
   }
 
   Widget _buildEventPriceDropdown() {
-    List<String> eventPrices = ["Free", "Paid"];
-    return _buildDropdown(
-      label: 'Event Price',
-      value: _selectedEventPrice,
-      items: eventPrices,
-      onChanged: (String? newValue) {
+    List<String> eventPrices = ['Free', 'Paid'];
+    return DropdownButtonFormField<String>(
+      value: eventPrices.contains(_selectedEventPrice)
+          ? _selectedEventPrice
+          : eventPrices.first,
+      decoration: InputDecoration(
+        labelText: "Event Price",
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.black),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.black),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.black),
+        ),
+        contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+      ),
+      items: eventPrices.map((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+      onChanged: (newValue) {
         setState(() {
-          _selectedEventPrice = newValue!;
-          _isPaidSelected = newValue == "Paid";
+          _selectedEventPrice = newValue;
+          _isPaidSelected = newValue == 'Paid';
         });
       },
     );
   }
 
-  Widget _buildDropdown({
-    required String label,
-    required String value,
-    required List<String> items,
-    required Function(String?) onChanged,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.black),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: DropdownButtonFormField<String>(
-        value: value.isEmpty ? null : value,
-        hint: Text(label),
-        decoration: InputDecoration(border: InputBorder.none),
-        items: items.map((String item) {
-          return DropdownMenuItem<String>(
-            value: item,
-            child: Text(item),
-          );
-        }).toList(),
-        onChanged: onChanged,
+
+  Widget _buildImagePicker() {
+    return GestureDetector(
+      onTap: _pickPosterImage,
+      child: Container(
+        height: 200,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.black),
+          borderRadius: BorderRadius.circular(12),
+          image: _image != null
+              ? DecorationImage(
+            image: FileImage(_image!),
+            fit: BoxFit.cover,
+          )
+              : (_imageUrl != null && _imageUrl!.isNotEmpty
+              ? DecorationImage(
+            image: NetworkImage(_imageUrl!),
+            fit: BoxFit.cover,
+          )
+              : null),
+        ),
+        child: _image == null && _imageUrl == null
+            ? Center(child: Icon(Icons.add_a_photo))
+            : null,
       ),
     );
   }
-
-  Widget _buildImagePicker() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal:5),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "Change Poster:",
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.black,
-            ),
+  Widget _buildImagePickerSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Edit Poster",
+          style: TextStyle(
+            fontSize: 16,
           ),
-          const SizedBox(height: 10),
-          GestureDetector(
-            onTap: _pickPosterImage,
-            child: Container(
-              width: double.infinity,
-              height: 200,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(10),
-                image: _posterImage != null
-                    ? DecorationImage(
-                  image: FileImage(_posterImage!),
-                  fit: BoxFit.cover,
-                )
-                    : _posterImageUrl != null
-                    ? DecorationImage(
-                  image: NetworkImage(_posterImageUrl!),
-                  fit: BoxFit.cover,
-                )
-                    : null,
-              ),
-              child: _posterImage == null && _posterImageUrl == null
-                  ? const Center(
-                child: Icon(
-                  Icons.add_a_photo,
-                  color: Colors.black,
-                  size: 50,
-                ),
-              )
-                  : null,
-            ),
-          ),
-        ],
-      ),
+        ),
+        SizedBox(height: 8), // Add some spacing between the label and the image picker
+        _buildImagePicker(),
+      ],
     );
   }
 

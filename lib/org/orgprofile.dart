@@ -258,7 +258,7 @@ class _OrgProfileState extends State<OrgProfile> {
                               crossAxisCount: 2,
                               crossAxisSpacing: 10,
                               mainAxisSpacing: 10,
-                              childAspectRatio: 0.8,
+                              childAspectRatio: 0.75, // Adjust aspect ratio to better fit content
                             ),
                             itemBuilder: (context, index) {
                               final event = events[index];
@@ -274,24 +274,22 @@ class _OrgProfileState extends State<OrgProfile> {
                                 child: Card(
                                   color: Colors.white,
                                   shape: RoundedRectangleBorder(
-                                    side: BorderSide(color: Colors.black, width: 1.5), // Black border for the card
-                                    borderRadius: BorderRadius.circular(15), // Rounded edges for the card
+                                    side: BorderSide(color: Colors.black, width: 1.5),
+                                    borderRadius: BorderRadius.circular(15),
                                   ),
-                                  elevation: 5, // Shadow for the card
+                                  elevation: 5,
                                   child: Column(
                                     children: [
                                       ClipRRect(
                                         borderRadius: BorderRadius.only(
                                           topLeft: Radius.circular(15),
                                           topRight: Radius.circular(15),
-                                          bottomLeft: Radius.circular(15),
-                                          bottomRight: Radius.circular(15),
-                                        ), // Rounded edges only for the top of the image
+                                        ),
                                         child: Image.network(
                                           event['imageUrl'],
                                           fit: BoxFit.cover,
                                           width: double.infinity,
-                                          height: 180,
+                                          height: 150, // Adjust the height to leave space for content
                                         ),
                                       ),
                                       Padding(
@@ -299,41 +297,32 @@ class _OrgProfileState extends State<OrgProfile> {
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.center,
                                           children: [
-                                            Text(
-                                              event['eventName'],
-                                              style: TextStyle(
-                                                fontSize: 17,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            SizedBox(height: 5), // Gap between event name and other details
-                                            Row(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              children: [
-                                                Icon(Icons.date_range, size: 15, color: Colors.grey),
-                                                SizedBox(width: 4), // Space between icon and text
-                                                Text(
-                                                  event['eventDate'],
-                                                  style: TextStyle(
-                                                    fontSize: 15,
-                                                    color: Colors.black,
+                                          Text(
+                                          event['eventName'],
+                                          maxLines: 1, // Limiting to 1 line to prevent overflow
+                                          overflow: TextOverflow.ellipsis, // Ellipsis for long names
+                                          style: TextStyle(
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        SizedBox(height: 5),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Icon(Icons.location_on, size: 15, color: Colors.grey),
+                                            SizedBox(width: 4),
+                                            Flexible(
+                                              child: Text(
+                                                event['eventLocation'],
+                                                maxLines: 1, // Prevents overflow
+                                                overflow: TextOverflow.ellipsis, // Handles long text
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                  color: Colors.black,
                                                   ),
                                                 ),
-                                              ],
                                             ),
-                                            SizedBox(height: 5), // Gap between date and location
-                                            Row(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              children: [
-                                                Icon(Icons.location_on, size: 15, color: Colors.grey),
-                                                SizedBox(width: 4), // Space between icon and text
-                                                Text(
-                                                  event['eventLocation'],
-                                                  style: TextStyle(
-                                                    fontSize: 15,
-                                                    color: Colors.black,
-                                                  ),
-                                                ),
                                               ],
                                             ),
                                           ],
