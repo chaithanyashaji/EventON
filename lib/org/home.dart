@@ -1,15 +1,23 @@
 import 'dart:ui';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:universe2024/Utiles/app_styles.dart';
 import 'package:gap/gap.dart';
+import 'package:universe2024/admin/approval.dart';
 import 'package:universe2024/org/addevent.dart';
 import 'package:universe2024/org/attendee.dart';
+import 'package:universe2024/org/payment_approval.dart';
+import 'package:universe2024/org/qrscanner.dart';
 import 'package:universe2024/pages/Eventdetails.dart';
 import 'package:universe2024/pages/Homepage.dart';
+import 'package:universe2024/pages/Userpage.dart';
 import 'package:universe2024/pages/chatbot.dart';
 import 'package:universe2024/org/orgprofile.dart';
+import 'package:universe2024/pages/my_events_org.dart';
+
+import 'package:universe2024/pages/qrcode.dart';
 import 'package:universe2024/pages/search1.dart';
+
 
 class SocHomePage extends StatefulWidget {
   final String userId;
@@ -23,18 +31,20 @@ class SocHomePage extends StatefulWidget {
 class _SocHomePageState extends State<SocHomePage> {
   int _selectedIndex = 0;
   late Stream<List<Map<String, dynamic>>> _stream;
-
-  static List<Widget> _widgetOptions = <Widget>[
-    searchpage1(),
-    attendee(),
-    AddEvent(userID: ''),
-    OrgProfile(),
-  ];
+  late List<Widget> _widgetOptions;
 
   @override
   void initState() {
     super.initState();
     _setupStream();
+    _widgetOptions = <Widget>[
+      searchpage1(),
+      MyEventsPage(userId: widget.userId),
+      AddEvent(userID: widget.userId),
+      PayApprovalsPage(userId: widget.userId,),
+      OrgProfile(),
+      // Add other widget options here if needed
+    ];
   }
 
   void _setupStream() {
@@ -141,7 +151,11 @@ class _SocHomePageState extends State<SocHomePage> {
                 label: 'Add Events',
               ),
               BottomNavigationBarItem(
-                icon: _buildIcon(Icons.person, 3),
+                icon: _buildIcon(Icons.admin_panel_settings, 3),
+                label: 'Approval',
+              ),
+              BottomNavigationBarItem(
+                icon: _buildIcon(Icons.person, 4),
                 label: 'Profile',
               ),
             ],

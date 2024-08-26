@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:universe2024/Utiles/app_styles.dart';
 import 'package:gap/gap.dart';
+import 'package:universe2024/admin/admhome.dart';
 import 'package:universe2024/org/home.dart';
 import 'package:universe2024/pages/Forget.dart';
 import 'package:universe2024/pages/Homepage.dart';
@@ -249,10 +250,18 @@ class _loginpageState extends State<loginpage> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => HomePage(),
+              builder: (context) => HomePage(userId: documentSnapshot.id,),
             ),
           );
-        } else {
+        } else if (documentSnapshot.get('roll') == 'Admin'){
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Admhome(),
+            ),
+          );
+        }
+         else {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(

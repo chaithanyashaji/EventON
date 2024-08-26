@@ -1,11 +1,9 @@
 class attendModel {
   String id;
   String name;
-  String phone;
-  String college;
   String status;
-  String email;
+  String Payment;
 
   attendModel(
-      this.id, this.name, this.phone, this.college, this.status, this.email);
+      this.id, this.name, this.status, this.Payment);
 }

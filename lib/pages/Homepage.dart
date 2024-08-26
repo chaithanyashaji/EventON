@@ -4,15 +4,22 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:universe2024/Utiles/app_styles.dart';
 import 'package:gap/gap.dart';
+import 'package:universe2024/org/orgprofile.dart';
 import 'package:universe2024/pages/Eventdetails.dart';
 import 'package:universe2024/pages/chatbot.dart';
+import 'package:universe2024/pages/my_events_user.dart';
 import 'package:universe2024/pages/search.dart';
 import 'package:universe2024/pages/search1.dart';
 import 'package:universe2024/pages/profile.dart';
-import 'package:universe2024/pages/my_events.dart';
+import 'package:universe2024/pages/my_events_org.dart';
 import 'package:universe2024/pages/notifications.dart';
 
 class HomePage extends StatefulWidget {
+  final String userId;
+  HomePage({Key? key, required this.userId}) : super(key: key);
+
+
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -26,8 +33,8 @@ class _HomePageState extends State<HomePage> {
   static List<Widget> _widgetOptions = <Widget>[
     searchpage1(),
     SearchPage(),
-    MyEventsPage(),
-    Profile(),
+    RegisteredEvent(),
+    OrgProfile()
   ];
 
   void _onItemTapped(int index) {
