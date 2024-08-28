@@ -7,9 +7,11 @@ import 'package:universe2024/admin/admaddevent.dart';
 import 'package:universe2024/admin/approval.dart';
 import 'package:universe2024/pages/search1.dart';
 import 'package:universe2024/org/attendee.dart';
-
 import 'package:universe2024/org/orgprofile.dart';
 import 'package:universe2024/pages/chatbot.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+import '../pages/loginpage.dart';
 
 class Admhome extends StatefulWidget {
   @override
@@ -41,19 +43,19 @@ class _AdmhomeState extends State<Admhome> {
         .collection('users')
         .snapshots()
         .asyncMap((usersSnapshot) async {
-          List<Map<String, dynamic>> allUsers = [];
-          
-          for (var userDoc in usersSnapshot.docs) {
-            allUsers.add({
-              'id': userDoc.id,
-              'name': userDoc['name'],
-              'email': userDoc['email'],
-               // Assuming a 'status' field for users
-            });
-          }
-          
-          return allUsers;
+      List<Map<String, dynamic>> allUsers = [];
+
+      for (var userDoc in usersSnapshot.docs) {
+        allUsers.add({
+          'id': userDoc.id,
+          'name': userDoc['name'],
+          'email': userDoc['email'],
+          // Assuming a 'status' field for users
         });
+      }
+
+      return allUsers;
+    });
   }
 
   void _onItemTapped(int index) {
@@ -62,12 +64,31 @@ class _AdmhomeState extends State<Admhome> {
     });
   }
 
-  
+  Future<void> _logout() async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => loginpage()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Styles.bgColor,
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        actions: [
+          SizedBox(width: 10),
+          GestureDetector(
+            onTap: _logout,
+            child: Image.asset('assets/EventOn.png', height: 32),
+          ),
+          SizedBox(width: 10),
+        ],
+      ),
       body: Stack(
         children: [
           StreamBuilder<List<Map<String, dynamic>>>(
@@ -90,25 +111,58 @@ class _AdmhomeState extends State<Admhome> {
           _widgetOptions[_selectedIndex], // Show form when Home tab is selected
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+      bottomNavigationBar: Container(
+        margin: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+        decoration: BoxDecoration(
+          color: Colors.black,
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black26,
+              offset: Offset(0, 5),
+              blurRadius: 15,
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(30),
+          child: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            backgroundColor: Colors.black,
+            items: <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: _buildIcon(Icons.home, 0),
+                label: 'Home',
+              ),
+              BottomNavigationBarItem(
+                icon: _buildIcon(Icons.admin_panel_settings, 1),
+                label: 'Approvals',
+              ),
+            ],
+            currentIndex: _selectedIndex,
+            selectedItemColor: Colors.white,
+            unselectedItemColor: Colors.grey,
+            showSelectedLabels: true,
+            showUnselectedLabels: true,
+            onTap: _onItemTapped,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.admin_panel_settings),
-            label: 'Approvals',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
-        unselectedItemColor: Styles.blueColor,
-        onTap: _onItemTapped,
+        ),
       ),
     );
   }
 
-  
+  Widget _buildIcon(IconData icon, int index) {
+    return Container(
+      padding: EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.white),
+        shape: BoxShape.circle,
+        color: _selectedIndex == index ? Colors.white : Colors.transparent,
+      ),
+      child: Icon(
+        icon,
+        color: _selectedIndex == index ? Colors.black : Colors.white,
+      ),
+    );
+  }
 }

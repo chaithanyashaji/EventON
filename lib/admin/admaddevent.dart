@@ -27,7 +27,7 @@ class _Admaddevent extends State<Admaddevent> {
   String imageUrl = '';
   final FirebaseAuthService _auth = FirebaseAuthService();
   CollectionReference _reference =
-      FirebaseFirestore.instance.collection('Adminevents');
+      FirebaseFirestore.instance.collection('AdminEvents');
 
   TextEditingController _eventNameController = TextEditingController();
   TextEditingController _eventDateController = TextEditingController();
@@ -51,32 +51,7 @@ class _Admaddevent extends State<Admaddevent> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-          flexibleSpace: Container(
-            decoration: BoxDecoration(
-                gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                  Styles.yellowColor,
-                  Styles.lblueColor,
-                  Styles.blueColor
-                ])),
-          ),
-          title: Text(
-            'Add Event',
-            style: TextStyle(
-                color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
-          ),
-          leading: SizedBox(
-            width: 800, // Set the desired width
-            height: double.infinity,
-            child: Image.asset(
-              'assets/logowhite.png',
-              fit: BoxFit.fitHeight, // Adjust the fit as needed
-            ),
-          ),
-          backgroundColor: Styles.blueColor),
+
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         physics: AlwaysScrollableScrollPhysics(),

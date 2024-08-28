@@ -94,7 +94,7 @@ class _EventDetailsState extends State<EventDetails> {
     });
   }
 
-  void _editEvent(DocumentSnapshot eventDoc) {
+  void _editEvent() {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -352,10 +352,13 @@ class _EventDetailsState extends State<EventDetails> {
           if (_isRegistrationOpen && !_isRegistered)
             ElevatedButton.icon(
               onPressed: () => _registerForEvent(eventDoc),
-              icon: Icon(Icons.event),
-              label: Text('Register'),
+              icon: Icon(Icons.app_registration), // Added an icon
+              label: Text('Register'), // Added a label
               style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: Colors.green,
+                backgroundColor: Colors.black,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             ),
           // Show QR Code button if payment is approved
@@ -365,7 +368,7 @@ class _EventDetailsState extends State<EventDetails> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => QrGenerationScreen(id: _currentUserId,),
+                    builder: (context) => QrGenerationScreen(id: _currentUserId),
                   ),
                 );
               },
@@ -388,26 +391,51 @@ class _EventDetailsState extends State<EventDetails> {
         ],
       ),
     );
+
   }
 
   // If the user added the event and is not a student, show edit and delete buttons
-  if (_addedBy == _currentUserId) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        IconButton(
-          icon: Icon(Icons.edit, color: Colors.blue),
-          onPressed: () => _editEvent(eventDoc),
-        ),
-        IconButton(
-          icon: Icon(Icons.delete, color: Colors.red),
-          onPressed: _deleteEvent,
-        ),
-      ],
+  if (  _addedBy == _currentUserId ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.black,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              onPressed: _editEvent,
+              icon: Icon(Icons.edit, color: Colors.white),
+              label: Text("Edit Event", style: TextStyle(color: Colors.white)),
+            ),
+          ),
+          SizedBox(width: 16),
+          Expanded(
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              onPressed: _deleteEvent,
+              icon: Icon(Icons.delete, color: Colors.white),
+              label: Text("Delete Event", style: TextStyle(color: Colors.white)),
+            ),
+          ),
+        ],
+      ),
     );
+  } else {
+    return Container();
   }
+ }
 
   // Return an empty container if no conditions are met
-  return Container();
-}
+
+
 }

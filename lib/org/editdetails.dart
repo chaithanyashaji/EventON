@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:gap/gap.dart';
 import 'package:universe2024/Utiles/app_styles.dart';
+import 'package:firebase_storage/firebase_storage.dart'; // Import Firebase Storage
 
 class EditDetailsForm extends StatefulWidget {
   final Map<String, dynamic>? userData;
@@ -36,14 +37,35 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
   Future<void> _updateUserData() async {
     final currentUserUid = FirebaseAuth.instance.currentUser?.uid;
     if (currentUserUid != null) {
+      String? imageUrl;
+
+      // Check if a new image is selected and upload it to Firebase Storage
+      if (_image != null) {
+        imageUrl = await _uploadImageToStorage(_image!);
+      }
+
       // Updating user data in Firestore
       await FirebaseFirestore.instance.collection('users').doc(currentUserUid).update({
         'name': name,
         'email': email,
         'mobileNumber': mobileNumber,
         'collegeName': collegeName,
-        if (_image != null) 'imageUrl': 'path/to/your/uploaded/image', // Update this with the actual URL
+        if (imageUrl != null) 'imageUrl': imageUrl, // Update Firestore with the new image URL
       });
+    }
+  }
+
+  Future<String> _uploadImageToStorage(File image) async {
+    try {
+      final storageRef = FirebaseStorage.instance
+          .ref()
+          .child('profile_images/${FirebaseAuth.instance.currentUser?.uid}.jpg');
+
+      final uploadTask = await storageRef.putFile(image);
+      return await storageRef.getDownloadURL();
+    } catch (e) {
+      print('Failed to upload image: $e');
+      return '';
     }
   }
 
@@ -111,9 +133,11 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
                     height: 50,
                     child: ElevatedButton(
                       onPressed: () async {
-                        if (_formKey.currentState?.validate() ?? false) {
-                          _formKey.currentState?.save();
-                          await _updateUserData();
+                        _formKey.currentState?.save(); // Save the form
+                        await _updateUserData();
+
+                        // Go back to the previous page after data is updated
+                        if (mounted) {
                           Navigator.pop(context);
                         }
                       },
@@ -155,12 +179,6 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
         ),
         contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
       ),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please enter your $label';
-        }
-        return null;
-      },
       onSaved: onSaved,
     );
   }

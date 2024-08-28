@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:universe2024/Utiles/app_styles.dart';
 import 'package:gap/gap.dart';
@@ -13,6 +14,8 @@ import 'package:universe2024/pages/search1.dart';
 import 'package:universe2024/pages/profile.dart';
 import 'package:universe2024/pages/my_events_org.dart';
 import 'package:universe2024/pages/notifications.dart';
+
+import 'loginpage.dart';
 
 class HomePage extends StatefulWidget {
   final String userId;
@@ -34,13 +37,20 @@ class _HomePageState extends State<HomePage> {
     searchpage1(),
     SearchPage(),
     RegisteredEvent(),
-    OrgProfile()
+    Profile()
   ];
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
+  }
+  Future<void> _logout() async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => loginpage()),
+    );
   }
 
   @override
@@ -51,6 +61,7 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
             icon: Icon(Icons.notifications, color: Colors.black),
@@ -62,10 +73,14 @@ class _HomePageState extends State<HomePage> {
             },
           ),
           SizedBox(width: 10),
-          Image.asset('assets/EventOn.png', height: 32),
+          GestureDetector(
+            onTap: _logout,
+            child: Image.asset('assets/EventOn.png', height: 32),
+          ),
           SizedBox(width: 10),
         ],
       ),
+
       body: Stack(
         children: [
           StreamBuilder<QuerySnapshot>(

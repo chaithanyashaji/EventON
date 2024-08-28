@@ -76,7 +76,7 @@ class _CommunityPageState extends State<CommunityPage> {
           communityName = data?['name'] ?? 'Unknown Community';
           communityEmail = data?['email'] ?? 'No Email Provided';
           communityCollege = data?['collegeName'] ?? 'No College Provided';
-          communityPhone = data?['phone'] ?? 'No Phone Provided';
+          communityPhone = data?['mobileNumber'] ?? 'No Phone Provided';
           profileImageUrl = data?['imageUrl'] ?? ''; // Fetch image URL
         });
       } else {
@@ -319,64 +319,59 @@ class _CommunityPageState extends State<CommunityPage> {
                                   );
                                 },
                                 child: Card(
+                                  color: Colors.white,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    side: BorderSide(color: Colors.black, width: 2.0), // Black border
+                                    side: BorderSide(color: Colors.black, width: 1.5),
+                                    borderRadius: BorderRadius.circular(15),
                                   ),
+                                  elevation: 5,
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      AspectRatio(
-                                        aspectRatio: 1/ 1, // Adjust aspect ratio if needed
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(15),
+                                          topRight: Radius.circular(15),
+                                        ),
                                         child: Image.network(
-                                          eventData['imageUrl'] ?? '',
+                                          eventData['imageUrl'],
                                           fit: BoxFit.cover,
                                           width: double.infinity,
-                                          errorBuilder: (context, error, stackTrace) => Icon(Icons.error),
+                                          height: 150, // Adjust the height to leave space for content
                                         ),
                                       ),
                                       Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment: CrossAxisAlignment.center,
                                           children: [
                                             Text(
-                                              eventData['eventName'] ?? 'Unknown Event',
+                                              eventData['eventName'],
+                                              maxLines: 1, // Limiting to 1 line to prevent overflow
+                                              overflow: TextOverflow.ellipsis, // Ellipsis for long names
                                               style: TextStyle(
-                                                fontSize: 14,
+                                                fontSize: 17,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
-                                            Gap(5),
+                                            SizedBox(height: 5),
                                             Row(
+                                              mainAxisAlignment: MainAxisAlignment.center,
                                               children: [
-                                                Icon(Icons.calendar_today, size: 14, color: Colors.grey),
+                                                Icon(Icons.location_on, size: 15, color: Colors.grey),
                                                 SizedBox(width: 4),
-                                                Text(
-                                                  eventData['eventDate'] ?? '',
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.grey,
+                                                Flexible(
+                                                  child: Text(
+                                                    eventData['eventLocation'],
+                                                    maxLines: 1, // Prevents overflow
+                                                    overflow: TextOverflow.ellipsis, // Handles long text
+                                                    style: TextStyle(
+                                                      fontSize: 15,
+                                                      color: Colors.black,
+                                                    ),
                                                   ),
                                                 ),
                                               ],
                                             ),
-                                            Gap(5),
-                                            Row(
-                                              children: [
-                                                Icon(Icons.location_on, size: 14, color: Colors.grey),
-                                                SizedBox(width: 4),
-                                                Text(
-                                                  eventData['eventLocation'] ?? '',
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.grey,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            Gap(5),
-
                                           ],
                                         ),
                                       ),
