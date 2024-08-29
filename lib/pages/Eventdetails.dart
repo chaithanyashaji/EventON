@@ -304,6 +304,17 @@ class _EventDetailsState extends State<EventDetails> {
               Text("Price: ${eventData['eventPrice'] ?? 'Unavailable'}", style: TextStyle(color: Colors.black)),
             ],
           ),
+          // Show UPI ID only if the event price is marked as "Paid"
+          if (eventData['eventPrice']?.toLowerCase() != 'free') ...[
+            SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.payment, color: Colors.black),
+                SizedBox(width: 8),
+                Expanded(child: Text("UPI ID: ${eventData['upiID'] ?? 'Unavailable'}", style: TextStyle(color: Colors.black))),
+              ],
+            ),
+          ],
           SizedBox(height: 16),
           Row(
             children: [
@@ -336,6 +347,7 @@ class _EventDetailsState extends State<EventDetails> {
       ),
     );
   }
+
 
   Widget _buildActionButtons(DocumentSnapshot eventDoc) {
     // If the user is a student

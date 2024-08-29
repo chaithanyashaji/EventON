@@ -40,6 +40,7 @@ class _AddEventPageState extends State<AddEvent> {
   final TextEditingController _eventTimeController = TextEditingController();
   final TextEditingController _eventContactController = TextEditingController();
   final TextEditingController _whatsappGroupLinkController = TextEditingController();
+  final TextEditingController _upiIDController = TextEditingController();
 
 
   final ImagePicker _picker = ImagePicker();
@@ -85,6 +86,7 @@ class _AddEventPageState extends State<AddEvent> {
     _eventDescriptionController.dispose();
     _eventTimeController.dispose();
     _eventContactController.dispose();
+    _upiIDController.dispose();
     super.dispose();
   }
 
@@ -366,53 +368,61 @@ class _AddEventPageState extends State<AddEvent> {
   }
 
 
-
   Widget _buildEventPriceDropdown() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-
-      child: Stack(
+      child: Column(
         children: [
-          TextFormField(
-            controller: TextEditingController(text: _selectedEventPrice),
-            readOnly: true,
-            decoration: InputDecoration(
-              labelText: 'Event Price',
-              labelStyle: const TextStyle(color: Colors.black),
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.black, width: 2)
+          Stack(
+            children: [
+              TextFormField(
+                controller: TextEditingController(text: _selectedEventPrice),
+                readOnly: true,
+                decoration: InputDecoration(
+                  labelText: 'Event Price',
+                  labelStyle: const TextStyle(color: Colors.black),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.black, width: 2)),
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.black, width: 2)),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                ),
               ),
-              focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.black, width: 2)
+              Positioned.fill(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: DropdownButton<String>(
+                    isExpanded: true,
+                    underline: SizedBox(),
+                    onChanged: (newValue) {
+                      setState(() {
+                        _selectedEventPrice = newValue!;
+                      });
+                    },
+                    items: ['Free', 'Paid'].map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
+                ),
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-
-            ),
+            ],
           ),
-          DropdownButton<String>(
-
-
-            isExpanded: true,
-
-            underline: SizedBox(),
-            onChanged: (newValue) {
-              setState(() {
-                _selectedEventPrice = newValue!;
-              });
-            },
-            items: ['Free', 'Paid'].map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-          ),],
+          if (_selectedEventPrice == 'Paid') ...[
+            const SizedBox(height: 20),
+            _buildTextField("Event Price", _eventPricePaidController),
+            const SizedBox(height: 20),
+            _buildTextField("UPI ID", _upiIDController),
+          ],
+        ],
       ),
-
     );
   }
+
 
 
 
@@ -573,6 +583,7 @@ class _AddEventPageState extends State<AddEvent> {
         'description': _eventDescriptionController.text,
         'eventContact': _eventContactController.text,
         'whatsappGroupLink': _whatsappGroupLinkController.text,
+        'upiID': _selectedEventPrice == 'Paid' ? _upiIDController.text : '',
         'imageUrl': imageUrl,
         'addedBy': currentUser.uid, // Include addedBy field
         'timestamp': FieldValue.serverTimestamp(),
