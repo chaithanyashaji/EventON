@@ -35,7 +35,8 @@ class _ProfileState extends State<Profile> {
           ? Center(child: Text('No user data found.'))
           : StreamBuilder<DocumentSnapshot>(
         stream: _stream,
-        builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+        builder: (BuildContext context,
+            AsyncSnapshot<DocumentSnapshot> snapshot) {
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           }
@@ -54,6 +55,9 @@ class _ProfileState extends State<Profile> {
           final collegeName = userData['collegeName'] ?? '';
           final communityMember = userData['communityMember'] ?? '';
           final ieeeMembershipId = userData['ieeeMembershipId'] ?? '';
+          final branch = userData['branch'] ?? '';
+          final semester = userData['semester'] ?? '';
+          final rollNo = userData['rollNo'] ?? '';
 
           return SingleChildScrollView(
             child: Padding(
@@ -107,10 +111,12 @@ class _ProfileState extends State<Profile> {
                       ),
                       const SizedBox(height: 10),
                       Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 24.0),
+                        margin:
+                        const EdgeInsets.symmetric(horizontal: 24.0),
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          border: Border.all(width: 1, color: Styles.yellowColor),
+                          border: Border.all(
+                              width: 1, color: Styles.yellowColor),
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(13),
                         ),
@@ -160,6 +166,27 @@ class _ProfileState extends State<Profile> {
                                     fontSize: 16,
                                     color: Styles.blueColor),
                               ),
+                              const Gap(5),
+                              Text(
+                                'Branch  :  $branch',
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    color: Styles.blueColor),
+                              ),
+                              const Gap(5),
+                              Text(
+                                'Semester  :  $semester',
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    color: Styles.blueColor),
+                              ),
+                              const Gap(5),
+                              Text(
+                                'Roll No  :  $rollNo',
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    color: Styles.blueColor),
+                              ),
                               Gap(5),
                               Center(
                                 child: ElevatedButton.icon(
@@ -167,22 +194,28 @@ class _ProfileState extends State<Profile> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => EditDetailsForm(userData: userData),
+                                        builder: (context) =>
+                                            EditDetailsForm(
+                                                userData: userData),
                                       ),
                                     );
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Styles.blueColor,
-                                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16.0, vertical: 10.0),
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(17),
+                                      borderRadius:
+                                      BorderRadius.circular(17),
                                     ),
                                   ),
-                                  icon: Icon(Icons.edit, color: Colors.white),
-                                  label: Text('Edit Details', style: TextStyle(color: Colors.white)),
+                                  icon: Icon(Icons.edit,
+                                      color: Colors.white),
+                                  label: Text('Edit Details',
+                                      style:
+                                      TextStyle(color: Colors.white)),
                                 ),
                               ),
-
                             ],
                           ),
                         ),
@@ -197,7 +230,8 @@ class _ProfileState extends State<Profile> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const loginpage()),
+                          MaterialPageRoute(
+                              builder: (context) => const loginpage()),
                         );
                       },
                       style: ElevatedButton.styleFrom(
@@ -222,7 +256,6 @@ class _ProfileState extends State<Profile> {
   }
 }
 
-
 class EditDetailsForm extends StatefulWidget {
   final Map<String, dynamic> userData;
 
@@ -239,7 +272,11 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
   late String _mobileNumber;
   late String _collegeName;
   late String _communityMember;
-  late String _ieeeMembershipId;
+  late String _MembershipId;
+  late String _branch;
+  late String _semester;
+  late String _rollNo;
+  bool _isSaved = false;
 
   @override
   void initState() {
@@ -249,7 +286,10 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
     _mobileNumber = widget.userData['mobileNumber'] ?? '';
     _collegeName = widget.userData['collegeName'] ?? '';
     _communityMember = widget.userData['communityMember'] ?? '';
-    _ieeeMembershipId = widget.userData['ieeeMembershipId'] ?? '';
+    _MembershipId = widget.userData['MembershipId'] ?? '';
+    _branch = widget.userData['branch'] ?? '';
+    _semester = widget.userData['semester'] ?? '';
+    _rollNo = widget.userData['rollNo'] ?? '';
   }
 
   void _saveDetails() async {
@@ -257,114 +297,142 @@ class _EditDetailsFormState extends State<EditDetailsForm> {
       _formKey.currentState!.save();
       final currentUserUid = FirebaseAuth.instance.currentUser?.uid;
       if (currentUserUid != null) {
-        await FirebaseFirestore.instance.collection('users').doc(currentUserUid).update({
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUserUid)
+            .update({
           'name': _name,
-          'mobileNumber': _mobileNumber,
+          'email': _email,
+          'phoneNumber': _mobileNumber,
           'collegeName': _collegeName,
           'communityMember': _communityMember,
-          'ieeeMembershipId': _ieeeMembershipId,
+          'MembershipId': _MembershipId,
+          'branch': _branch,
+          'semester': _semester,
+          'rollNo': _rollNo,
         });
-        Navigator.pop(context);
+
+        setState(() {
+          _isSaved = true;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Details updated successfully!')),
+        );
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final double fieldWidth = MediaQuery.of(context).size.width * 0.85;
-
     return Scaffold(
       appBar: AppBar(
-        iconTheme: IconThemeData(
-          color: Colors.white, //change your color here
-        ),
-        title: const Text('Edit Details', style: TextStyle(color: Colors.white)),
-        backgroundColor: Styles.blueColor,
+        title: const Text('Edit Details',style: TextStyle(color: Colors.white),),
+        backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: Center(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  Container(
-                    width: fieldWidth,
-                    child: _buildTextField('Name', initialValue: _name, onSaved: (value) => _name = value!),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            children: [
+              TextFormField(
+                initialValue: _name,
+                decoration: const InputDecoration(labelText: 'Name'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your name';
+                  }
+                  return null;
+                },
+                onSaved: (value) => _name = value!,
+              ),
+              TextFormField(
+                initialValue: _email,
+                decoration: const InputDecoration(labelText: 'Email'),
+
+                onSaved: (value) => _email = value!,
+              ),
+              TextFormField(
+                initialValue: _mobileNumber,
+                decoration: const InputDecoration(labelText: 'Phone Number'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your phone number';
+                  }
+                  return null;
+                },
+                onSaved: (value) => _mobileNumber = value!,
+              ),
+              TextFormField(
+                initialValue: _collegeName,
+                decoration: const InputDecoration(labelText: 'College Name'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your college name';
+                  }
+                  return null;
+                },
+                onSaved: (value) => _collegeName = value!,
+              ),
+              TextFormField(
+                initialValue: _communityMember,
+                decoration: const InputDecoration(labelText: 'Community Member'),
+                onSaved: (value) => _communityMember = value!,
+              ),
+              TextFormField(
+                initialValue: _MembershipId,
+                decoration: const InputDecoration(labelText: 'IEEE Membership ID'),
+                onSaved: (value) => _MembershipId = value!,
+              ),
+              TextFormField(
+                initialValue: _branch,
+                decoration: const InputDecoration(labelText: 'Branch'),
+                onSaved: (value) => _branch = value!,
+              ),
+              TextFormField(
+                initialValue: _semester,
+                decoration: const InputDecoration(labelText: 'Semester'),
+                onSaved: (value) => _semester = value!,
+              ),
+              TextFormField(
+                initialValue: _rollNo,
+                decoration: const InputDecoration(labelText: 'Roll No'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your Roll No';
+                  }
+                  return null;
+                },
+                onSaved: (value) => _rollNo = value!,
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _saveDetails,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  const Gap(20),
-                  Container(
-                    width: fieldWidth,
-                    child: _buildTextField('Mobile Number', initialValue: _mobileNumber, onSaved: (value) => _mobileNumber = value!),
-                  ),
-                  const Gap(20),
-                  Container(
-                    width: fieldWidth,
-                    child: _buildTextField('College Name', initialValue: _collegeName, onSaved: (value) => _collegeName = value!),
-                  ),
-                  const Gap(20),
-                  Container(
-                    width: fieldWidth,
-                    child: _buildTextField('Community Member', initialValue: _communityMember, onSaved: (value) => _communityMember = value!),
-                  ),
-                  const Gap(20),
-                  Container(
-                    width: fieldWidth,
-                    child: _buildTextField('IEEE Membership ID', initialValue: _ieeeMembershipId, onSaved: (value) => _ieeeMembershipId = value!),
-                  ),
-                  const Gap(20),
-                  Container(
-                    width: fieldWidth,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: _saveDetails,
-                      style: ElevatedButton.styleFrom(
-                        elevation: 0,
-                        backgroundColor: Styles.blueColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text(
-                        'Save',
-                        style: TextStyle(color: Colors.white),
-                      ),
+                ),
+                child: const Text('Save Details',style: TextStyle(color: Colors.white),),
+
+              ),
+              if (_isSaved)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      'Details saved successfully!',
+                      style: TextStyle(color: Colors.green),
                     ),
                   ),
-                ],
-              ),
-            ),
+                ),
+            ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildTextField(String label, {required String initialValue, required void Function(String?) onSaved}) {
-    return TextFormField(
-      initialValue: initialValue,
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(color: Colors.black),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.black, width: 1.5),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.black, width: 1.5),
-        ),
-        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-      ),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please enter your $label';
-        }
-        return null;
-      },
-      onSaved: onSaved,
     );
   }
 }

@@ -282,6 +282,7 @@ class _CommunityPageState extends State<CommunityPage> {
                         stream: FirebaseFirestore.instance
                             .collection('EVENTS')
                             .where('addedBy', isEqualTo: widget.communityId)
+                            //.orderBy('timestamp', descending: true) // Sort by eventDate in descending order
                             .snapshots(),
                         builder: (context, snapshot) {
                           if (!snapshot.hasData) {

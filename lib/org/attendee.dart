@@ -16,6 +16,8 @@ class Attendee extends StatefulWidget {
 
 class _AttendeeState extends State<Attendee> {
   List<attendModel> attendModelList = [];
+  List<attendModel> filteredList = [];
+  String searchQuery = '';
 
   @override
   void initState() {
@@ -23,7 +25,6 @@ class _AttendeeState extends State<Attendee> {
 
     final FirebaseFirestore db = FirebaseFirestore.instance;
 
-    // Clear the list before adding new data
     attendModelList.clear();
 
     db.collection("REGISTRATIONS")
@@ -41,31 +42,32 @@ class _AttendeeState extends State<Attendee> {
           ));
         }
 
-        // Update the state with the new list
         setState(() {
           attendModelList = newAttendees;
+          filteredList = newAttendees;
         });
       }
     });
+  }
+
+  void _filterSearchResults(String query) {
+    if (query.isEmpty) {
+      setState(() {
+        filteredList = attendModelList;
+      });
+    } else {
+      setState(() {
+        filteredList = attendModelList
+            .where((element) => element.name.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Styles.yellowColor,
-                Styles.lblueColor,
-                Styles.blueColor,
-              ],
-            ),
-          ),
-        ),
         title: Text(
           'Registrants',
           style: TextStyle(
@@ -74,46 +76,40 @@ class _AttendeeState extends State<Attendee> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        leading: SizedBox(
-          width: 800,
-          height: double.infinity,
-          child: Image.asset(
-            'assets/logowhite.png',
-            fit: BoxFit.fitHeight,
-          ),
-        ),
-        backgroundColor: Styles.blueColor,
+
+        backgroundColor: Colors.black,
+        actions: [
+          Image.asset('assets/EventOn.png', height: 32), // Logo on the rightmost end
+        ],
       ),
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          Gap(50),
-          InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => qrpage()),
-              );
-            },
-            child: Card(
-              color: Styles.blueColor,
-              child: Container(
-                height: 60,
-                width: 350,
-                child: Center(
-                  child: Text(
-                    "SCAN NEW PARTICIPANT",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: TextField(
+                onChanged: (value) {
+                  setState(() {
+                    searchQuery = value;
+                  });
+                  _filterSearchResults(value);
+                },
+                style: TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  hintText: "Search Users...",
+                  hintStyle: TextStyle(color: Colors.white54),
+                  prefixIcon: Icon(Icons.search, color: Colors.white),
+                  border: InputBorder.none,
                 ),
               ),
             ),
           ),
-          Gap(40),
+          Gap(10),
           Container(
             width: MediaQuery.of(context).size.width,
             height: 90,
@@ -163,9 +159,9 @@ class _AttendeeState extends State<Attendee> {
           Gap(35),
           Expanded(
             child: ListView.builder(
-              itemCount: attendModelList.length,
+              itemCount: filteredList.length,
               itemBuilder: (context, index) {
-                var item = attendModelList[index];
+                var item = filteredList[index];
                 return Container(
                   height: 165,
                   margin: EdgeInsets.only(
@@ -188,7 +184,7 @@ class _AttendeeState extends State<Attendee> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Name  :  " + item.name,
+                                "${index + 1}. Name  :  " + item.name,
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
@@ -196,6 +192,7 @@ class _AttendeeState extends State<Attendee> {
                                 ),
                               ),
                               Gap(3),
+                              // Display additional user details here if needed
                             ],
                           )
                         ],
