@@ -18,7 +18,8 @@ class _MyEventsPageState extends State<MyEventsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('My Events'),
+        title: Center(child: Container(margin: EdgeInsets.only(left: 30),
+            child: Text('My Events',style: TextStyle(fontWeight: FontWeight.bold),))),
         actions: [
           IconButton(
             icon: Container(

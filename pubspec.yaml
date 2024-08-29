@@ -50,6 +50,7 @@ dependencies:
   url_launcher: ^6.0.12
   carousel_slider: ^4.0.0
   qr_flutter: ^4.1.0
+
   image_picker: ^1.1.2
   qr_code_scanner: ^1.0.1
   firebase_messaging: ^14.9.4

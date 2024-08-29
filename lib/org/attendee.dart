@@ -22,7 +22,10 @@ class _AttendeeState extends State<Attendee> {
   @override
   void initState() {
     super.initState();
+    fetchAttendees();
+  }
 
+  Future<void> fetchAttendees() async {
     final FirebaseFirestore db = FirebaseFirestore.instance;
 
     attendModelList.clear();
@@ -30,7 +33,7 @@ class _AttendeeState extends State<Attendee> {
     db.collection("REGISTRATIONS")
         .where('eventId', isEqualTo: widget.eventId)
         .snapshots()
-        .listen((event) {
+        .listen((event) async {
       if (event.docs.isNotEmpty) {
         List<attendModel> newAttendees = [];
         for (var element in event.docs) {
@@ -39,9 +42,15 @@ class _AttendeeState extends State<Attendee> {
             element.get("userName"),
             element.get("ScannedStatus"),
             element.get("PaymentStatus"),
+            element.get("_MembershipId"),
+            element.get("_branch"),
+            element.get("_collegeName"),
+            element.get("_email"),
+            element.get("_mobileNumber"),
+            element.get("_rollNo"),
+            element.get("_semester"),
           ));
         }
-
         setState(() {
           attendModelList = newAttendees;
           filteredList = newAttendees;
@@ -58,7 +67,8 @@ class _AttendeeState extends State<Attendee> {
     } else {
       setState(() {
         filteredList = attendModelList
-            .where((element) => element.name.toLowerCase().contains(query.toLowerCase()))
+            .where((element) =>
+            element.name.toLowerCase().contains(query.toLowerCase()))
             .toList();
       });
     }
@@ -68,6 +78,13 @@ class _AttendeeState extends State<Attendee> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          color: Colors.white,
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         title: Text(
           'Registrants',
           style: TextStyle(
@@ -76,10 +93,12 @@ class _AttendeeState extends State<Attendee> {
             fontWeight: FontWeight.bold,
           ),
         ),
-
+        iconTheme: IconThemeData(
+          color: Colors.white,
+        ),
         backgroundColor: Colors.black,
         actions: [
-          Image.asset('assets/EventOn.png', height: 32), // Logo on the rightmost end
+          Image.asset('assets/EventOn.png', height: 32),
         ],
       ),
       backgroundColor: Colors.white,
@@ -110,6 +129,27 @@ class _AttendeeState extends State<Attendee> {
             ),
           ),
           Gap(10),
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => QRPage()));
+            },
+            child: Card(
+              color: Styles.blueColor,
+              child: Container(
+                height: 60,
+                width: 350,
+                child: Center(
+                  child: Text("SCAN NEW PARTICIPANT",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ),
+          ),
+          Gap(20),
           Container(
             width: MediaQuery.of(context).size.width,
             height: 90,
@@ -159,80 +199,137 @@ class _AttendeeState extends State<Attendee> {
           Gap(35),
           Expanded(
             child: ListView.builder(
-              itemCount: filteredList.length,
-              itemBuilder: (context, index) {
-                var item = filteredList[index];
-                return Container(
-                  height: 165,
-                  margin: EdgeInsets.only(
-                      left: 20, right: 20, top: 5, bottom: 5),
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Styles.yellowColor, width: 0.75),
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(20),
+                itemCount: filteredList.length,
+                itemBuilder: (context, index) {
+                  var item = filteredList[index];
+                  return Container(
+                    height: 260,
+                    margin: EdgeInsets.only(
+                        left: 20, right: 20, top: 5, bottom: 5),
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Styles.yellowColor, width: 0.75),
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(20),
+                      ),
                     ),
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "${index + 1}. Name  :  " + item.name,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                  color: Styles.blueColor,
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "${index + 1}. Name  :  " + item.name,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    color: Styles.blueColor,
+                                  ),
+                                ),
+                                Gap(3),
+                                Text(
+                                  "College Name  :  " + item.collegeName,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                    color: Styles.blueColor,
+                                  ),
+                                ),
+                                Gap(3),
+                                Text(
+                                  "Branch  :  " + item.branch,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                    color: Styles.blueColor,
+                                  ),
+                                ),
+                                Gap(3),
+                                Text(
+                                  "Semester  :  " + item.semester,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: Styles.blueColor,
+                                  ),
+                                ),
+                                Gap(3),
+                                Text(
+                                  "Roll No  :  " + item.rollNo,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: Styles.blueColor,
+                                  ),
+                                ),
+                                Gap(3),
+                                Text(
+                                  "Email  :  " + item.email,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: Styles.blueColor,
+                                  ),
+                                ),
+                                Gap(3),
+                                Text(
+                                  "Mobile Number  :  " + item.mobileNumber,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: Styles.blueColor,
+                                  ),
+                                ),
+                                Gap(3),
+                                Text(
+                                  "Membership ID  :  " + item.MembershipId,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                    color: Styles.blueColor,
+                                  ),
+                                ),
+                                Gap(3),
+                              ],
+                            )
+                          ],
+                        ),
+                        SizedBox(
+                          height: 15,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Container(
+                              padding: EdgeInsets.only(
+                                  left: 15, right: 15, top: 5, bottom: 5),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Styles.yellowColor),
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(10),
                                 ),
                               ),
-                              Gap(3),
-                              // Display additional user details here if needed
-                            ],
-                          )
-                        ],
-                      ),
-                      SizedBox(
-                        height: 15,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Container(
-                            padding: EdgeInsets.only(
-                                left: 15, right: 15, top: 5, bottom: 5),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Styles.yellowColor),
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(10),
-                              ),
+                              child: Center(
+                                  child: Text(
+                                    item.status == "YES" ? "Attended" : "Registered",
+                                    style: TextStyle(
+                                        color: item.status == "YES"
+                                            ? Colors.green
+                                            : Colors.red,
+                                        fontWeight: FontWeight.w500),
+                                  )),
                             ),
-                            child: Center(
-                              child: Text(
-                                item.status == "YES"
-                                    ? "Attended"
-                                    : "Registered",
-                                style: TextStyle(
-                                  color: item.status == "YES"
-                                      ? Colors.green
-                                      : Colors.red,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
-                );
-              },
-            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  );
+                }),
           ),
         ],
       ),

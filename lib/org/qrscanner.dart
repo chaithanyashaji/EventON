@@ -1,40 +1,34 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
 import 'dart:io';
-
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
-class qrpage extends StatefulWidget {
-  qrpage({Key? key}) : super(key: key);
+class QRPage extends StatefulWidget {
+  QRPage({Key? key}) : super(key: key);
 
   @override
-  State<qrpage> createState() => _MyHomePageState();
+  State<QRPage> createState() => _QRPageState();
 }
 
-class _MyHomePageState extends State<qrpage> {
+class _QRPageState extends State<QRPage> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   Barcode? result;
   QRViewController? controller;
 
-  // In order to get hot reload to work we need to pause the camera if the platform
-  // is android, or resume the camera if the platform is iOS.
   @override
   void reassemble() {
     super.reassemble();
     if (Platform.isAndroid) {
-      controller!.resumeCamera();
+      controller?.resumeCamera();
     } else if (Platform.isIOS) {
-      controller!.resumeCamera();
+      controller?.resumeCamera();
     }
   }
 
   void _onPermissionSet(BuildContext context, QRViewController ctrl, bool p) {
-    controller!.resumeCamera();
-    // log('${DateTime.now().toIso8601String()}_onPermissionSet $p');
     if (!p) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('no Permission')),
+        const SnackBar(content: Text('No Permission')),
       );
     }
   }
@@ -44,28 +38,12 @@ class _MyHomePageState extends State<qrpage> {
     controller.scannedDataStream.listen((scanData) {
       setState(() {
         result = scanData;
-        print(result!.code.toString() + "sddaaaas");
-        try {
+        if (result != null && result!.code != null) {
+          String code = result!.code!;
+          print('Scanned Code: $code');
           controller.pauseCamera();
-          getDetailsOfScanned(
-            context,
-            result!.code.toString(),
-          );
+          getDetailsOfScanned(context, code);
           controller.resumeCamera();
-        } catch (e) {
-          const snackBar = SnackBar(
-              backgroundColor: Colors.red,
-              duration: Duration(milliseconds: 3000),
-              content: Text(
-                "Invalid",
-                textAlign: TextAlign.center,
-                softWrap: true,
-                style: TextStyle(color: Colors.white),
-              ));
-          ScaffoldMessenger.of(context).showSnackBar(snackBar);
-          controller.pauseCamera();
-
-          ///Alert
         }
       });
     });
@@ -74,7 +52,7 @@ class _MyHomePageState extends State<qrpage> {
   @override
   Widget build(BuildContext context) {
     var scanArea = (MediaQuery.of(context).size.width < 400 ||
-            MediaQuery.of(context).size.height < 400)
+        MediaQuery.of(context).size.height < 400)
         ? 250.0
         : 300.0;
 
@@ -87,11 +65,12 @@ class _MyHomePageState extends State<qrpage> {
               key: qrKey,
               onQRViewCreated: _onQRViewCreated,
               overlay: QrScannerOverlayShape(
-                  borderColor: Colors.blueAccent,
-                  borderRadius: 5,
-                  borderLength: 15,
-                  borderWidth: 10,
-                  cutOutSize: scanArea),
+                borderColor: Colors.blueAccent,
+                borderRadius: 5,
+                borderLength: 15,
+                borderWidth: 10,
+                cutOutSize: scanArea,
+              ),
               onPermissionSet: (ctrl, p) => _onPermissionSet(context, ctrl, p),
             ),
           ),
@@ -108,53 +87,69 @@ class _MyHomePageState extends State<qrpage> {
 }
 
 void getDetailsOfScanned(BuildContext context, String code) {
-  DateTime todayTime = DateTime.now();
   final FirebaseFirestore db = FirebaseFirestore.instance;
-  print("ksdk" + code);
 
-  db
-      .collection('users')
-      .doc(code.toString())
-      .snapshots()
-      .listen((DocumentSnapshot ds) {
-    print("asbjhasd" + "R" + code.toString());
+  // Check if the scanned code exists in the users collection
+  db.collection('users').doc(code).get().then((DocumentSnapshot ds) {
     if (ds.exists) {
-      Map<dynamic, dynamic> map = ds.data() as Map;
-      db
-          .collection("REGISTRATIONS")
-          .where("id", isEqualTo: code.toString())
+      // The user exists; now check the REGISTRATIONS collection
+      db.collection("REGISTRATIONS")
+          .where("id", isEqualTo: code)
           .get()
-          .then((value) {
-        if (value.docs.isNotEmpty) {
-          for (var element in value.docs) {
-            db
-                .collection("REGISTRATIONS")
-                .doc(element.id)
-                .set({"scanned_status": "YES"}, SetOptions(merge: true));
+          .then((QuerySnapshot querySnapshot) {
+        if (querySnapshot.docs.isNotEmpty) {
+          for (var document in querySnapshot.docs) {
+            db.collection("REGISTRATIONS")
+                .doc(document.id)
+                .set({"scanned_status": "YES"}, SetOptions(merge: true))
+                .then((_) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  backgroundColor: Colors.green,
+                  content: Text(
+                    "Scanned Successfully",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              );
+            });
           }
-
-          const snackBar = SnackBar(
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
               backgroundColor: Colors.red,
-              duration: Duration(milliseconds: 3000),
               content: Text(
-                "Scanned Succesfully",
+                "No matching registration found",
                 textAlign: TextAlign.center,
-                softWrap: true,
                 style: TextStyle(color: Colors.white),
-              ));
+              ),
+            ),
+          );
         }
       });
     } else {
-      const snackBar = SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
           backgroundColor: Colors.red,
-          duration: Duration(milliseconds: 3000),
           content: Text(
             "Ticket is Invalid",
             textAlign: TextAlign.center,
-            softWrap: true,
             style: TextStyle(color: Colors.white),
-          ));
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          ),
+        ),
+      );
     }
+  }).catchError((error) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.red,
+        content: Text(
+          "Error: $error",
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+    );
   });
 }

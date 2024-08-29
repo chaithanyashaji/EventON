@@ -46,7 +46,7 @@ class _ChatState extends State<Chat> {
           color: Colors.white, // Set the back button color to white
         ),
         flexibleSpace: Container(
-          margin: EdgeInsets.only(left: 40, top: 45),
+          margin: EdgeInsets.only(left: 40, top: 40),
           padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.vertical(
