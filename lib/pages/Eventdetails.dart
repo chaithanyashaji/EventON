@@ -90,7 +90,8 @@ class _EventDetailsState extends State<EventDetails> {
         .get();
 
     setState(() {
-      _addedBy = eventDoc['addedby'] ?? ''; // Handle null values
+      _addedBy = eventDoc['addedBy'] ?? '';
+      print(_addedBy);// Handle null values
     });
   }
 
@@ -336,106 +337,123 @@ class _EventDetailsState extends State<EventDetails> {
     );
   }
 
- Widget _buildActionButtons(eventDoc) {
-  // Only students should see this button
-  if (_userRole == 'student') {
-    // If registration is not open, return an empty container
-    if (!_isRegistrationOpen) {
-      return Container();
+  Widget _buildActionButtons(DocumentSnapshot eventDoc) {
+    // If the user is a student
+    if (_userRole == 'student') {
+      if (!_isRegistrationOpen) {
+        return Container(); // Registration is closed, return an empty container
+      }
+
+      // If the student hasn't registered yet
+      if (!_isRegistered) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  onPressed: () => _registerForEvent(eventDoc),
+                  icon: Icon(Icons.event, color: Colors.white),
+                  label: Text("Register", style: TextStyle(color: Colors.white)),
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+
+      // If the student is registered but payment is pending
+      if (_isRegistered && _paymentStatus == 'pending') {
+        return Container(
+          margin: EdgeInsets.symmetric(horizontal: 35, vertical: 15),
+          child: Text(
+            "Waiting for payment verification",
+            style: TextStyle(
+              color: Colors.red,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        );
+      }
+
+      // If the student is registered and payment is approved
+      if (_isRegistered && _paymentStatus == 'approved') {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+          child: ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => QrGenerationScreen(id: _currentUserId),
+                ),
+              );
+            },
+            icon: Icon(Icons.qr_code, color: Colors.white),
+            label: Text("Show QR Code", style: TextStyle(color: Colors.white)),
+          ),
+        );
+      }
     }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-      child: Column(
-        children: [
-          // Register button for students who haven't registered yet
-          if (_isRegistrationOpen && !_isRegistered)
-            ElevatedButton.icon(
-              onPressed: () => _registerForEvent(eventDoc),
-              icon: Icon(Icons.app_registration), // Added an icon
-              label: Text('Register'), // Added a label
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            ),
-          // Show QR Code button if payment is approved
-          if (_isRegistered && _paymentStatus == 'approved')
-            ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => QrGenerationScreen(id: _currentUserId),
+    // If the user added the event (admin or event creator)
+    if (_addedBy == _currentUserId) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+        child: Row(
+          children: [
+            Expanded(
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                );
-              },
-              icon: Icon(Icons.qr_code),
-              label: Text('Show QR Code'),
-            ),
-          // Message for pending payment verification
-          if (_isRegistered && _paymentStatus == 'pending')
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 35, vertical: 15),
-              child: Text(
-                "Waiting for payment verification",
-                style: TextStyle(
-                  color: Colors.red,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
                 ),
+                onPressed: _editEvent,
+                icon: Icon(Icons.edit, color: Colors.white),
+                label: Text("Edit Event", style: TextStyle(color: Colors.white)),
               ),
             ),
-        ],
-      ),
-    );
+            SizedBox(width: 16),
+            Expanded(
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                onPressed: _deleteEvent,
+                icon: Icon(Icons.delete, color: Colors.white),
+                label: Text("Delete Event", style: TextStyle(color: Colors.white)),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
-  }
-
-  // If the user added the event and is not a student, show edit and delete buttons
-  if (  _addedBy == _currentUserId ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
-      child: Row(
-        children: [
-          Expanded(
-            child: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              onPressed: _editEvent,
-              icon: Icon(Icons.edit, color: Colors.white),
-              label: Text("Edit Event", style: TextStyle(color: Colors.white)),
-            ),
-          ),
-          SizedBox(width: 16),
-          Expanded(
-            child: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              onPressed: _deleteEvent,
-              icon: Icon(Icons.delete, color: Colors.white),
-              label: Text("Delete Event", style: TextStyle(color: Colors.white)),
-            ),
-          ),
-        ],
-      ),
-    );
-  } else {
+    // If none of the conditions are met, return an empty container
     return Container();
   }
- }
 
-  // Return an empty container if no conditions are met
+
+
+// Return an empty container if no conditions are met
 
 
 }
