@@ -132,7 +132,11 @@ class _AttendeeState extends State<Attendee> {
           InkWell(
             onTap: () {
               Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => QRPage()));
+                context,
+                MaterialPageRoute(
+                  builder: (context) => QRPage(eventId: widget.eventId), // Pass the eventId here
+                ),
+              );
             },
             child: Card(
               color: Styles.blueColor,

@@ -4,7 +4,9 @@ import 'dart:io';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class QRPage extends StatefulWidget {
-  QRPage({Key? key}) : super(key: key);
+  final String eventId; // Add this to receive the event ID
+
+  QRPage({Key? key, required this.eventId}) : super(key: key);
 
   @override
   State<QRPage> createState() => _QRPageState();
@@ -52,11 +54,15 @@ class _QRPageState extends State<QRPage> {
   @override
   Widget build(BuildContext context) {
     var scanArea = (MediaQuery.of(context).size.width < 400 ||
-        MediaQuery.of(context).size.height < 400)
+            MediaQuery.of(context).size.height < 400)
         ? 250.0
         : 300.0;
 
     return Scaffold(
+      appBar: AppBar(
+        title: Text('QR Scanner'),
+        backgroundColor: Colors.black,
+      ),
       body: Column(
         children: <Widget>[
           Expanded(
@@ -84,72 +90,73 @@ class _QRPageState extends State<QRPage> {
     controller?.dispose();
     super.dispose();
   }
-}
 
-void getDetailsOfScanned(BuildContext context, String code) {
-  final FirebaseFirestore db = FirebaseFirestore.instance;
+  void getDetailsOfScanned(BuildContext context, String code) {
+    final FirebaseFirestore db = FirebaseFirestore.instance;
 
-  // Check if the scanned code exists in the users collection
-  db.collection('users').doc(code).get().then((DocumentSnapshot ds) {
-    if (ds.exists) {
-      // The user exists; now check the REGISTRATIONS collection
-      db.collection("REGISTRATIONS")
-          .where("id", isEqualTo: code)
-          .get()
-          .then((QuerySnapshot querySnapshot) {
-        if (querySnapshot.docs.isNotEmpty) {
-          for (var document in querySnapshot.docs) {
-            db.collection("REGISTRATIONS")
-                .doc(document.id)
-                .set({"scanned_status": "YES"}, SetOptions(merge: true))
-                .then((_) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  backgroundColor: Colors.green,
-                  content: Text(
-                    "Scanned Successfully",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white),
+    // Check if the scanned code exists in the users collection
+    db.collection('users').doc(code).get().then((DocumentSnapshot ds) {
+      if (ds.exists) {
+        // The user exists; now check the REGISTRATIONS collection
+        db.collection("REGISTRATIONS")
+            .where("id", isEqualTo: code)
+            .where("event_id", isEqualTo: widget.eventId) // Check for event ID
+            .get()
+            .then((QuerySnapshot querySnapshot) {
+          if (querySnapshot.docs.isNotEmpty) {
+            for (var document in querySnapshot.docs) {
+              db.collection("REGISTRATIONS")
+                  .doc(document.id)
+                  .set({"scanned_status": "YES"}, SetOptions(merge: true))
+                  .then((_) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    backgroundColor: Colors.green,
+                    content: Text(
+                      "Scanned Successfully",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
+                );
+              });
+            }
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                backgroundColor: Colors.red,
+                content: Text(
+                  "No matching registration found for this event",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.white),
                 ),
-              );
-            });
-          }
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              backgroundColor: Colors.red,
-              content: Text(
-                "No matching registration found",
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white),
               ),
+            );
+          }
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.red,
+            content: Text(
+              "Ticket is Invalid",
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white),
             ),
-          );
-        }
-      });
-    } else {
+          ),
+        );
+      }
+    }).catchError((error) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           backgroundColor: Colors.red,
           content: Text(
-            "Ticket is Invalid",
+            "Error: $error",
             textAlign: TextAlign.center,
             style: TextStyle(color: Colors.white),
           ),
         ),
       );
-    }
-  }).catchError((error) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: Colors.red,
-        content: Text(
-          "Error: $error",
-          textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
-    );
-  });
+    });
+  }
 }
