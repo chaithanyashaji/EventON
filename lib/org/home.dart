@@ -193,24 +193,33 @@ class _SocHomePageState extends State<SocHomePage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Logout'),
-          content: Text('Are you sure you want to logout?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Dismiss the dialog
-              },
-              child: Text('Cancel'),
+        return Theme(
+          data: Theme.of(context).copyWith(
+            dialogBackgroundColor: Colors.black, // Set the dialog background to black
+            textTheme: TextTheme(
+              titleLarge: TextStyle(color: Colors.white), // Set title text to white
+              bodyLarge: TextStyle(color: Colors.white),  // Set content text to white
             ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Dismiss the dialog
-                _logout(); // Call the logout function
-              },
-              child: Text('Logout'),
-            ),
-          ],
+          ),
+          child: AlertDialog(
+            title: Text('Logout', style: TextStyle(color: Colors.white)), // Set title color to white
+            content: Text('Are you sure you want to logout?', style: TextStyle(color: Colors.white)), // Set content color to white
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Dismiss the dialog
+                },
+                child: Text('Cancel', style: TextStyle(color: Colors.white)), // Set button text color to white
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Dismiss the dialog
+                  _logout(); // Call the logout function
+                },
+                child: Text('Logout', style: TextStyle(color: Colors.white)), // Set button text color to white
+              ),
+            ],
+          ),
         );
       },
     );
