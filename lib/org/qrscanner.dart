@@ -89,46 +89,27 @@ class _QRPageState extends State<QRPage> {
 void getDetailsOfScanned(BuildContext context, String code) {
   final FirebaseFirestore db = FirebaseFirestore.instance;
 
-  // Check if the scanned code exists in the users collection
-  db.collection('users').doc(code).get().then((DocumentSnapshot ds) {
+  // Check if the scanned code exists in the REGISTRATIONS collection as a document ID
+  db.collection('REGISTRATIONS').doc(code).get().then((DocumentSnapshot ds) {
     if (ds.exists) {
-      // The user exists; now check the REGISTRATIONS collection
+      // The document with the scanned code as the ID exists in the REGISTRATIONS collection
       db.collection("REGISTRATIONS")
-          .where("id", isEqualTo: code)
-          .get()
-          .then((QuerySnapshot querySnapshot) {
-        if (querySnapshot.docs.isNotEmpty) {
-          for (var document in querySnapshot.docs) {
-            db.collection("REGISTRATIONS")
-                .doc(document.id)
-                .set({"ScannedStatus": "YES"}, SetOptions(merge: true))
-                .then((_) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  backgroundColor: Colors.green,
-                  content: Text(
-                    "Scanned Successfully",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              );
-            });
-          }
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              backgroundColor: Colors.red,
-              content: Text(
-                "No matching registration found",
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white),
-              ),
+          .doc(code)
+          .set({"ScannedStatus": "YES"}, SetOptions(merge: true))
+          .then((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.green,
+            content: Text(
+              "Scanned Successfully",
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white),
             ),
-          );
-        }
+          ),
+        );
       });
     } else {
+      // No document with the scanned code as the ID exists in the REGISTRATIONS collection
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           backgroundColor: Colors.red,
@@ -153,3 +134,4 @@ void getDetailsOfScanned(BuildContext context, String code) {
     );
   });
 }
+

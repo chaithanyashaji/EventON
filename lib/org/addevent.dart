@@ -23,6 +23,8 @@ class _AddEventPageState extends State<AddEvent> {
   String _selectedEventType = '';
   String _selectedCommunityType = '';
   String _selectedEventPrice = 'Free';
+  String _selectedEventLevel = 'Level I';
+
   String _errorText = '';
   bool _isSubmitting = false;
   List<String> _selectedDates = [];
@@ -131,9 +133,13 @@ class _AddEventPageState extends State<AddEvent> {
             _buildEventTimePicker(),
             const SizedBox(height: 20),
             _buildEventPriceDropdown(),
-            if (_selectedEventPrice == 'Paid') _buildTextField("Event Price", _eventPricePaidController),
+
             const SizedBox(height: 20),
             _buildDateField("Deadline", _deadlineController),
+
+            const SizedBox(height: 20),
+            _buildEventLevelDropdown(), // New Event Level Dropdown
+
             const SizedBox(height: 20),
             _buildTextField("Notification Phrase (Optional)", _notificationPhraseController),
             const SizedBox(height: 20),
@@ -462,6 +468,59 @@ class _AddEventPageState extends State<AddEvent> {
     );
   }
 
+  Widget _buildEventLevelDropdown() {
+    List<String> eventLevelOptions = [
+      'Level I',
+      'Level II',
+      'Level III',
+      'Level IV',
+      'Level V',
+    ];
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+      child: Stack(
+        children: [
+          TextFormField(
+            controller: TextEditingController(text: _selectedEventLevel),
+            readOnly: true,
+            decoration: InputDecoration(
+              labelText: 'Event Level(for activity points)',
+              labelStyle: const TextStyle(color: Colors.black),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.black, width: 2)),
+              focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.black, width: 2)),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+            ),
+          ),
+          Positioned.fill(
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: DropdownButton<String>(
+                isExpanded: true,
+                underline: SizedBox(),
+                onChanged: (newValue) {
+                  setState(() {
+                    _selectedEventLevel = newValue!;
+                  });
+                },
+                items: eventLevelOptions.map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   Widget _buildImagePicker() {
     return Container(
@@ -578,6 +637,7 @@ class _AddEventPageState extends State<AddEvent> {
         'eventLocation': _eventLocationController.text,
         'eventTime': _eventTimeController.text,
         'eventPrice': _selectedEventPrice == 'Paid' ? _eventPricePaidController.text : 'Free',
+        'eventLevel': _selectedEventLevel,
         'deadline': _deadlineController.text,
         'notificationPhrase': _notificationPhraseController.text,
         'description': _eventDescriptionController.text,
