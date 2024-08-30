@@ -187,7 +187,19 @@ class _EventDetailsState extends State<EventDetails> {
     );
   }
 }
+  Future<String?> _getRegistrationId() async {
+    QuerySnapshot registrationDocs = await FirebaseFirestore.instance
+        .collection('REGISTRATIONS')
+        .where('eventId', isEqualTo: widget.eventKey)
+        .where('userId', isEqualTo: _currentUserId)
+        .get();
 
+    if (registrationDocs.docs.isNotEmpty) {
+      DocumentSnapshot registrationDoc = registrationDocs.docs.first;
+      return registrationDoc['registrationId'];
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -413,13 +425,20 @@ class _EventDetailsState extends State<EventDetails> {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => QrGenerationScreen(id: _currentUserId),
-                ),
-              );
+            onPressed: () async {
+              String? registrationId = await _getRegistrationId();
+              if (registrationId != null) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => QrGenerationScreen(id: registrationId),
+                  ),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Registration ID not found')),
+                );
+              }
             },
             icon: Icon(Icons.qr_code, color: Colors.white),
             label: Text("Show QR Code", style: TextStyle(color: Colors.white)),
