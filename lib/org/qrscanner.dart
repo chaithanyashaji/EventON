@@ -16,6 +16,7 @@ class _QRPageState extends State<QRPage> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   Barcode? result;
   QRViewController? controller;
+  bool isProcessing = false; // Flag to prevent multiple scans
 
   @override
   void reassemble() {
@@ -38,16 +39,19 @@ class _QRPageState extends State<QRPage> {
   void _onQRViewCreated(QRViewController controller) {
     this.controller = controller;
     controller.scannedDataStream.listen((scanData) {
-      setState(() {
-        result = scanData;
+      if (!isProcessing) {
+        setState(() {
+          result = scanData;
+          isProcessing = true; // Set processing flag to true
+        });
+
         if (result != null && result!.code != null) {
           String code = result!.code!;
           print('Scanned Code: $code');
           controller.pauseCamera();
           getDetailsOfScanned(context, code);
-          controller.resumeCamera();
         }
-      });
+      }
     });
   }
 
@@ -100,14 +104,14 @@ class _QRPageState extends State<QRPage> {
         // The user exists; now check the REGISTRATIONS collection
         db.collection("REGISTRATIONS")
             .where("id", isEqualTo: code)
-            .where("event_id", isEqualTo: widget.eventId) // Check for event ID
+            .where("eventId", isEqualTo: widget.eventId) // Ensure correct field name
             .get()
             .then((QuerySnapshot querySnapshot) {
           if (querySnapshot.docs.isNotEmpty) {
             for (var document in querySnapshot.docs) {
               db.collection("REGISTRATIONS")
                   .doc(document.id)
-                  .set({"scanned_status": "YES"}, SetOptions(merge: true))
+                  .set({"ScannedStatus": "YES"}, SetOptions(merge: true))
                   .then((_) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
@@ -133,6 +137,23 @@ class _QRPageState extends State<QRPage> {
               ),
             );
           }
+          setState(() {
+            isProcessing = false; // Reset processing flag after operation
+          });
+        }).catchError((error) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Colors.red,
+              content: Text(
+                "Error: $error",
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          );
+          setState(() {
+            isProcessing = false; // Reset processing flag on error
+          });
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -145,6 +166,9 @@ class _QRPageState extends State<QRPage> {
             ),
           ),
         );
+        setState(() {
+          isProcessing = false; // Reset processing flag if ticket is invalid
+        });
       }
     }).catchError((error) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -157,6 +181,9 @@ class _QRPageState extends State<QRPage> {
           ),
         ),
       );
+      setState(() {
+        isProcessing = false; // Reset processing flag on error
+      });
     });
   }
 }
