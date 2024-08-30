@@ -15,6 +15,12 @@ class QrGenerationScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            SizedBox(height: 20),  // Add space between QR code and icon
+            Icon(
+              Icons.confirmation_num_outlined,
+              color: Colors.white,
+              size: 60,  // Larger icon size for better visibility
+            ),
             Text(
               'Here is Your Ticket!!',
               style: TextStyle(
@@ -50,12 +56,7 @@ class QrGenerationScreen extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 20),  // Add space between QR code and icon
-            Icon(
-              Icons.confirmation_num_outlined,
-              color: Colors.white,
-              size: 60,  // Larger icon size for better visibility
-            ),
+
             SizedBox(height: 20),  // Add space between icon and additional text
             Text(
               'Scan to Verify',

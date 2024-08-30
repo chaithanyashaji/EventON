@@ -12,7 +12,7 @@ import 'package:universe2024/pages/my_events_user.dart';
 import 'package:universe2024/pages/search.dart';
 import 'package:universe2024/pages/search1.dart';
 import 'package:universe2024/pages/profile.dart';
-import 'package:universe2024/pages/my_events_org.dart';
+import 'package:universe2024/org/my_events_org.dart';
 import 'package:universe2024/pages/notifications.dart';
 
 import 'loginpage.dart';
@@ -74,12 +74,15 @@ class _HomePageState extends State<HomePage> {
           ),
           SizedBox(width: 10),
           GestureDetector(
-            onTap: _logout,
+            onTap: () {
+              _showLogoutConfirmation(context);
+            },
             child: Image.asset('assets/EventOn.png', height: 32),
           ),
           SizedBox(width: 10),
         ],
       ),
+
 
       body: Stack(
         children: [
@@ -172,7 +175,32 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
+  void _showLogoutConfirmation(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Logout'),
+          content: Text('Are you sure you want to logout?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Dismiss the dialog
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Dismiss the dialog
+                _logout(); // Call the logout function
+              },
+              child: Text('Logout'),
+            ),
+          ],
+        );
+      },
+    );
+  }
   Widget _buildIcon(IconData icon, int index) {
     return Container(
       padding: EdgeInsets.all(8),

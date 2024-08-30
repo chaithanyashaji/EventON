@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:universe2024/Utiles/app_styles.dart';
 import 'package:gap/gap.dart';
@@ -13,10 +14,12 @@ import 'package:universe2024/pages/Homepage.dart';
 import 'package:universe2024/pages/Userpage.dart';
 import 'package:universe2024/pages/chatbot.dart';
 import 'package:universe2024/org/orgprofile.dart';
-import 'package:universe2024/pages/my_events_org.dart';
+import 'package:universe2024/org/my_events_org.dart';
 
 import 'package:universe2024/pages/qrcode.dart';
 import 'package:universe2024/pages/search1.dart';
+
+import '../pages/loginpage.dart';
 
 
 class SocHomePage extends StatefulWidget {
@@ -92,8 +95,14 @@ class _SocHomePageState extends State<SocHomePage> {
         elevation: 0,
         automaticallyImplyLeading: false,
         actions: [
+
           SizedBox(width: 10),
-          Image.asset('assets/EventOn.png', height: 32),
+          GestureDetector(
+            onTap: () {
+              _showLogoutConfirmation(context);
+            },
+            child: Image.asset('assets/EventOn.png', height: 32),
+          ),
           SizedBox(width: 10),
         ],
       ),
@@ -178,6 +187,39 @@ class _SocHomePageState extends State<SocHomePage> {
         child: Icon(Icons.chat, color: Colors.white),
         backgroundColor: Colors.black,
       ),
+    );
+  }
+  void _showLogoutConfirmation(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Logout'),
+          content: Text('Are you sure you want to logout?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Dismiss the dialog
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Dismiss the dialog
+                _logout(); // Call the logout function
+              },
+              child: Text('Logout'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+  Future<void> _logout() async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => loginpage()),
     );
   }
 

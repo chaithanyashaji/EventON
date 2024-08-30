@@ -5,7 +5,7 @@ import 'package:universe2024/pages/Signuppage.dart';
 import 'package:universe2024/pages/firebase.dart';
 import 'package:universe2024/Utiles/app_styles.dart';
 import 'package:gap/gap.dart';
-import 'package:universe2024/pages/orgsignup.dart';
+import 'package:universe2024/org/orgsignup.dart';
 
 class Loginas extends StatelessWidget {
   const Loginas({super.key});

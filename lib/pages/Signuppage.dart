@@ -221,51 +221,70 @@ class _SignupPageState extends State<SignupPage> {
     // Check if any of the fields are empty
     if (email.isEmpty ||
         password.isEmpty ||
+        Confirmpassword.isEmpty ||
         name.isEmpty ||
         mobileNumber.isEmpty ||
         collegeName.isEmpty) {
-      // Update error message
       setState(() {
         _errorText = 'All fields are required';
       });
       return;
     }
+
+    // Check if password matches the confirmation password
     if (password != Confirmpassword) {
       setState(() {
         _errorText = 'Passwords do not match';
       });
-    } else {
-      try {
-        // Perform sign up
-        User? user = await _auth.signUpWithEmailAndPassword(email, password);
-
-        if (user != null) {
-          print("User is successfully created");
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => loginpage()),
-          );
-
-          await FirebaseFirestore.instance
-              .collection('users')
-              .doc(user.uid)
-              .set({
-            'name': name,
-            'email': email,
-            'mobileNumber': mobileNumber,
-            'collegeName': collegeName,
-            'roll': 'student',
-          });
-        } else {
-          print("Some error");
-        }
-      } catch (e) {
-        // Update error message
-        setState(() {
-          _errorText = 'Error: $e';
-        });
-        print("Error during sign up: $e");
-      }
+      return;
     }
+
+    // Check for password strength
+    if (!isPasswordStrong(password)) {
+      setState(() {
+        _errorText = 'Password must be at least 8 characters, include uppercase, lowercase, digit, and special character.';
+      });
+      return;
+    }
+
+    try {
+      // Perform sign up
+      User? user = await _auth.signUpWithEmailAndPassword(email, password);
+
+      if (user != null) {
+        print("User is successfully created");
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => loginpage()),
+        );
+
+        // Add user data to Firestore
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .set({
+          'name': name,
+          'email': email,
+          'mobileNumber': mobileNumber,
+          'collegeName': collegeName,
+          'roll': 'student',
+          'activityPoints': 0, // Initialize activity points
+        });
+      } else {
+        print("Some error");
+      }
+    } catch (e) {
+      setState(() {
+        _errorText = 'Error: $e';
+      });
+      print("Error during sign up: $e");
+    }
+  }
+
+  // Function to check if the password is strong
+  bool isPasswordStrong(String password) {
+    // Regex to check for uppercase, lowercase, digit, and special character
+    final strongPasswordPattern = RegExp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#\$&*~]).{8,}$');
+    return strongPasswordPattern.hasMatch(password);
   }
 }

@@ -11,13 +11,28 @@ class RegisteredEvent extends StatefulWidget {
 }
 
 class _RegisteredEventState extends State<RegisteredEvent> {
-  bool isSearchIconTapped = false;
   int _activityPoints = 0;  // Variable to store total activity points
+  bool _showHint = true;    // Variable to control hint visibility
+  bool _highlightStar = true; // Variable to control star highlight
+  TextEditingController _searchController = TextEditingController(); // Controller for search bar
+  String _searchQuery = ""; // Search query string
 
   @override
   void initState() {
     super.initState();
-    _fetchAndUpdateActivityPoints(); // Fetch and update activity points on initialization
+    // Delay the hint disappearance after a few seconds
+    Future.delayed(const Duration(seconds: 2), () {
+      setState(() {
+        _showHint = false;
+        _highlightStar = false; // Stop highlighting the star after hint disappears
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose(); // Dispose the controller when the widget is disposed
+    super.dispose();
   }
 
   @override
@@ -48,62 +63,87 @@ class _RegisteredEventState extends State<RegisteredEvent> {
           ),
           backgroundColor: Colors.white,
           actions: [
-            IconButton(
-              icon: Container(
-                decoration: BoxDecoration(
-                  color: isSearchIconTapped ? Colors.white : Colors.black,
-                  borderRadius: BorderRadius.circular(8),
+            Tooltip(
+              message: 'View your activity points',
+              child: IconButton(
+                icon: Icon(
+                  Icons.star,
+                  color: _highlightStar ? Colors.orange : Colors.black, // Highlight star icon
+                  size: _highlightStar ? 30 : 24, // Increase size while highlighted
                 ),
-                padding: const EdgeInsets.all(8),
-                child: Icon(
-                  Icons.search,
-                  color: isSearchIconTapped ? Colors.black : Colors.white,
-                ),
+                onPressed: () {
+                  _showActivityPoints(context);
+                },
               ),
-              onPressed: () {
-                setState(() {
-                  isSearchIconTapped = !isSearchIconTapped;
-                });
-                showSearch(
-                  context: context,
-                  delegate: RegisteredEventSearchDelegate(currentUserId),
-                ).then((_) {
-                  setState(() {
-                    isSearchIconTapped = false;
-                  });
-                });
-              },
             ),
           ],
         ),
-        body: Column(
+        body: Stack(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.star, color: Colors.orange), // Activity points icon
-                  const SizedBox(width: 5),
-                  Text(
-                    'Total Activity Points: $_activityPoints',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
+            Column(
+              children: [
+                // Search Bar
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Search events...',
+                      prefixIcon: const Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: BorderSide(
+                          color: Colors.grey, // Border color when not focused
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: BorderSide(
+                          color: Colors.black, // Border color when focused
+                        ),
+                      ),
                     ),
+                    onChanged: (query) {
+                      setState(() {
+                        _searchQuery = query.toLowerCase();
+                      });
+                    },
                   ),
-                ],
-              ),
+                ),
+
+                Expanded(
+                  child: TabBarView(
+                    children: [
+                      _buildEventList(currentUserId, 'pending'),
+                      _buildEventList(currentUserId, 'YES'),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            Expanded(
-              child: TabBarView(
-                children: [
-                  _buildEventList(currentUserId, 'pending'),
-                  _buildEventList(currentUserId, 'YES'),
-                ],
+            if (_showHint)
+              Positioned(
+                top: 1,
+                right: 10,
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Icon(Icons.star, color: Colors.orange),
+                      SizedBox(width: 8),
+                      Text(
+                        'Tap the star icon to view your activity points',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
           ],
         ),
       ),
@@ -133,10 +173,21 @@ class _RegisteredEventState extends State<RegisteredEvent> {
         final registrationDocs = snapshot.data!.docs;
         _activityPoints = 0;  // Reset activity points
 
+        // Filter the events based on the search query
+        final filteredDocs = registrationDocs.where((registrationDoc) {
+          final eventId = registrationDoc['eventId'];
+          final eventData = FirebaseFirestore.instance.collection('EVENTS').doc(eventId).get().then((doc) {
+            final data = doc.data() as Map<String, dynamic>;
+            final eventName = data['eventName'] ?? 'No Title';
+            return eventName.toLowerCase().contains(_searchQuery);
+          });
+          return eventData != null; // Only include events that match the search query
+        }).toList();
+
         return ListView.builder(
-          itemCount: registrationDocs.length,
+          itemCount: filteredDocs.length,
           itemBuilder: (context, index) {
-            final registrationDoc = registrationDocs[index];
+            final registrationDoc = filteredDocs[index];
             final eventId = registrationDoc['eventId'];
 
             return FutureBuilder<DocumentSnapshot>(
@@ -177,10 +228,9 @@ class _RegisteredEventState extends State<RegisteredEvent> {
                         Text(
                           '${index + 1}. ${eventData['eventName'] ?? 'No Title'}',
                           style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white),
                         ),
                         const SizedBox(height: 5),
                         Row(
@@ -272,132 +322,51 @@ class _RegisteredEventState extends State<RegisteredEvent> {
     }
   }
 
-  Future<void> _fetchAndUpdateActivityPoints() async {
-    final userId = FirebaseAuth.instance.currentUser?.uid;
-    if (userId == null) return;
-
-    // Fetch user's current activity points from Firestore
-    final userDoc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
-    final currentPoints = userDoc.data()?['activityPoints'] ?? 0;
-
-    // Update Firestore with new activity points
-    final updatedPoints = currentPoints + _activityPoints;
-    await FirebaseFirestore.instance.collection('users').doc(userId).set({
-      'activityPoints': updatedPoints,
-    }, SetOptions(merge: true));
-
-    setState(() {
-      _activityPoints = updatedPoints; // Update state with new activity points
-    });
-  }
-}
-
-// Define the RegisteredEventSearchDelegate outside the RegisteredEvent class
-class RegisteredEventSearchDelegate extends SearchDelegate {
-  final String? userId;
-
-  RegisteredEventSearchDelegate(this.userId);
-
-  @override
-  List<Widget> buildActions(BuildContext context) {
-    return [
-      IconButton(
-        icon: const Icon(Icons.clear),
-        onPressed: () {
-          query = '';
-        },
+  void _showActivityPoints(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.black,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-    ];
-  }
-
-  @override
-  Widget buildLeading(BuildContext context) {
-    return IconButton(
-      icon: const Icon(Icons.arrow_back),
-      onPressed: () {
-        close(context, null);
-      },
-    );
-  }
-
-  @override
-  Widget buildResults(BuildContext context) {
-    return _searchEvents();
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    return _searchEvents();
-  }
-
-  Widget _searchEvents() {
-    if (userId == null) {
-      return const Center(child: Text('User not found'));
-    }
-
-    final eventStream = FirebaseFirestore.instance
-        .collection('REGISTRATIONS')
-        .where('userId', isEqualTo: userId)
-        .where('ScannedStatus', isEqualTo: 'pending')
-        .snapshots();
-
-    return StreamBuilder<QuerySnapshot>(
-      stream: eventStream,
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        }
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.data == null || snapshot.data!.docs.isEmpty) {
-          return const Center(child: Text('No events found'));
-        }
-
-        final registrationDocs = snapshot.data!.docs;
-
-        return ListView.builder(
-          itemCount: registrationDocs.length,
-          itemBuilder: (context, index) {
-            final registrationDoc = registrationDocs[index];
-            final eventId = registrationDoc['eventId'];
-
-            return FutureBuilder<DocumentSnapshot>(
-              future: FirebaseFirestore.instance
-                  .collection('EVENTS')
-                  .doc(eventId)
-                  .get(),
-              builder: (context, eventSnapshot) {
-                if (eventSnapshot.connectionState == ConnectionState.waiting) {
-                  return const ListTile(
-                    title: Text('Loading...'),
-                  );
-                }
-
-                if (!eventSnapshot.hasData || eventSnapshot.data == null) {
-                  return const ListTile(
-                    title: Text('Event not found'),
-                  );
-                }
-
-                final eventData = eventSnapshot.data!.data() as Map<String, dynamic>;
-
-                return ListTile(
-                  title: Text(eventData['eventName'] ?? 'No Title'),
-                  subtitle: Text('Date: ${eventData['eventDate'] ?? 'No Date'}'),
-                  onTap: () {
-                    // Navigate to the EventDetails page
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => EventDetails(eventKey: eventId),
-                      ),
-                    );
-                  },
-                );
-              },
-            );
-          },
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.stars_sharp, color: Colors.orange, size: 50),
+              const SizedBox(height: 10),
+              const Text(
+                'Your Activity Points',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                '$_activityPoints Points',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Close'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                ),
+              ),
+            ],
+          ),
         );
       },
     );
