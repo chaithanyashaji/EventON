@@ -49,6 +49,7 @@ class _EditEventScreenState extends State<EditEventScreen> {
     _endDateController = TextEditingController();
     _deadlineController = TextEditingController();
     _ticketPriceController = TextEditingController();
+    _upiIDController=TextEditingController();
     _fetchEventDetails();
   }
 
@@ -76,6 +77,7 @@ class _EditEventScreenState extends State<EditEventScreen> {
           _detailsController.text = data['description'] ?? '';
           _locationController.text = data['eventLocation'] ?? '';
           _selectedEventPrice = data['eventPrice'] ?? '';
+          _upiIDController.text=data['upiID']??'';
           _selectedEventLevel=data['eventLevel']??'';
           _whatsappLinkController.text = data['whatsappLink'] ?? '';
           _selectedCommunityType = data['communityType'] ?? '';
@@ -150,6 +152,7 @@ class _EditEventScreenState extends State<EditEventScreen> {
           'description': _detailsController.text,
           'eventLocation': _locationController.text,
           'eventPrice': _selectedEventPrice,
+          'upiID':_upiIDController.text,
           'eventLevel':_selectedEventLevel,
           'whatsappLink': _whatsappLinkController.text,
           'communityType': _selectedCommunityType,
@@ -210,6 +213,8 @@ class _EditEventScreenState extends State<EditEventScreen> {
                 if (_isPaidSelected)
                   _buildTextField("Enter Price", _ticketPriceController),
                 SizedBox(height: 16),
+                _buildTextField("UPI ID", _upiIDController),
+                SizedBox(height: 16),
                 _buildTextField("WhatsApp Group Link", _whatsappLinkController),
                 SizedBox(height: 16),
                 _buildImagePickerSection(),  // Updated to include the new section
@@ -227,7 +232,7 @@ class _EditEventScreenState extends State<EditEventScreen> {
                 SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _saveChanges,
-                  child: Text("Save Changes"),
+                  child: Text("Save Changes",style: TextStyle(color: Colors.white),),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
                     minimumSize: Size(fieldWidth, 50),
