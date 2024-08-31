@@ -647,6 +647,7 @@ class _AddEventPageState extends State<AddEvent> {
         'imageUrl': imageUrl,
         'addedBy': currentUser.uid, // Include addedBy field
         'timestamp': FieldValue.serverTimestamp(),
+        'isRegistrationOpen':true,
       });
 
 

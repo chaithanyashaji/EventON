@@ -99,7 +99,7 @@ class _EventDetailsState extends State<EventDetails> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => EditEventScreen( eventId: '',),
+        builder: (context) => EditEventScreen(eventKey: widget.eventKey),
       ),
     );
   }
