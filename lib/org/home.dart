@@ -106,7 +106,12 @@ class _SocHomePageState extends State<SocHomePage> {
         automaticallyImplyLeading: false,
         actions: [
           SizedBox(width: 10),
-          Image.asset('assets/EventOn.png', height: 32),
+          GestureDetector(
+            onTap: () {
+              _showLogoutConfirmation(context);
+            },
+            child: Image.asset('assets/EventOn.png', height: 32),
+          ),
           SizedBox(width: 10),
         ],
       ),

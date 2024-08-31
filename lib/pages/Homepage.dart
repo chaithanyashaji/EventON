@@ -23,9 +23,13 @@ class HomePage extends StatefulWidget {
 
 
 
+
   @override
   _HomePageState createState() => _HomePageState();
+
 }
+
+
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
@@ -40,6 +44,13 @@ class _HomePageState extends State<HomePage> {
     RegisteredEvent(),
     Profile()
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _setupStreams();  // Ensure streams are set up
+  }
+
 
   void _setupStreams() {
     _eventsStream = FirebaseFirestore.instance
@@ -101,17 +112,23 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        actions: [
-          SizedBox(width: 10),
-          Image.asset('assets/EventOn.png', height: 32),
-          SizedBox(width: 10),
-        ],
-      ),
-      body: Stack(
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          automaticallyImplyLeading: false,
+          actions: [
+            SizedBox(width: 10),
+            GestureDetector(
+              onTap: () {
+                _showLogoutConfirmation(context);
+              },
+              child: Image.asset('assets/EventOn.png', height: 32),
+            ),
+            SizedBox(width: 10),
+          ],
+        ),
+      body: _selectedIndex == 0
+          ? Stack(
         children: [
           StreamBuilder<List<Map<String, dynamic>>>(
             stream: _eventsStream,
@@ -147,9 +164,10 @@ class _HomePageState extends State<HomePage> {
               );
             },
           ),
-          if (_selectedIndex != 0) _widgetOptions.elementAt(_selectedIndex),
         ],
-      ),
+      )
+          : _widgetOptions.elementAt(_selectedIndex),
+
       bottomNavigationBar: Container(
         margin: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
         decoration: BoxDecoration(
@@ -215,28 +233,28 @@ class _HomePageState extends State<HomePage> {
       builder: (BuildContext context) {
         return Theme(
           data: Theme.of(context).copyWith(
-            dialogBackgroundColor: Colors.black, // Set the dialog background to black
+            dialogBackgroundColor: Colors.black,
             textTheme: TextTheme(
-              titleLarge: TextStyle(color: Colors.white), // Set title text to white
-              bodyLarge: TextStyle(color: Colors.white),  // Set content text to white
+              headline6: TextStyle(color: Colors.white),
+              bodyText2: TextStyle(color: Colors.white),
             ),
           ),
           child: AlertDialog(
-            title: Text('Logout', style: TextStyle(color: Colors.white)), // Set title color to white
-            content: Text('Are you sure you want to logout?', style: TextStyle(color: Colors.white)), // Set content color to white
+            title: Text('Logout', style: TextStyle(color: Colors.white)),
+            content: Text('Are you sure you want to logout?', style: TextStyle(color: Colors.white)),
             actions: [
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop(); // Dismiss the dialog
+                  Navigator.of(context).pop();
                 },
-                child: Text('Cancel', style: TextStyle(color: Colors.white)), // Set button text color to white
+                child: Text('Cancel', style: TextStyle(color: Colors.white)),
               ),
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop(); // Dismiss the dialog
-                  _logout(); // Call the logout function
+                  Navigator.of(context).pop();
+                  _logout();
                 },
-                child: Text('Logout', style: TextStyle(color: Colors.white)), // Set button text color to white
+                child: Text('Logout', style: TextStyle(color: Colors.white)),
               ),
             ],
           ),
@@ -244,6 +262,7 @@ class _HomePageState extends State<HomePage> {
       },
     );
   }
+
 
   Widget _buildIcon(IconData icon, int index) {
     return Container(
@@ -449,8 +468,7 @@ class HomeContent extends StatelessWidget {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) =>
-                                            EventDetails(eventKey: event['documentID']),
+                                        builder: (context) => EventDetails(eventKey: event['documentID']),
                                       ),
                                     );
                                   },

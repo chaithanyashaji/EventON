@@ -1,474 +1,476 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class EditEventScreen extends StatefulWidget {
-  final String eventKey;
+  final String eventId;
 
-  const EditEventScreen({Key? key, required this.eventKey}) : super(key: key);
+  EditEventScreen({Key? key, required this.eventId}) : super(key: key);
 
   @override
   _EditEventScreenState createState() => _EditEventScreenState();
 }
 
 class _EditEventScreenState extends State<EditEventScreen> {
-  final _formKey = GlobalKey<FormState>();
-  late TextEditingController _nameController;
-  late TextEditingController _typeController;
-  late TextEditingController _contactController;
-  late TextEditingController _detailsController;
-  late TextEditingController _locationController;
-  late TextEditingController _whatsappLinkController;
-  late TextEditingController _startDateController;
-  late TextEditingController _endDateController;
-  late TextEditingController _deadlineController;
-  late TextEditingController _ticketPriceController;
-  String? _selectedEventType;
-  String? _selectedCommunityType;
-  String? _selectedEventPrice;
-  bool _isRegistrationOpen = true;
   File? _image;
-  String? _imageUrl;
+  String _selectedEventType = '';
+  String _selectedCommunityType = '';
+  String _selectedEventPrice = 'Free';
+  String _selectedEventLevel = 'Level I';
+  bool _isSubmitting = false;
+
+  final TextEditingController _eventNameController = TextEditingController();
+  final TextEditingController _eventLocationController = TextEditingController();
+  final TextEditingController _eventPricePaidController = TextEditingController();
+  final TextEditingController _eventDateController = TextEditingController();
+  final TextEditingController _endDateController = TextEditingController();
+  final TextEditingController _deadlineController = TextEditingController();
+  final TextEditingController _otherEventTypeController = TextEditingController();
+  final TextEditingController _notificationPhraseController = TextEditingController();
+  final TextEditingController _eventDescriptionController = TextEditingController();
+  final TextEditingController _communityTypeController = TextEditingController();
+  final TextEditingController _eventTimeController = TextEditingController();
+  final TextEditingController _eventContactController = TextEditingController();
+  final TextEditingController _whatsappGroupLinkController = TextEditingController();
+  final TextEditingController _upiIDController = TextEditingController();
+
   final ImagePicker _picker = ImagePicker();
-  bool _isPaidSelected = false;
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController();
-    _typeController = TextEditingController();
-    _contactController = TextEditingController();
-    _detailsController = TextEditingController();
-    _locationController = TextEditingController();
-    _whatsappLinkController = TextEditingController();
-    _startDateController = TextEditingController();
-    _endDateController = TextEditingController();
-    _deadlineController = TextEditingController();
-    _ticketPriceController = TextEditingController();
-    _fetchEventDetails();
+    _initializeNotifications();
+    _loadEventData();
   }
 
-  void _fetchEventDetails() async {
-    try {
-      DocumentSnapshot doc = await FirebaseFirestore.instance
-          .collection('EVENTS')
-          .doc(widget.eventKey)
-          .get();
-
-      if (doc.exists) {
-        var data = doc.data() as Map<String, dynamic>;
-
-        setState(() {
-          _nameController.text = data['eventName'] ?? '';
-          _selectedEventType = data['eventType'] ?? '';
-
-          // Parse and format dates
-          _startDateController.text = _formatDate(data['eventDate']);
-          _endDateController.text = _formatDate(data['endDate']);
-          _deadlineController.text = _formatDate(data['deadline']);
-
-          _contactController.text = data['eventContact'] ?? '';
-          _detailsController.text = data['description'] ?? '';
-          _locationController.text = data['eventLocation'] ?? '';
-          _selectedEventPrice = data['eventPrice'] ?? '';
-          _whatsappLinkController.text = data['whatsappLink'] ?? '';
-          _selectedCommunityType = data['communityType'] ?? '';
-          _imageUrl = data['imageUrl'] ?? '';
-          _isRegistrationOpen = data['isRegistrationOpen'] ?? true;
-        });
-      } else {
-        print("Document does not exist");
-      }
-    } catch (e) {
-      print("Failed to fetch event details: $e");
-    }
+  void _initializeNotifications() {
+    const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const InitializationSettings initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
+    flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
 
-  String _formatDate(dynamic date) {
-    if (date is Timestamp) {
-      return date.toDate().toString().substring(0, 10); // Format as yyyy-MM-dd
-    } else if (date is String) {
-      return date;
-    } else {
-      return '';
-    }
+  Future<void> _showNotification(String title, String body) async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
+      'your_channel_id',
+      'your_channel_name',
+      channelDescription: 'your_channel_description',
+      importance: Importance.max,
+      priority: Priority.high,
+      showWhen: false,
+    );
+    const NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(0, title, body, platformChannelSpecifics);
   }
 
+  void _loadEventData() async {
+    // Fetch the event data from Firestore and initialize the fields
+    DocumentSnapshot eventSnapshot = await FirebaseFirestore.instance.collection('EVENTS').doc(widget.eventId).get();
 
-  Future<String?> _uploadImage(File image) async {
-    try {
-      String fileName =
-          'EVENTS/${widget.eventKey}/${DateTime.now().millisecondsSinceEpoch}.jpg';
-
-      TaskSnapshot snapshot = await FirebaseStorage.instance
-          .ref()
-          .child(fileName)
-          .putFile(image);
-
-      String downloadUrl = await snapshot.ref.getDownloadURL();
-      return downloadUrl;
-    } catch (e) {
-      print("Image upload failed: $e");
-      return null;
-    }
-  }
-
-  void _pickPosterImage() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
+    if (eventSnapshot.exists) {
       setState(() {
-        _image = File(image.path);
+        _eventNameController.text = eventSnapshot['name'] ?? '';
+        _eventLocationController.text = eventSnapshot['location'] ?? '';
+        _eventDateController.text = eventSnapshot['eventDate'] ?? '';
+        _endDateController.text = eventSnapshot['endDate'] ?? '';
+        _deadlineController.text = eventSnapshot['deadline'] ?? '';
+        _selectedEventType = eventSnapshot['eventType'] ?? '';
+        _selectedCommunityType = eventSnapshot['communityType'] ?? '';
+        _selectedEventPrice = eventSnapshot['eventPrice'] ?? 'Free';
+        _selectedEventLevel = eventSnapshot['eventLevel'] ?? 'Level I';
+        _eventTimeController.text = eventSnapshot['eventTime'] ?? '';
+        _eventDescriptionController.text = eventSnapshot['description'] ?? '';
+        _eventContactController.text = eventSnapshot['contact'] ?? '';
+        _whatsappGroupLinkController.text = eventSnapshot['whatsappLink'] ?? '';
+        _notificationPhraseController.text = eventSnapshot['notificationPhrase'] ?? '';
+        // Assuming event has an imageUrl field
+        String imageUrl = eventSnapshot['imageUrl'] ?? '';
+        if (imageUrl.isNotEmpty) {
+          _image = File(imageUrl); // This would need proper handling to convert URL to File
+        }
       });
     }
   }
 
-  void _saveChanges() async {
-    if (_formKey.currentState!.validate()) {
-      String? imageUrl = _imageUrl;
-
-      if (_image != null) {
-        _imageUrl = await _uploadImage(_image!);
-      }
-
-      if (imageUrl != null || _imageUrl != null) {
-        await FirebaseFirestore.instance
-            .collection('EVENTS')
-            .doc(widget.eventKey)
-            .update({
-          'eventName': _nameController.text,
-          'eventType': _selectedEventType,
-          'eventDate': _startDateController.text,
-          'endDate': _endDateController.text,
-          'eventContact': _contactController.text,
-          'description': _detailsController.text,
-          'eventLocation': _locationController.text,
-          'eventPrice': _selectedEventPrice,
-
-          'whatsappLink': _whatsappLinkController.text,
-          'communityType': _selectedCommunityType,
-          'deadline': _deadlineController.text,
-          'isRegistrationOpen': _isRegistrationOpen,
-          if (imageUrl != null) 'imageUrl': imageUrl,
-        });
-        Navigator.pop(context);
-      } else {
-        print("Image upload failed, changes not saved.");
-      }
-    }
+  @override
+  void dispose() {
+    _eventNameController.dispose();
+    _eventLocationController.dispose();
+    _eventPricePaidController.dispose();
+    _eventDateController.dispose();
+    _endDateController.dispose();
+    _deadlineController.dispose();
+    _otherEventTypeController.dispose();
+    _notificationPhraseController.dispose();
+    _eventDescriptionController.dispose();
+    _communityTypeController.dispose();
+    _eventTimeController.dispose();
+    _eventContactController.dispose();
+    _upiIDController.dispose();
+    _whatsappGroupLinkController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final double fieldWidth = MediaQuery.of(context).size.width * 0.85;
-
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("Edit Event Details"),
+        title: Text('Edit Event'),
         backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _buildTextField("Event Name", _nameController),
-                SizedBox(height: 16),
-                _buildCommunityTypeDropdown(),
-                if (_selectedCommunityType == 'Other')
-                  _buildTextField("Specify Community", _typeController),
-                SizedBox(height: 16),
-                _buildEventTypeDropdown(),
-                if (_selectedEventType == 'Other')
-                  _buildTextField("Specify Event Type", _typeController),
-                SizedBox(height: 16),
-                _buildDatePicker("Start Date", _startDateController),
-                SizedBox(height: 16),
-                _buildDatePicker("End Date", _endDateController),
-                SizedBox(height: 16),
-                _buildDatePicker("Deadline Date", _deadlineController),
-                SizedBox(height: 16),
-                _buildTextField("Contact", _contactController),
-                SizedBox(height: 16),
-                _buildTextField("Description", _detailsController, maxLines: 3),
-                SizedBox(height: 16),
-                _buildTextField("Location", _locationController),
-                SizedBox(height: 16),
-                _buildEventPriceDropdown(),
-                if (_isPaidSelected)
-                  _buildTextField("Enter Price", _ticketPriceController),
-                SizedBox(height: 16),
-                _buildTextField("WhatsApp Group Link", _whatsappLinkController),
-                SizedBox(height: 16),
-                _buildImagePickerSection(),  // Updated to include the new section
-                SizedBox(height: 16),
-                SwitchListTile(
-                  title: Text("Registration Open"),
-                  value: _isRegistrationOpen,
-                  activeColor: Colors.black,
-                  onChanged: (value) {
-                    setState(() {
-                      _isRegistrationOpen = value;
-                    });
-                  },
-                ),
-                SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _saveChanges,
-                  child: Text("Save Changes"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    minimumSize: Size(fieldWidth, 50),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30),
+              child: Center(
+                child: Text(
+                  "Edit your Event",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: Colors.black,
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
+            const SizedBox(height: 20),
+            _buildTextField("Name of the Event", _eventNameController),
+            const SizedBox(height: 20),
+            _buildCommunityTypeDropdown(),
+            if (_selectedCommunityType == 'Other') _buildTextField("Specify Community", _communityTypeController),
+            const SizedBox(height: 20),
+            _buildEventTypeDropdown(),
+            if (_selectedEventType == 'Other') _buildTextField("Specify Event Type", _otherEventTypeController),
+            const SizedBox(height: 20),
+            _buildDateField("Event Date", _eventDateController),
+            const SizedBox(height: 20),
+            _buildDateField("End Date", _endDateController),
+            const SizedBox(height: 20),
+            _buildTextField("Event Location", _eventLocationController),
+            const SizedBox(height: 20),
+            _buildEventTimePicker(),
+            const SizedBox(height: 20),
+            _buildEventPriceDropdown(),
+            const SizedBox(height: 20),
+            _buildDateField("Deadline", _deadlineController),
+            const SizedBox(height: 20),
+            _buildEventLevelDropdown(),
+            const SizedBox(height: 20),
+            _buildTextField("Notification Phrase (Optional)", _notificationPhraseController),
+            const SizedBox(height: 20),
+            _buildTextField("Event Description", _eventDescriptionController),
+            const SizedBox(height: 20),
+            _buildTextField("Event Contact", _eventContactController),
+            const SizedBox(height: 20),
+            _buildTextField("WhatsApp Group Link (Optional)", _whatsappGroupLinkController),
+            const SizedBox(height: 30),
+            _buildImagePicker(),
+            const SizedBox(height: 30),
+            _isSubmitting
+                ? Center(child: CircularProgressIndicator())
+                : Center(
+              child: ElevatedButton(
+                onPressed: _isSubmitting ? null : _submitEvent,
+                child: const Text(
+                  'Update Event',
+                  style: TextStyle(fontSize: 16, color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 40),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-
-  Widget _buildTextField(String label, TextEditingController controller,
-      {int maxLines = 1}) {
+  Widget _buildTextField(String label, TextEditingController controller) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
       child: TextFormField(
         controller: controller,
-        maxLines: maxLines,
+        maxLines: label == 'Event Description' ? 5 : 1,
         decoration: InputDecoration(
           labelText: label,
+          labelStyle: const TextStyle(color: Colors.black),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.black),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.black),
-          ),
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.black, width: 2)),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Colors.black),
-          ),
-          contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.black, width: 2)),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
         ),
       ),
     );
   }
 
-  Widget _buildDatePicker(String label, TextEditingController controller) {
-    return InkWell(
-      onTap: () async {
-        DateTime? pickedDate = await showDatePicker(
-          context: context,
-          initialDate: DateTime.now(),
-          firstDate: DateTime(2000),
-          lastDate: DateTime(2101),
-        );
-        if (pickedDate != null) {
-          setState(() {
-            controller.text = pickedDate.toString().substring(0, 10);
-          });
-        }
-      },
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 8),
-        child: AbsorbPointer(
-          child: TextFormField(
-            controller: controller,
-            decoration: InputDecoration(
-              labelText: label,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.black),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.black),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.black),
-              ),
-              contentPadding:
-              EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-            ),
-          ),
+  Widget _buildDateField(String label, TextEditingController controller) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+      child: TextFormField(
+        controller: controller,
+        readOnly: true,
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: const TextStyle(color: Colors.black),
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.black, width: 2)),
+          focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.black, width: 2)),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
         ),
+        onTap: () async {
+          DateTime? pickedDate = await showDatePicker(
+            context: context,
+            initialDate: DateTime.now(),
+            firstDate: DateTime.now(),
+            lastDate: DateTime(2100),
+          );
+          if (pickedDate != null) {
+            setState(() {
+              controller.text = pickedDate.toString().split(' ')[0];
+            });
+          }
+        },
       ),
     );
   }
 
   Widget _buildEventTypeDropdown() {
-    List<String> eventTypes = [
-      'Conference',
-      'Workshop',
-      'Seminar',
-      'Webinar',
-      'Other'
-    ];
-    return DropdownButtonFormField<String>(
-      value: eventTypes.contains(_selectedEventType)
-          ? _selectedEventType
-          : eventTypes.first,
-      decoration: InputDecoration(
-        labelText: "Event Type",
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.black),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+      child: DropdownButtonFormField<String>(
+        value: _selectedEventType,
+        items: <String>['Workshop', 'Seminar', 'Conference', 'Other']
+            .map<DropdownMenuItem<String>>((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          );
+        }).toList(),
+        decoration: InputDecoration(
+          labelText: 'Event Type',
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.black, width: 2)),
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.black),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.black),
-        ),
-        contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+        onChanged: (String? newValue) {
+          setState(() {
+            _selectedEventType = newValue!;
+          });
+        },
       ),
-      items: eventTypes.map((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Text(value),
-        );
-      }).toList(),
-      onChanged: (newValue) {
-        setState(() {
-          _selectedEventType = newValue;
-        });
-      },
     );
   }
 
   Widget _buildCommunityTypeDropdown() {
-    List<String> communityTypes = [
-      'IEEE',
-      'IEDC',
-      'CSI',
-      'Other'
-    ];
-    return DropdownButtonFormField<String>(
-      value: communityTypes.contains(_selectedCommunityType)
-          ? _selectedCommunityType
-          : communityTypes.first,
-      decoration: InputDecoration(
-        labelText: "Community Type",
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.black),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+      child: DropdownButtonFormField<String>(
+        value: _selectedCommunityType,
+        items: <String>['Community A', 'Community B', 'Other']
+            .map<DropdownMenuItem<String>>((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          );
+        }).toList(),
+        decoration: InputDecoration(
+          labelText: 'Community Type',
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.black, width: 2)),
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.black),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.black),
-        ),
-        contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+        onChanged: (String? newValue) {
+          setState(() {
+            _selectedCommunityType = newValue!;
+          });
+        },
       ),
-      items: communityTypes.map((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Text(value),
-        );
-      }).toList(),
-      onChanged: (newValue) {
-        setState(() {
-          _selectedCommunityType = newValue;
-        });
-      },
     );
   }
 
   Widget _buildEventPriceDropdown() {
-    List<String> eventPrices = ['Free', 'Paid'];
-    return DropdownButtonFormField<String>(
-      value: eventPrices.contains(_selectedEventPrice)
-          ? _selectedEventPrice
-          : eventPrices.first,
-      decoration: InputDecoration(
-        labelText: "Event Price",
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.black),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+      child: DropdownButtonFormField<String>(
+        value: _selectedEventPrice,
+        items: <String>['Free', 'Paid']
+            .map<DropdownMenuItem<String>>((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          );
+        }).toList(),
+        decoration: InputDecoration(
+          labelText: 'Event Price',
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.black, width: 2)),
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.black),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.black),
-        ),
-        contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+        onChanged: (String? newValue) {
+          setState(() {
+            _selectedEventPrice = newValue!;
+          });
+        },
       ),
-      items: eventPrices.map((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Text(value),
-        );
-      }).toList(),
-      onChanged: (newValue) {
-        setState(() {
-          _selectedEventPrice = newValue;
-          _isPaidSelected = newValue == 'Paid';
-        });
-      },
     );
   }
 
+  Widget _buildEventLevelDropdown() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+      child: DropdownButtonFormField<String>(
+        value: _selectedEventLevel,
+        items: <String>['Level I', 'Level II', 'Level III']
+            .map<DropdownMenuItem<String>>((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          );
+        }).toList(),
+        decoration: InputDecoration(
+          labelText: 'Event Level',
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.black, width: 2)),
+        ),
+        onChanged: (String? newValue) {
+          setState(() {
+            _selectedEventLevel = newValue!;
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _buildEventTimePicker() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+      child: TextFormField(
+        controller: _eventTimeController,
+        readOnly: true,
+        decoration: InputDecoration(
+          labelText: 'Event Time',
+          labelStyle: const TextStyle(color: Colors.black),
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.black, width: 2)),
+          focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.black, width: 2)),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+        ),
+        onTap: () async {
+          TimeOfDay? pickedTime = await showTimePicker(
+            context: context,
+            initialTime: TimeOfDay.now(),
+          );
+          if (pickedTime != null) {
+            setState(() {
+              _eventTimeController.text = pickedTime.format(context);
+            });
+          }
+        },
+      ),
+    );
+  }
 
   Widget _buildImagePicker() {
-    return GestureDetector(
-      onTap: _pickPosterImage,
-      child: Container(
-        height: 200,
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.black),
-          borderRadius: BorderRadius.circular(12),
-          image: _image != null
-              ? DecorationImage(
-            image: FileImage(_image!),
-            fit: BoxFit.cover,
-          )
-              : (_imageUrl != null && _imageUrl!.isNotEmpty
-              ? DecorationImage(
-            image: NetworkImage(_imageUrl!),
-            fit: BoxFit.cover,
-          )
-              : null),
-        ),
-        child: _image == null && _imageUrl == null
-            ? Center(child: Icon(Icons.add_a_photo))
-            : null,
-      ),
-    );
-  }
-  Widget _buildImagePickerSection() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          "Edit Poster",
-          style: TextStyle(
-            fontSize: 16,
-          ),
+        _image != null
+            ? Image.file(
+          _image!,
+          height: 150,
+          width: 150,
+        )
+            : Container(
+          height: 150,
+          width: 150,
+          color: Colors.grey,
+          child: Icon(Icons.image, size: 50),
         ),
-        SizedBox(height: 8), // Add some spacing between the label and the image picker
-        _buildImagePicker(),
+        TextButton(
+          onPressed: _pickImage,
+          child: Text("Select Event Image"),
+        )
       ],
     );
   }
 
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    setState(() {
+      if (pickedFile != null) {
+        _image = File(pickedFile.path);
+      }
+    });
+  }
+
+  Future<void> _submitEvent() async {
+    if (_eventNameController.text.isEmpty) {
+      _showNotification('Error', 'Event name cannot be empty');
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    try {
+      // Upload image to Firebase Storage
+      String imageUrl = '';
+      if (_image != null) {
+        final storageRef = FirebaseStorage.instance.ref().child('event_images/${DateTime.now().toIso8601String()}');
+        final uploadTask = storageRef.putFile(_image!);
+        final snapshot = await uploadTask.whenComplete(() => null);
+        imageUrl = await snapshot.ref.getDownloadURL();
+      }
+
+      // Update event in Firestore
+      await FirebaseFirestore.instance.collection('EVENTS').doc(widget.eventId).update({
+        'name': _eventNameController.text,
+        'location': _eventLocationController.text,
+        'eventDate': _eventDateController.text,
+        'endDate': _endDateController.text,
+        'deadline': _deadlineController.text,
+        'eventType': _selectedEventType,
+        'communityType': _selectedCommunityType,
+        'eventPrice': _selectedEventPrice,
+        'eventLevel': _selectedEventLevel,
+        'eventTime': _eventTimeController.text,
+        'description': _eventDescriptionController.text,
+        'contact': _eventContactController.text,
+        'whatsappLink': _whatsappGroupLinkController.text,
+        'notificationPhrase': _notificationPhraseController.text,
+        'imageUrl': imageUrl,
+      });
+
+      _showNotification('Success', 'Event updated successfully');
+      Navigator.of(context).pop();
+    } catch (e) {
+      _showNotification('Error', 'Failed to update event');
+    } finally {
+      setState(() {
+        _isSubmitting = false;
+      });
+    }
+  }
 }
