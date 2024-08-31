@@ -2,25 +2,15 @@ import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:universe2024/Utiles/app_styles.dart';
 import 'package:gap/gap.dart';
-import 'package:universe2024/admin/approval.dart';
 import 'package:universe2024/org/addevent.dart';
-import 'package:universe2024/org/attendee.dart';
-import 'package:universe2024/org/payment_approval.dart';
-import 'package:universe2024/org/qrscanner.dart';
-import 'package:universe2024/pages/Eventdetails.dart';
-import 'package:universe2024/pages/Homepage.dart';
-import 'package:universe2024/pages/Userpage.dart';
-import 'package:universe2024/pages/chatbot.dart';
-import 'package:universe2024/org/orgprofile.dart';
 import 'package:universe2024/org/my_events_org.dart';
-
-import 'package:universe2024/pages/qrcode.dart';
-import 'package:universe2024/pages/search1.dart';
-
-import '../pages/loginpage.dart';
-
+import 'package:universe2024/org/orgprofile.dart';
+import 'package:universe2024/org/payment_approval.dart';
+import 'package:universe2024/pages/EventDetails.dart'; // Import the EventDetails page
+import 'package:universe2024/pages/chatbot.dart';
+import 'package:universe2024/pages/loginpage.dart';
+import 'package:universe2024/pages/search1.dart'; // Import other necessary pages
 
 class SocHomePage extends StatefulWidget {
   final String userId;
@@ -33,25 +23,25 @@ class SocHomePage extends StatefulWidget {
 
 class _SocHomePageState extends State<SocHomePage> {
   int _selectedIndex = 0;
-  late Stream<List<Map<String, dynamic>>> _stream;
+  late Stream<List<Map<String, dynamic>>> _eventsStream;
+  late Stream<List<Map<String, dynamic>>> _adminEventsStream;
   late List<Widget> _widgetOptions;
 
   @override
   void initState() {
     super.initState();
-    _setupStream();
+    _setupStreams();
     _widgetOptions = <Widget>[
       searchpage1(),
       MyEventsPage(userId: widget.userId),
       AddEvent(userID: widget.userId),
-      PayApprovalsPage(userId: widget.userId,),
+      PayApprovalsPage(userId: widget.userId),
       OrgProfile(),
-      // Add other widget options here if needed
     ];
   }
 
-  void _setupStream() {
-    _stream = FirebaseFirestore.instance
+  void _setupStreams() {
+    _eventsStream = FirebaseFirestore.instance
         .collection('EVENTS')
         .snapshots()
         .map((eventsSnapshot) {
@@ -64,12 +54,32 @@ class _SocHomePageState extends State<SocHomePage> {
           'eventLocation': eventDoc['eventLocation'],
           'eventPrice': eventDoc['eventPrice'],
           'eventType': eventDoc['eventType'],
-          'imageUrl': eventDoc['imageUrl'], // Fetch the imageUrl field
+          'imageUrl': eventDoc['imageUrl'],
           'documentID': eventDoc.id,
         });
       }
 
       return allEvents;
+    });
+
+    _adminEventsStream = FirebaseFirestore.instance
+        .collection('Adminevents')
+        .snapshots()
+        .map((eventsSnapshot) {
+      List<Map<String, dynamic>> adminEvents = [];
+
+      for (var eventDoc in eventsSnapshot.docs) {
+        adminEvents.add({
+          'eventName': eventDoc['eventName'],
+          'eventDate': eventDoc['eventDate'],
+          'eventTime': eventDoc['eventTime'],
+          'eventLocation': eventDoc['eventLocation'],
+          'eventContact': eventDoc['eventContact'],
+          'imageUrl': eventDoc['imageUrl'],
+          'registrationLink': eventDoc['registrationLink'],
+        });
+      }
+      return adminEvents;
     });
   }
 
@@ -95,34 +105,45 @@ class _SocHomePageState extends State<SocHomePage> {
         elevation: 0,
         automaticallyImplyLeading: false,
         actions: [
-
           SizedBox(width: 10),
-          GestureDetector(
-            onTap: () {
-              _showLogoutConfirmation(context);
-            },
-            child: Image.asset('assets/EventOn.png', height: 32),
-          ),
+          Image.asset('assets/EventOn.png', height: 32),
           SizedBox(width: 10),
         ],
       ),
       body: Stack(
         children: [
           StreamBuilder<List<Map<String, dynamic>>>(
-            stream: _stream,
-            builder: (BuildContext context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-              if (snapshot.hasError) {
-                return Center(child: Text('Some error occurred: ${snapshot.error}'));
+            stream: _eventsStream,
+            builder: (BuildContext context, AsyncSnapshot<List<Map<String, dynamic>>> eventsSnapshot) {
+              if (eventsSnapshot.hasError) {
+                return Center(child: Text('Some error occurred: ${eventsSnapshot.error}'));
               }
-              if (snapshot.connectionState == ConnectionState.waiting) {
+              if (eventsSnapshot.connectionState == ConnectionState.waiting) {
                 return Center(child: CircularProgressIndicator());
               }
-              if (snapshot.hasData) {
-                List<Map<String, dynamic>> items = snapshot.data!;
 
-                return HomeContent(items: items);
-              }
-              return Center(child: Text('No events available'));
+              return StreamBuilder<List<Map<String, dynamic>>>(
+                stream: _adminEventsStream,
+                builder: (BuildContext context, AsyncSnapshot<List<Map<String, dynamic>>> adminEventsSnapshot) {
+                  if (adminEventsSnapshot.hasError) {
+                    return Center(child: Text('Some error occurred: ${adminEventsSnapshot.error}'));
+                  }
+                  if (adminEventsSnapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+
+                  if (eventsSnapshot.hasData && adminEventsSnapshot.hasData) {
+                    List<Map<String, dynamic>> events = eventsSnapshot.data!;
+                    List<Map<String, dynamic>> adminEvents = adminEventsSnapshot.data!;
+                    return HomeContent(
+                      events: events,
+                      adminEvents: adminEvents,
+                    );
+                  }
+
+                  return Center(child: Text('No events available'));
+                },
+              );
             },
           ),
           if (_selectedIndex != 0) _widgetOptions.elementAt(_selectedIndex),
@@ -189,34 +210,35 @@ class _SocHomePageState extends State<SocHomePage> {
       ),
     );
   }
+
   void _showLogoutConfirmation(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return Theme(
           data: Theme.of(context).copyWith(
-            dialogBackgroundColor: Colors.black, // Set the dialog background to black
+            dialogBackgroundColor: Colors.black,
             textTheme: TextTheme(
-              titleLarge: TextStyle(color: Colors.white), // Set title text to white
-              bodyLarge: TextStyle(color: Colors.white),  // Set content text to white
+              titleLarge: TextStyle(color: Colors.white),
+              bodyLarge: TextStyle(color: Colors.white),
             ),
           ),
           child: AlertDialog(
-            title: Text('Logout', style: TextStyle(color: Colors.white)), // Set title color to white
-            content: Text('Are you sure you want to logout?', style: TextStyle(color: Colors.white)), // Set content color to white
+            title: Text('Logout', style: TextStyle(color: Colors.white)),
+            content: Text('Are you sure you want to logout?', style: TextStyle(color: Colors.white)),
             actions: [
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop(); // Dismiss the dialog
+                  Navigator.of(context).pop();
                 },
-                child: Text('Cancel', style: TextStyle(color: Colors.white)), // Set button text color to white
+                child: Text('Cancel', style: TextStyle(color: Colors.white)),
               ),
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop(); // Dismiss the dialog
-                  _logout(); // Call the logout function
+                  Navigator.of(context).pop();
+                  _logout();
                 },
-                child: Text('Logout', style: TextStyle(color: Colors.white)), // Set button text color to white
+                child: Text('Logout', style: TextStyle(color: Colors.white)),
               ),
             ],
           ),
@@ -224,6 +246,7 @@ class _SocHomePageState extends State<SocHomePage> {
       },
     );
   }
+
   Future<void> _logout() async {
     await FirebaseAuth.instance.signOut();
     Navigator.pushReplacement(
@@ -249,9 +272,14 @@ class _SocHomePageState extends State<SocHomePage> {
 }
 
 class HomeContent extends StatelessWidget {
-  final List<Map<String, dynamic>> items;
+  final List<Map<String, dynamic>> events;
+  final List<Map<String, dynamic>> adminEvents;
 
-  const HomeContent({Key? key, required this.items}) : super(key: key);
+    const HomeContent({
+    Key? key,
+    required this.events,
+    required this.adminEvents,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -281,9 +309,9 @@ class HomeContent extends StatelessWidget {
                   height: 250,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    itemCount: items.length,
+                    itemCount: adminEvents.length,
                     itemBuilder: (context, index) {
-                      Map<String, dynamic> event = items[index];
+                      Map<String, dynamic> adminEvent = adminEvents[index];
                       return Container(
                         margin: const EdgeInsets.symmetric(horizontal: 5),
                         child: Column(
@@ -296,7 +324,7 @@ class HomeContent extends StatelessWidget {
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(15),
                                 child: Image.network(
-                                  event['imageUrl'], // Use the imageUrl from Firestore
+                                  adminEvent['imageUrl'], // Use the imageUrl from Firestore
                                   height: 210,
                                   width: 210,
                                   fit: BoxFit.cover,
@@ -307,7 +335,7 @@ class HomeContent extends StatelessWidget {
                             ),
                             Gap(5),
                             Text(
-                              event['eventName'],
+                              adminEvent['eventName'],
                               style: TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold),
                             ),
@@ -341,9 +369,9 @@ class HomeContent extends StatelessWidget {
                   height: 350,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    itemCount: items.length,
+                    itemCount: events.length,
                     itemBuilder: (context, index) {
-                      Map<String, dynamic> event = items[index];
+                      Map<String, dynamic> event = events[index];
                       return Container(
                         width: 220,
                         child: Card(

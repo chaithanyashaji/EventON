@@ -31,7 +31,8 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   CollectionReference _reference = FirebaseFirestore.instance.collection('EVENTS');
 
-  late Stream<QuerySnapshot> _stream;
+    late Stream<List<Map<String, dynamic>>> _eventsStream;
+  late Stream<List<Map<String, dynamic>>> _adminEventsStream;
 
   static List<Widget> _widgetOptions = <Widget>[
     searchpage1(),
@@ -39,6 +40,49 @@ class _HomePageState extends State<HomePage> {
     RegisteredEvent(),
     Profile()
   ];
+
+  void _setupStreams() {
+    _eventsStream = FirebaseFirestore.instance
+        .collection('EVENTS')
+        .snapshots()
+        .map((eventsSnapshot) {
+      List<Map<String, dynamic>> allEvents = [];
+
+      for (var eventDoc in eventsSnapshot.docs) {
+        allEvents.add({
+          'eventName': eventDoc['eventName'],
+          'eventDate': eventDoc['eventDate'],
+          'eventLocation': eventDoc['eventLocation'],
+          'eventPrice': eventDoc['eventPrice'],
+          'eventType': eventDoc['eventType'],
+          'imageUrl': eventDoc['imageUrl'],
+          'documentID': eventDoc.id,
+        });
+      }
+
+      return allEvents;
+    });
+
+    _adminEventsStream = FirebaseFirestore.instance
+        .collection('Adminevents')
+        .snapshots()
+        .map((eventsSnapshot) {
+      List<Map<String, dynamic>> adminEvents = [];
+
+      for (var eventDoc in eventsSnapshot.docs) {
+        adminEvents.add({
+          'eventName': eventDoc['eventName'],
+          'eventDate': eventDoc['eventDate'],
+          'eventTime': eventDoc['eventTime'],
+          'eventLocation': eventDoc['eventLocation'],
+          'eventContact': eventDoc['eventContact'],
+          'imageUrl': eventDoc['imageUrl'],
+          'registrationLink': eventDoc['registrationLink'],
+        });
+      }
+      return adminEvents;
+    });
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -53,9 +97,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  @override
+   @override
   Widget build(BuildContext context) {
-    _stream = _reference.snapshots();
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -63,54 +106,45 @@ class _HomePageState extends State<HomePage> {
         elevation: 0,
         automaticallyImplyLeading: false,
         actions: [
-          IconButton(
-            icon: Icon(Icons.notifications, color: Colors.black),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => NotificationsPage()),
-              );
-            },
-          ),
           SizedBox(width: 10),
-          GestureDetector(
-            onTap: () {
-              _showLogoutConfirmation(context);
-            },
-            child: Image.asset('assets/EventOn.png', height: 32),
-          ),
+          Image.asset('assets/EventOn.png', height: 32),
           SizedBox(width: 10),
         ],
       ),
-
-
       body: Stack(
         children: [
-          StreamBuilder<QuerySnapshot>(
-            stream: _stream,
-            builder: (BuildContext context, AsyncSnapshot snapshot) {
-              if (snapshot.hasError) {
-                return Center(child: Text('Some error'));
+          StreamBuilder<List<Map<String, dynamic>>>(
+            stream: _eventsStream,
+            builder: (BuildContext context, AsyncSnapshot<List<Map<String, dynamic>>> eventsSnapshot) {
+              if (eventsSnapshot.hasError) {
+                return Center(child: Text('Some error occurred: ${eventsSnapshot.error}'));
               }
-              if (snapshot.hasData) {
-                QuerySnapshot querySnapshot = snapshot.data!;
-                List<QueryDocumentSnapshot> documents = querySnapshot.docs;
-
-                List<Map> items = documents.map((e) {
-                  return {
-                    'eventName': e['eventName'],
-                    'eventDate': e['eventDate'],
-                    'eventLocation': e['eventLocation'],
-                    'eventPrice': e['eventPrice'],
-                    'eventType': e['eventType'],
-                    'imageUrl': e['imageUrl'],
-                    'documentID': e.id,
-                  };
-                }).toList();
-
-                return HomeContent(items: items);
+              if (eventsSnapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
               }
-              return Center(child: CircularProgressIndicator());
+
+              return StreamBuilder<List<Map<String, dynamic>>>(
+                stream: _adminEventsStream,
+                builder: (BuildContext context, AsyncSnapshot<List<Map<String, dynamic>>> adminEventsSnapshot) {
+                  if (adminEventsSnapshot.hasError) {
+                    return Center(child: Text('Some error occurred: ${adminEventsSnapshot.error}'));
+                  }
+                  if (adminEventsSnapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+
+                  if (eventsSnapshot.hasData && adminEventsSnapshot.hasData) {
+                    List<Map<String, dynamic>> events = eventsSnapshot.data!;
+                    List<Map<String, dynamic>> adminEvents = adminEventsSnapshot.data!;
+                    return HomeContent(
+                      events: events,
+                      adminEvents: adminEvents,
+                    );
+                  }
+
+                  return Center(child: Text('No events available'));
+                },
+              );
             },
           ),
           if (_selectedIndex != 0) _widgetOptions.elementAt(_selectedIndex),
@@ -228,9 +262,14 @@ class _HomePageState extends State<HomePage> {
 }
 
 class HomeContent extends StatelessWidget {
-  final List<Map> items;
+  final List<Map<String, dynamic>> events;
+  final List<Map<String, dynamic>> adminEvents;
 
-  const HomeContent({Key? key, required this.items}) : super(key: key);
+    const HomeContent({
+    Key? key,
+    required this.events,
+    required this.adminEvents,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -260,14 +299,12 @@ class HomeContent extends StatelessWidget {
                   height: 250,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    itemCount: items.length,
+                    itemCount: adminEvents.length,
                     itemBuilder: (context, index) {
-                      Map event = items[index];
+                      Map<String, dynamic> adminEvent = adminEvents[index];
                       return Container(
-                        width: 210,
                         margin: const EdgeInsets.symmetric(horizontal: 5),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
                               decoration: BoxDecoration(
@@ -275,14 +312,22 @@ class HomeContent extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(15),
                               ),
                               child: ClipRRect(
-                                borderRadius: BorderRadius.circular(13),
+                                borderRadius: BorderRadius.circular(15),
                                 child: Image.network(
-                                  event['imageUrl'] ?? 'https://via.placeholder.com/210',
-                                  height: 220, // Reduce the height to fix overflow
-                                  width: 220,
+                                  adminEvent['imageUrl'], // Use the imageUrl from Firestore
+                                  height: 210,
+                                  width: 210,
                                   fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Icon(Icons.error),
                                 ),
                               ),
+                            ),
+                            Gap(5),
+                            Text(
+                              adminEvent['eventName'],
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
@@ -310,14 +355,13 @@ class HomeContent extends StatelessWidget {
                   ),
                 ),
                 const Gap(10),
-
                 SizedBox(
                   height: 350,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    itemCount: items.length,
+                    itemCount: events.length,
                     itemBuilder: (context, index) {
-                      Map event = items[index];
+                      Map<String, dynamic> event = events[index];
                       return Container(
                         width: 220,
                         child: Card(
@@ -418,7 +462,7 @@ class HomeContent extends StatelessWidget {
                                     ),
                                   ),
                                   child: Text(
-                                    'Register',
+                                    'View Details',
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: Colors.white,
