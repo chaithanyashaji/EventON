@@ -134,7 +134,7 @@ class _AttendeeState extends State<Attendee> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => QRScanner(), // Pass the eventId here
+                  builder: (context) => QRScanner(eventId: widget.eventId), // Pass the eventId here
                 ),
               );
             },

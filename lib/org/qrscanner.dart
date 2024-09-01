@@ -1,10 +1,13 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class QRScanner extends StatefulWidget {
-  QRScanner({Key? key}) : super(key: key);
+  final String eventId; // Expected event ID to match with scanned document
+
+  QRScanner({Key? key, required this.eventId}) : super(key: key);
 
   @override
   State<QRScanner> createState() => _QRPageState();
@@ -42,7 +45,8 @@ class _QRPageState extends State<QRScanner> {
           String code = result!.code!;
           print('Scanned Code: $code');
           controller.pauseCamera();
-          getDetailsOfScanned(context, code);
+          // Pass the scanned code and expected eventId
+          getDetailsOfScanned(context, code, widget.eventId);
           controller.resumeCamera();
         }
       });
@@ -86,30 +90,44 @@ class _QRPageState extends State<QRScanner> {
   }
 }
 
-void getDetailsOfScanned(BuildContext context, String code) {
+void getDetailsOfScanned(BuildContext context, String scannedDocumentId, String eventId) {
   final FirebaseFirestore db = FirebaseFirestore.instance;
 
-  // Check if the scanned code exists in the REGISTRATIONS collection as a document ID
-  db.collection('REGISTRATIONS').doc(code).get().then((DocumentSnapshot ds) {
+  db.collection('REGISTRATIONS').doc(scannedDocumentId).get().then((DocumentSnapshot ds) {
     if (ds.exists) {
-      // The document with the scanned code as the ID exists in the REGISTRATIONS collection
-      db.collection("REGISTRATIONS")
-          .doc(code)
-          .set({"ScannedStatus": "YES"}, SetOptions(merge: true))
-          .then((_) {
+      String? expectedEventId = ds['eventId'];
+      print('Event ID from Firestore: $expectedEventId');
+      print('Event ID: $eventId');
+
+      if (expectedEventId==eventId) {
+        db.collection("REGISTRATIONS")
+            .doc(scannedDocumentId)
+            .set({"ScannedStatus": "YES"}, SetOptions(merge: true))
+            .then((_) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              backgroundColor: Colors.green,
+              content: Text(
+                "Scanned Successfully",
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          );
+        });
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            backgroundColor: Colors.green,
+            backgroundColor: Colors.red,
             content: Text(
-              "Scanned Successfully",
+              "Invalid Event ID",
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.white),
             ),
           ),
         );
-      });
+      }
     } else {
-      // No document with the scanned code as the ID exists in the REGISTRATIONS collection
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           backgroundColor: Colors.red,
