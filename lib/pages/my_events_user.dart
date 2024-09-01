@@ -209,7 +209,7 @@ class _RegisteredEventState extends State<RegisteredEvent> {
                 }
 
                 final eventData = eventSnapshot.data!.data() as Map<String, dynamic>;
-                final eventLevel = eventData['eventLevel'] ?? 'Level I';
+                final eventLevel = eventData['eventLevel'] ?? '';
 
                 // Calculate activity points
                 if (registrationDoc['ScannedStatus'] == 'YES') {

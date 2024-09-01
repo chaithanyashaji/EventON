@@ -1,10 +1,11 @@
 import 'dart:io';
-
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:readmore/readmore.dart';
 import 'package:gap/gap.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:universe2024/Utiles/app_styles.dart';
 import 'package:universe2024/org/EditEventScreen.dart';
 import 'package:universe2024/org/home.dart';
@@ -12,6 +13,7 @@ import 'package:universe2024/pages/Homepage.dart';
 import 'package:universe2024/pages/qrcode.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 
 
@@ -132,61 +134,82 @@ class _EventDetailsState extends State<EventDetails> {
   }
 
   void _registerForEvent(DocumentSnapshot eventDoc) async {
-  try {
-    // Step 1: Pick an image
-    final ImagePicker _picker = ImagePicker();
-    XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    try {
+      bool isFreeEvent = (eventDoc['eventPrice']?.toLowerCase() == 'free');
 
-    if (image == null) {
-      // Handle case where user cancels picking an image
+      // If the event is free, skip the image upload
+      String? downloadURL;
+      if (!isFreeEvent) {
+        // Step 1: Pick an image
+        final ImagePicker _picker = ImagePicker();
+        XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+
+        if (image == null) {
+          // Handle case where user cancels picking an image
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('No image selected')),
+          );
+          return;
+        }
+
+        // Show loading indicator while uploading
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => Center(child: CircularProgressIndicator()),
+        );
+
+        // Step 2: Upload the image to Firebase Storage
+        String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+        Reference storageRef = FirebaseStorage.instance.ref().child('payment_screenshots').child('$fileName.jpg');
+        UploadTask uploadTask = storageRef.putFile(File(image.path));
+
+        // Wait for the upload to complete
+        TaskSnapshot taskSnapshot = await uploadTask;
+
+        // Get the download URL of the uploaded image
+        downloadURL = await taskSnapshot.ref.getDownloadURL();
+
+        // Dismiss the loading indicator
+        Navigator.pop(context);
+
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Screenshot uploaded successfully')),
+        );
+      }
+
+      // Step 3: Register for the event
+      DocumentReference registrationRef = FirebaseFirestore.instance.collection('REGISTRATIONS').doc();
+      await registrationRef.set({
+        'eventName': eventDoc['eventName'],
+        'eventId': widget.eventKey,
+        'userName': (await FirebaseFirestore.instance.collection('users').doc(_currentUserId).get())['name'],
+        '_rollNo': (await FirebaseFirestore.instance.collection('users').doc(_currentUserId).get())['rollNo'],
+        '_mobileNumber': (await FirebaseFirestore.instance.collection('users').doc(_currentUserId).get())['mobileNumber'],
+        '_email': (await FirebaseFirestore.instance.collection('users').doc(_currentUserId).get())['email'],
+        '_branch': (await FirebaseFirestore.instance.collection('users').doc(_currentUserId).get())['branch'],
+        '_semester': (await FirebaseFirestore.instance.collection('users').doc(_currentUserId).get())['semester'],
+        '_collegeName': (await FirebaseFirestore.instance.collection('users').doc(_currentUserId).get())['collegeName'],
+        '_MembershipId': (await FirebaseFirestore.instance.collection('users').doc(_currentUserId).get())['MembershipId'],
+        'userId': _currentUserId,
+        'registrationId': registrationRef.id,
+        'PaymentStatus': isFreeEvent ? 'approved' : 'pending',
+        'ScannedStatus': 'pending',
+        'PaymentScreenshot': downloadURL ?? '',  // Store the download URL if applicable
+      });
+
+      // If there's a WhatsApp group link, show it after registration
+
+    } catch (e) {
+      print('Error during registration: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('No image selected')),
+        SnackBar(content: Text('Error during registration: $e')),
       );
-      return;
     }
-
-    // Step 2: Upload the image to Firebase Storage
-    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-    Reference storageRef = FirebaseStorage.instance.ref().child('payment_screenshots').child('$fileName.jpg');
-    UploadTask uploadTask = storageRef.putFile(File(image.path));
-
-    // Wait for the upload to complete
-    TaskSnapshot taskSnapshot = await uploadTask;
-
-    // Get the download URL of the uploaded image
-    String downloadURL = await taskSnapshot.ref.getDownloadURL();
-
-    // Step 3: Register for the event
-    DocumentReference registrationRef = FirebaseFirestore.instance.collection('REGISTRATIONS').doc();
-    await registrationRef.set({
-      'eventName': eventDoc['eventName'],
-      'eventId': widget.eventKey,
-      'userName': (await FirebaseFirestore.instance.collection('users').doc(_currentUserId).get())['name'],
-      '_rollNo': (await FirebaseFirestore.instance.collection('users').doc(_currentUserId).get())['rollNo'],
-      '_mobileNumber': (await FirebaseFirestore.instance.collection('users').doc(_currentUserId).get())['mobileNumber'],
-      '_email': (await FirebaseFirestore.instance.collection('users').doc(_currentUserId).get())['email'],
-      '_branch': (await FirebaseFirestore.instance.collection('users').doc(_currentUserId).get())['branch'],
-      '_semester': (await FirebaseFirestore.instance.collection('users').doc(_currentUserId).get())['semester'],
-      '_collegeName': (await FirebaseFirestore.instance.collection('users').doc(_currentUserId).get())['collegeName'],
-      '_MembershipId': (await FirebaseFirestore.instance.collection('users').doc(_currentUserId).get())['MembershipId'],
-      'userId': _currentUserId,
-      'registrationId': registrationRef.id,
-      'PaymentStatus': 'pending',
-      'ScannedStatus': 'pending',
-      'PaymentScreenshot': downloadURL,  // Store the download URL
-    });
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => HomePage(userId: _currentUserId)),
-    );
-  } catch (e) {
-    print('Error during registration: $e');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error during registration: $e')),
-    );
   }
-}
+
+
   Future<String?> _getRegistrationId() async {
     QuerySnapshot registrationDocs = await FirebaseFirestore.instance
         .collection('REGISTRATIONS')
@@ -289,6 +312,13 @@ class _EventDetailsState extends State<EventDetails> {
                   ),
                 ),
               ),
+              IconButton(
+                icon: Icon(Icons.share, color: Colors.black),
+                onPressed: () {
+                  // Implement share functionality here
+                  _shareEventDetails(eventData as DocumentSnapshot<Object?>);
+                },
+              ),
             ],
           ),
           SizedBox(height: 8),
@@ -369,38 +399,31 @@ class _EventDetailsState extends State<EventDetails> {
 
 
   Widget _buildActionButtons(DocumentSnapshot eventDoc) {
-    // If the user is a student
+    List<Widget> buttons = [];
+
+    // Add the Register or QR Code button for students
     if (_userRole == 'student') {
       if (!_isRegistrationOpen) {
         return Container(); // Registration is closed, return an empty container
       }
 
-      // If the student hasn't registered yet
       if (!_isRegistered) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
-          child: Row(
-            children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  onPressed: () => _registerForEvent(eventDoc),
-                  icon: Icon(Icons.event, color: Colors.white),
-                  label: Text("Register", style: TextStyle(color: Colors.white)),
+        buttons.add(
+          Expanded(
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.black,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
-            ],
+              onPressed: () => _registerForEvent(eventDoc),
+              icon: Icon(Icons.event, color: Colors.white),
+              label: Text("Register", style: TextStyle(color: Colors.white)),
+            ),
           ),
         );
-      }
-
-      // If the student is registered but payment is pending
-      if (_isRegistered && _paymentStatus == 'pending') {
+      } else if (_paymentStatus == 'pending') {
         return Container(
           margin: EdgeInsets.symmetric(horizontal: 35, vertical: 15),
           child: Text(
@@ -412,12 +435,80 @@ class _EventDetailsState extends State<EventDetails> {
             ),
           ),
         );
-      }
+      } else if (_paymentStatus == 'approved') {
+        buttons.add(
+          Expanded(
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.black,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              onPressed: () async {
+                String? registrationId = await _getRegistrationId();
+                if (registrationId != null) {
+                  // Navigate to QR code generation screen
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => QrGenerationScreen(id: registrationId),
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Registration ID not found')),
+                  );
+                }
+              },
+              icon: Icon(Icons.qr_code, color: Colors.white),
+              label: Text("QR Code", style: TextStyle(color: Colors.white)),
+            ),
+          ),
+        );
 
-      // If the student is registered and payment is approved
-      if (_isRegistered && _paymentStatus == 'approved') {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+        // Add the WhatsApp group button if a link is available
+        if (eventDoc['whatsappGroupLink'] != null && eventDoc['whatsappGroupLink'].isNotEmpty) {
+          buttons.add(SizedBox(width: 10)); // Add spacing between buttons
+
+          buttons.add(
+            Expanded(
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                onPressed: () async {
+                  String whatsappUrl = eventDoc['whatsappGroupLink'];
+                  Uri whatsappUri = Uri.parse(whatsappUrl);  // Convert to Uri
+
+                  if (await canLaunchUrl(whatsappUri)) {
+                    await launchUrl(
+                      whatsappUri,
+                      mode: LaunchMode.externalApplication, // This mode opens in the external app
+                    );
+                  } else {
+                    // Show an error message if the URL can't be launched
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Could not open WhatsApp')),
+                    );
+                  }
+                },
+                icon: FaIcon(FontAwesomeIcons.whatsapp, color: Colors.white),
+                label: Text("Join", style: TextStyle(color: Colors.white)),
+              ),
+            ),
+          );
+        }
+      }
+    }
+
+    // Add the Edit and Delete buttons for event creators
+    if (_addedBy == _currentUserId) {
+      buttons.addAll([
+        Expanded(
           child: ElevatedButton.icon(
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.black,
@@ -425,68 +516,52 @@ class _EventDetailsState extends State<EventDetails> {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            onPressed: () async {
-              String? registrationId = await _getRegistrationId();
-              if (registrationId != null) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => QrGenerationScreen(id: registrationId),
-                  ),
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Registration ID not found')),
-                );
-              }
-            },
-            icon: Icon(Icons.qr_code, color: Colors.white),
-            label: Text("Show QR Code", style: TextStyle(color: Colors.white)),
+            onPressed: _editEvent,
+            icon: Icon(Icons.edit, color: Colors.white),
+            label: Text("Edit Event", style: TextStyle(color: Colors.white)),
           ),
-        );
-      }
-    }
-
-    // If the user added the event (admin or event creator)
-    if (_addedBy == _currentUserId) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
-        child: Row(
-          children: [
-            Expanded(
-              child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                onPressed: _editEvent,
-                icon: Icon(Icons.edit, color: Colors.white),
-                label: Text("Edit Event", style: TextStyle(color: Colors.white)),
-              ),
-            ),
-            SizedBox(width: 16),
-            Expanded(
-              child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                onPressed: _deleteEvent,
-                icon: Icon(Icons.delete, color: Colors.white),
-                label: Text("Delete Event", style: TextStyle(color: Colors.white)),
-              ),
-            ),
-          ],
         ),
-      );
+        const SizedBox(width: 10),
+        Expanded(
+          child: ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onPressed: _deleteEvent,
+            icon: Icon(Icons.delete, color: Colors.white),
+            label: Text("Delete Event", style: TextStyle(color: Colors.white)),
+          ),
+        ),
+      ]);
     }
 
-    // If none of the conditions are met, return an empty container
-    return Container();
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Row(
+        children: buttons,
+      ),
+    );
+  }
+
+
+
+
+  void _shareEventDetails(DocumentSnapshot eventDoc) {
+    final String eventName = eventDoc['eventName'] ?? 'Event';
+    final String eventDate = eventDoc['eventDate'] ?? 'Date';
+    final String eventTime = eventDoc['eventTime'] ?? 'Time';
+    final String eventLocation = eventDoc['eventLocation'] ?? 'Location';
+
+    // Assuming you have a link to the event
+    final String eventUrl = 'https://youreventplatform.com/events/${widget.eventKey}'; // Replace with your actual event URL
+
+    final String eventDetails =
+        'Check out this event: $eventName\nDate: $eventDate\nTime: $eventTime\nLocation: $eventLocation\n\nJoin here: $eventUrl';
+
+    Share.share(eventDetails);
   }
 
 

@@ -47,11 +47,12 @@ dependencies:
   firebase_storage: ^11.7.4
   google_fonts: ^4.0.4
   fluentui_icons: ^1.0.0
+  font_awesome_flutter: ^10.0.0
   gap: ^3.0.1
-  url_launcher: ^6.0.12
+  url_launcher: ^6.1.9
   carousel_slider: ^4.0.0
   qr_flutter: ^4.1.0
-
+  share_plus: ^7.0.1
   image_picker: ^1.1.2
   qr_code_scanner: ^1.0.1
   firebase_messaging: ^14.9.4
