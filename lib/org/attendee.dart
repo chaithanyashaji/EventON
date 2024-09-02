@@ -18,6 +18,7 @@ class _AttendeeState extends State<Attendee> {
   List<attendModel> attendModelList = [];
   List<attendModel> filteredList = [];
   String searchQuery = '';
+  List<bool> expandedList = []; // To keep track of expanded state for each item
 
   @override
   void initState() {
@@ -54,6 +55,7 @@ class _AttendeeState extends State<Attendee> {
         setState(() {
           attendModelList = newAttendees;
           filteredList = newAttendees;
+          expandedList = List.generate(newAttendees.length, (_) => false); // Initialize the expandedList
         });
       }
     });
@@ -134,7 +136,8 @@ class _AttendeeState extends State<Attendee> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => QRScanner(eventId: widget.eventId), // Pass the eventId here
+                  builder: (context) =>
+                      QRScanner(eventId: widget.eventId), // Pass the eventId here
                 ),
               );
             },
@@ -168,8 +171,8 @@ class _AttendeeState extends State<Attendee> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  margin: EdgeInsets.only(
-                      left: 20, right: 20, top: 15, bottom: 3),
+                  margin:
+                  EdgeInsets.only(left: 20, right: 20, top: 15, bottom: 3),
                   child: Text(
                     "Total Attended Students  :  " +
                         attendModelList
@@ -185,8 +188,8 @@ class _AttendeeState extends State<Attendee> {
                   ),
                 ),
                 Container(
-                  margin: EdgeInsets.only(
-                      left: 20, right: 20, top: 3, bottom: 15),
+                  margin:
+                  EdgeInsets.only(left: 20, right: 20, top: 3, bottom: 15),
                   child: Text(
                     "Total Registered Students  :  " +
                         attendModelList.length.toString(),
@@ -203,137 +206,134 @@ class _AttendeeState extends State<Attendee> {
           Gap(35),
           Expanded(
             child: ListView.builder(
-                itemCount: filteredList.length,
-                itemBuilder: (context, index) {
-                  var item = filteredList[index];
-                  return Container(
-                    height: 260,
-                    margin: EdgeInsets.only(
-                        left: 20, right: 20, top: 5, bottom: 5),
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Styles.yellowColor, width: 0.75),
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(20),
+              itemCount: filteredList.length,
+              itemBuilder: (context, index) {
+                var item = filteredList[index];
+                bool isExpanded = expandedList[index];
+                return Container(
+                  margin: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Styles.yellowColor, width: 0.75),
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "${index + 1}. Name  :  " + item.name,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Styles.blueColor,
+                        ),
                       ),
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "${index + 1}. Name  :  " + item.name,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    color: Styles.blueColor,
-                                  ),
-                                ),
-                                Gap(3),
-                                Text(
-                                  "College Name  :  " + item.collegeName,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                    color: Styles.blueColor,
-                                  ),
-                                ),
-                                Gap(3),
-                                Text(
-                                  "Branch  :  " + item.branch,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                    color: Styles.blueColor,
-                                  ),
-                                ),
-                                Gap(3),
-                                Text(
-                                  "Semester  :  " + item.semester,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: Styles.blueColor,
-                                  ),
-                                ),
-                                Gap(3),
-                                Text(
-                                  "Roll No  :  " + item.rollNo,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: Styles.blueColor,
-                                  ),
-                                ),
-                                Gap(3),
-                                Text(
-                                  "Email  :  " + item.email,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: Styles.blueColor,
-                                  ),
-                                ),
-                                Gap(3),
-                                Text(
-                                  "Mobile Number  :  " + item.mobileNumber,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: Styles.blueColor,
-                                  ),
-                                ),
-                                Gap(3),
-                                Text(
-                                  "Membership ID  :  " + item.MembershipId,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                    color: Styles.blueColor,
-                                  ),
-                                ),
-                                Gap(3),
-                              ],
-                            )
-                          ],
+                      Gap(3),
+                      Text(
+                        "College Name  :  " + item.collegeName,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: Styles.blueColor,
                         ),
-                        SizedBox(
-                          height: 15,
+                      ),
+                      if (isExpanded) ...[
+                        Gap(3),
+                        Text(
+                          "Branch  :  " + item.branch,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: Styles.blueColor,
+                          ),
                         ),
-                        Row(
+                        Gap(3),
+                        Text(
+                          "Semester  :  " + item.semester,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Styles.blueColor,
+                          ),
+                        ),
+                        Gap(3),
+                        Text(
+                          "Roll No  :  " + item.rollNo,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Styles.blueColor,
+                          ),
+                        ),
+                        Gap(3),
+                        Text(
+                          "Email  :  " + item.email,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Styles.blueColor,
+                          ),
+                        ),
+                        Gap(3),
+                        Text(
+                          "Mobile Number  :  " + item.mobileNumber,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Styles.blueColor,
+                          ),
+                        ),
+                        Gap(3),
+                        Text(
+                          "Membership ID  :  " + item.MembershipId,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: Styles.blueColor,
+                          ),
+                        ),
+                      ],
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            expandedList[index] = !isExpanded;
+                          });
+                        },
+                        child: Text(
+                          isExpanded ? "Read Less" : "Read More",
+                          style: TextStyle(color:Colors.blue),
+                        ),
+                      ),
+                      Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            Container(
-                              padding: EdgeInsets.only(
-                                  left: 15, right: 15, top: 5, bottom: 5),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Styles.yellowColor),
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(10),
-                                ),
-                              ),
-                              child: Center(
-                                  child: Text(
-                                    item.status == "YES" ? "Attended" : "Registered",
-                                    style: TextStyle(
-                                        color: item.status == "YES"
-                                            ? Colors.green
-                                            : Colors.red,
-                                        fontWeight: FontWeight.w500),
-                                  )),
-                            ),
-                          ],
-                        )
-                      ],
-                    ),
-                  );
-                }),
+                      Container(
+                      padding: EdgeInsets.only(
+                      left: 15, right: 15, top: 5, bottom: 5),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Styles.yellowColor),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(10),
+                        ),
+                      ),
+
+                      child: Center(
+                          child: Text(
+                            item.status == "YES" ? "Attended" : "Registered",
+                            style: TextStyle(
+                                color: item.status == "YES"
+                                    ? Colors.green
+                                    : Colors.red,
+                                fontWeight: FontWeight.w500),
+                          )),
+                ),
+                  ]
+                  ),
+                ],
+                  ),
+                );
+              },
+            ),
           ),
         ],
       ),

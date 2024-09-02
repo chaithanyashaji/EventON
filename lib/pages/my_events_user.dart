@@ -45,7 +45,7 @@ class _RegisteredEventState extends State<RegisteredEvent> {
         appBar: AppBar(
           title: const Center(
             child: Text(
-              'Events',
+              'My Events',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
