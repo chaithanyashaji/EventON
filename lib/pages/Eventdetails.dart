@@ -399,111 +399,111 @@ class _EventDetailsState extends State<EventDetails> {
 
 
   Widget _buildActionButtons(DocumentSnapshot eventDoc) {
-    List<Widget> buttons = [];
+  List<Widget> buttons = [];
 
-    // Add the Register or QR Code button for students
-    if (_userRole == 'student') {
-      if (!_isRegistrationOpen) {
-        return Container(); // Registration is closed, return an empty container
-      }
+  // Add the Register or QR Code button for students
+  if (_userRole == 'student') {
+    if (!_isRegistrationOpen) {
+      return Container(); // Registration is closed, return an empty container
+    }
 
-      if (!_isRegistered) {
-        buttons.add(
-          Expanded(
-            child: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
+    if (!_isRegistered) {
+      buttons.add(
+        Expanded(
+          child: ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
               ),
-              onPressed: () => _registerForEvent(eventDoc),
-              icon: Icon(Icons.event, color: Colors.white),
-              label: Text("Register", style: TextStyle(color: Colors.white)),
             ),
+            onPressed: () => _registerForEvent(eventDoc),
+            icon: Icon(Icons.event, color: Colors.white),
+            label: Text("Register", style: TextStyle(color: Colors.white)),
           ),
-        );
-      } else if (_paymentStatus == 'pending') {
-        return Container(
-          margin: EdgeInsets.symmetric(horizontal: 35, vertical: 15),
-          child: Text(
-            "Waiting for payment verification",
-            style: TextStyle(
-              color: Colors.red,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+        ),
+      );
+    } else if (_paymentStatus == 'pending') {
+      return Container(
+        margin: EdgeInsets.symmetric(horizontal: 35, vertical: 15),
+        child: Text(
+          "Waiting for payment verification",
+          style: TextStyle(
+            color: Colors.red,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      );
+    } else if (_paymentStatus == 'approved') {
+      buttons.add(
+        Expanded(
+          child: ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
+            onPressed: () async {
+              String? registrationId = await _getRegistrationId();
+              if (registrationId != null) {
+                // Navigate to QR code generation screen
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => QrGenerationScreen(id: registrationId),
+                  ),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Registration ID not found')),
+                );
+              }
+            },
+            icon: Icon(Icons.qr_code, color: Colors.white),
+            label: Text("QR Code", style: TextStyle(color: Colors.white)),
           ),
-        );
-      } else if (_paymentStatus == 'approved') {
+        ),
+      );
+
+      // Add the WhatsApp group button if a link is available
+      if (eventDoc['whatsappGroupLink'] != null && eventDoc['whatsappGroupLink'].isNotEmpty) {
+        buttons.add(SizedBox(width: 10)); // Add spacing between buttons
+
         buttons.add(
           Expanded(
             child: ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
+                backgroundColor: Colors.green,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
               onPressed: () async {
-                String? registrationId = await _getRegistrationId();
-                if (registrationId != null) {
-                  // Navigate to QR code generation screen
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => QrGenerationScreen(id: registrationId),
-                    ),
+                String whatsappUrl = eventDoc['whatsappGroupLink'];
+                Uri whatsappUri = Uri.parse(whatsappUrl);  // Convert to Uri
+
+                if (await canLaunchUrl(whatsappUri)) {
+                  await launchUrl(
+                    whatsappUri,
+                    mode: LaunchMode.externalApplication, // This mode opens in the external app
                   );
                 } else {
+                  // Show an error message if the URL can't be launched
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Registration ID not found')),
+                    SnackBar(content: Text('Could not open WhatsApp')),
                   );
                 }
               },
-              icon: Icon(Icons.qr_code, color: Colors.white),
-              label: Text("QR Code", style: TextStyle(color: Colors.white)),
+              icon: FaIcon(FontAwesomeIcons.whatsapp, color: Colors.white),
+              label: Text("Join", style: TextStyle(color: Colors.white)),
             ),
           ),
         );
-
-        // Add the WhatsApp group button if a link is available
-        if (eventDoc['whatsappGroupLink'] != null && eventDoc['whatsappGroupLink'].isNotEmpty) {
-          buttons.add(SizedBox(width: 10)); // Add spacing between buttons
-
-          buttons.add(
-            Expanded(
-              child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                onPressed: () async {
-                  String whatsappUrl = eventDoc['whatsappGroupLink'];
-                  Uri whatsappUri = Uri.parse(whatsappUrl);  // Convert to Uri
-
-                  if (await canLaunchUrl(whatsappUri)) {
-                    await launchUrl(
-                      whatsappUri,
-                      mode: LaunchMode.externalApplication, // This mode opens in the external app
-                    );
-                  } else {
-                    // Show an error message if the URL can't be launched
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Could not open WhatsApp')),
-                    );
-                  }
-                },
-                icon: FaIcon(FontAwesomeIcons.whatsapp, color: Colors.white),
-                label: Text("Join", style: TextStyle(color: Colors.white)),
-              ),
-            ),
-          );
-        }
       }
     }
+  }
 
     // Add the Edit and Delete buttons for event creators
     if (_addedBy == _currentUserId) {

@@ -257,7 +257,7 @@ class _loginpageState extends State<loginpage> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => Admhome(),
+              builder: (context) => Admhome(userId: documentSnapshot.id),
             ),
           );
         }

@@ -10,7 +10,7 @@ import 'package:universe2024/org/home.dart';
 
 class AddEvent extends StatefulWidget {
 
-  String userID;
+  final String userID;
   AddEvent({Key? key ,required this.userID}) : super(key: key);
 
 
@@ -523,6 +523,7 @@ class _AddEventPageState extends State<AddEvent> {
 
 
   Widget _buildImagePicker() {
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 30),
       child: Column(
@@ -670,7 +671,7 @@ class _AddEventPageState extends State<AddEvent> {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => SocHomePage(userId: '',)),
+        MaterialPageRoute(builder: (context) => SocHomePage(userId:widget.userID )),
       );
     } catch (error) {
       setState(() {

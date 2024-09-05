@@ -63,7 +63,7 @@ class _SocHomePageState extends State<SocHomePage> {
     });
 
     _adminEventsStream = FirebaseFirestore.instance
-        .collection('Adminevents')
+        .collection('adminEvents')
         .snapshots()
         .map((eventsSnapshot) {
       List<Map<String, dynamic>> adminEvents = [];

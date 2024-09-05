@@ -75,7 +75,7 @@ class _HomePageState extends State<HomePage> {
     });
 
     _adminEventsStream = FirebaseFirestore.instance
-        .collection('Adminevents')
+        .collection('adminEvents')
         .snapshots()
         .map((eventsSnapshot) {
       List<Map<String, dynamic>> adminEvents = [];
@@ -235,8 +235,8 @@ class _HomePageState extends State<HomePage> {
           data: Theme.of(context).copyWith(
             dialogBackgroundColor: Colors.black,
             textTheme: TextTheme(
-              headline6: TextStyle(color: Colors.white),
-              bodyText2: TextStyle(color: Colors.white),
+              titleLarge: TextStyle(color: Colors.white),
+              bodyMedium: TextStyle(color: Colors.white),
             ),
           ),
           child: AlertDialog(
