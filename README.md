@@ -123,8 +123,9 @@ EventON is a platform designed to help colleges host and manage technical events
 
 - **Purpose:** Admins oversee event management and user approvals.
 - **Features:**
-  - View and approve users and events.
-  - Manage all user roles and event details.
+  - View and approve users.
+  - Manage all user roles.
+  - Ability to add events outside college campus
 
 **Screenshots:**
 
