@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:intl/intl.dart';
 import 'package:universe2024/org/addevent.dart';
 import 'package:universe2024/org/my_events_org.dart';
 import 'package:universe2024/org/orgprofile.dart';
@@ -10,7 +11,8 @@ import 'package:universe2024/org/payment_approval.dart';
 import 'package:universe2024/pages/EventDetails.dart'; // Import the EventDetails page
 import 'package:universe2024/pages/chatbot.dart';
 import 'package:universe2024/pages/loginpage.dart';
-import 'package:universe2024/pages/search1.dart'; // Import other necessary pages
+import 'package:universe2024/pages/search1.dart';
+import 'package:url_launcher/url_launcher.dart'; // Import other necessary pages
 
 class SocHomePage extends StatefulWidget {
   final String userId;
@@ -63,7 +65,7 @@ class _SocHomePageState extends State<SocHomePage> {
     });
 
     _adminEventsStream = FirebaseFirestore.instance
-        .collection('Adminevents')
+        .collection('adminEvents')
         .snapshots()
         .map((eventsSnapshot) {
       List<Map<String, dynamic>> adminEvents = [];
@@ -292,6 +294,7 @@ class HomeContent extends StatelessWidget {
       child: Column(
         children: [
           const SizedBox(height: 20),
+          // Events Section (without Black Border)
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
@@ -306,7 +309,7 @@ class HomeContent extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 21.5,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                    color: Colors.black, // Black text
                   ),
                 ),
                 const Gap(10),
@@ -317,35 +320,90 @@ class HomeContent extends StatelessWidget {
                     itemCount: adminEvents.length,
                     itemBuilder: (context, index) {
                       Map<String, dynamic> adminEvent = adminEvents[index];
-                      return Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 5),
-                        child: Column(
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.black, width: 2),
-                                borderRadius: BorderRadius.circular(15),
+                      return Stack(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              debugPrint("Event tapped!");
+                              _showEventDetails(
+                                context,
+                                adminEvent['eventDate'],
+                                adminEvent['registrationLink'],
+                                adminEvent['eventContact'],
+                              );
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 5),
+                              child: Column(
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: Colors.black,
+                                        width: 2,
+                                      ),
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(15),
+                                      child: Image.network(
+                                        adminEvent['imageUrl'],
+                                        height: 210,
+                                        width: 210,
+                                        fit: BoxFit.cover,
+                                        color: Colors.black.withOpacity(0.2),
+                                        colorBlendMode: BlendMode.darken,
+                                        errorBuilder: (context, error, stackTrace) =>
+                                            Icon(Icons.error, color: Colors.black),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Text(
+                                    adminEvent['eventName'],
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(15),
-                                child: Image.network(
-                                  adminEvent['imageUrl'], // Use the imageUrl from Firestore
-                                  height: 210,
-                                  width: 210,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      Icon(Icons.error),
+                            ),
+                          ),
+                          Positioned(
+                            top: 10,
+                            right: 10,
+                            child: GestureDetector(
+                              onTap: () {
+                                _launchURL(adminEvent['registrationLink']);
+                              },
+                              child: CircleAvatar(
+                                radius: 15,
+                                backgroundColor: Colors.black, // Black background for the CircleAvatar
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.black,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: Colors.white, width: 2), // White border
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.white.withOpacity(0.5), // White shadow
+                                        spreadRadius: 1,
+                                        blurRadius: 2,
+                                        offset: Offset(0, 0), // Shadow position
+                                      ),
+                                    ],
+                                  ),
+                                  child: Icon(
+                                    Icons.link,
+                                    color: Colors.white, // White icon
+                                  ),
                                 ),
                               ),
                             ),
-                            Gap(5),
-                            Text(
-                              adminEvent['eventName'],
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       );
                     },
                   ),
@@ -353,6 +411,7 @@ class HomeContent extends StatelessWidget {
               ],
             ),
           ),
+
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
@@ -499,4 +558,100 @@ class HomeContent extends StatelessWidget {
       ),
     );
   }
+  void _showEventDetails(
+      BuildContext context,
+      Timestamp eventDate,
+      String registrationLink,
+      String eventContact,
+      ) {
+    // Convert Timestamp to DateTime
+    DateTime dateTime = eventDate.toDate();
+
+    // Format DateTime to String (for example, 'dd/MM/yyyy')
+    String formattedDate = DateFormat('dd/MM/yyyy').format(dateTime);
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      // Transparent to allow the glass effect
+      builder: (BuildContext bc) {
+        return BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          // Frosted glass effect
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.7),
+              // Semi-transparent black background
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+            ),
+            padding: EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.calendar_today, color: Colors.white, size: 20),
+                    // Event date icon
+                    SizedBox(width: 10),
+                    // Display the formatted date
+                    Text(
+                      "Deadline: $formattedDate",
+                      // Fixed to show the formatted date
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 15),
+                Row(
+                  children: [
+                    Icon(Icons.link, color: Colors.white, size: 20),
+                    // Registration link icon
+                    SizedBox(width: 10),
+                    Flexible(
+                      child: Text(
+                        "Registration: $registrationLink", // Long text handled
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                        overflow: TextOverflow.ellipsis, // Handle long links
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 15),
+                Row(
+                  children: [
+                    Icon(Icons.phone, color: Colors.white, size: 20),
+                    // Event contact icon
+                    SizedBox(width: 10),
+                    Flexible(
+                      child: Text(
+                        "Contact: $eventContact",
+                        // Prevent overflow for event contact
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                        overflow: TextOverflow.ellipsis, // Handle long text
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+
+  void _launchURL(String url) async {
+    Uri uri = Uri.parse(url); // Convert to Uri
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
 }
+

@@ -54,7 +54,7 @@ class _ProfileState extends State<Profile> {
           final phoneNumber = userData['phoneNumber'] ?? '';
           final collegeName = userData['collegeName'] ?? '';
           final communityMember = userData['communityMember'] ?? '';
-          final ieeeMembershipId = userData['ieeeMembershipId'] ?? '';
+          final ieeeMembershipId = userData['MembershipId'] ?? '';
           final branch = userData['branch'] ?? '';
           final semester = userData['semester'] ?? '';
           final rollNo = userData['rollNo'] ?? '';

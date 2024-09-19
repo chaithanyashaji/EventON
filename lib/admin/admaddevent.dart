@@ -67,7 +67,8 @@ class _AdmAddEventState extends State<AdmAddEvent> {
     if (_image == null ||
         _eventNameController.text.isEmpty ||
         _eventLocationController.text.isEmpty ||
-        _WebsiteController.text.isEmpty ||
+        _eventContactController.text.isEmpty ||
+    _WebsiteController.text.isEmpty ||
         selectedDate == null ||
         selectedTime == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -85,7 +86,7 @@ class _AdmAddEventState extends State<AdmAddEvent> {
           'eventName': _eventNameController.text,
           'eventLocation': _eventLocationController.text,
           'registrationLink': _WebsiteController.text,
-          'Contact':_eventContactController,
+          'eventContact':_eventContactController.text,
           'eventDate': selectedDate,
           'eventTime': selectedTime!.format(context),
           'imageUrl': imageUrl,
