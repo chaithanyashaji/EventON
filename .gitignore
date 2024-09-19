@@ -67,7 +67,7 @@ firebase_app_id_file.json
 android/app/google-services.json
 ios/Runner/GoogleService-Info.plist
 .env
-lib/Utiles/firebase_options.dart
+lib/firebase_options.dart
 
 # VSCode
 .vscode/
