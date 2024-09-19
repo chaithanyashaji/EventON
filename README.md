@@ -49,12 +49,13 @@ EventON is a platform designed to help colleges host and manage technical events
 
 **Screenshots:**
 
-### User Homepage | Ticket | Payment Verification
+### User Homepage  |             Register Event           |             Ticket
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/8315b5a5-ae81-4754-821e-d736f3c4433f" width="28%" style="margin-right: 1%;" />
+  <img src="https://github.com/user-attachments/assets/b359b92a-5b36-45db-af2d-d5cdae276337" width="28%" />
   <img src="https://github.com/user-attachments/assets/360063f5-95cb-4164-b976-d8ed58a7ea15" width="28%" style="margin-right: 1%;" />
-  <img src="https://github.com/user-attachments/assets/1a8728ce-adde-4a98-98e3-8065a0ce4cb4" width="28%" />
+ 
 </p>
 
 ### User Attended Events | Profile | Chatbot
@@ -65,12 +66,13 @@ EventON is a platform designed to help colleges host and manage technical events
   <img src="https://github.com/user-attachments/assets/39964bfb-99a4-4a47-adcd-f2b8d718c905" width="28%" />
 </p>
 
-### Search | Community Page | Register Event
+### Search | Community Page | Payment Verification
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/e8902172-4e4e-4fb2-a29a-90d95f1a2a94" width="28%" style="margin-right: 1%;" />
   <img src="https://github.com/user-attachments/assets/5b1445d0-b5cd-4757-812c-bbfc69bac0e2" width="28%" style="margin-right: 1%;" />
-  <img src="https://github.com/user-attachments/assets/b359b92a-5b36-45db-af2d-d5cdae276337" width="28%" />
+  
+   <img src="https://github.com/user-attachments/assets/1a8728ce-adde-4a98-98e3-8065a0ce4cb4" width="28%" />
 </p>
 
 ---
