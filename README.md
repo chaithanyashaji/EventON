@@ -135,3 +135,18 @@ EventON is a platform designed to help colleges host and manage technical events
   <img src="https://github.com/user-attachments/assets/1d29e342-7309-4e7e-8a75-12d170d19935" width="28%" style="margin-right: 1%;" />
   <img src="https://github.com/user-attachments/assets/9367ef9f-2bbe-4a58-957d-51f19643057d" width="28%" />
 </p>
+
+## Tech Stack
+
+**Client:** Flutter, Dart
+
+**Server:** Firebase (Firestore, Firebase Authentication, Firebase Functions, Firebase Hosting)
+
+## Authors
+
+- [@Chaithanya Shaji](https://www.github.com/chaithanyashaji)
+- [@Thahir Aboobacker D V](https://github.com/ThahirAboobacker)
+- [@Ayisha Nahida](https://github.com/nahidaayisha)
+- [Gemima V A](https://www.github.com/gemimav.a)
+
+
