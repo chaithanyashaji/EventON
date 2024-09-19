@@ -1,134 +1,122 @@
-# EventON App
+# EventON
 
-EventON is a platform designed to help colleges host and manage technical events. It supports different user roles, including students, community members, and admins, each having specific functionalities.
-
----
-
-<p align="center">
-  <h2>1. General Section</h2>
-</p>
-
-### Login
-- **Purpose:** This section allows users to log in, sign up, or reset their password based on their role (Student, Community, Admin).
-- **Features:**
-  - **Login:** Users can log in to access the platform.
-  - **Sign Up:** Separate sign-up options for students and community members.
-  - **Forgot Password:** Option to reset the password if a user forgets their credentials.
-
-**Screenshots:**
-
-### Splash Screen | Login | Choose User
-
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/cf2fc45d-fa06-437b-b75c-9e750c45521f" width="30%" />
-  <img src="https://github.com/user-attachments/assets/b0367262-3248-4208-b6e5-f84ab08be948" width="30%" />
-  <img src="https://github.com/user-attachments/assets/de414018-b8f9-4771-bcc5-d74326e9596b" width="30%" />
-</p>
-
-### Community Sign Up | User Sign Up | Forgot Password
-
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/b491e243-c1d5-4417-ad61-0d3b8df4d617" width="30%" />
-  <img src="https://github.com/user-attachments/assets/03f56adc-abab-4229-9cee-51f9a79b3612" width="30%" />
-  <img src="https://github.com/user-attachments/assets/28e2e24c-07b5-4936-9e42-09d6fc283dba" width="30%" />
-</p>
+EventON is a college-focused app designed to streamline the organization of events such as workshops, competitions, and talk sessions. It features QR code-generated tickets for easy check-ins, payment monitoring, and estimation of activity points for participants. The app fully digitizes the event management process, making it more efficient, user-friendly, and paperless.
 
 ---
 
-<p align="center">
-  <h2>2. Students Section</h2>
-</p>
+## General
 
-- **Purpose:** This section allows students to register, view events, and track their participation.
-- **Features:**
-  - View events and their details.
-  - Register for events and upload payment screenshots for paid events.
-  - Track registered events and attendance status.
-  - Edit profile and view past attended events.
-  - Chatbot functionality for assistance.
+### Login Screens
 
-**Screenshots:**
+#### Splash Screen
+![splash](https://github.com/user-attachments/assets/cf2fc45d-fa06-437b-b75c-9e750c45521f)
 
-### User Homepage | Ticket | Payment Verification
+#### Login Page
+![login](https://github.com/user-attachments/assets/b0367262-3248-4208-b6e5-f84ab08be948)
 
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/8315b5a5-ae81-4754-821e-d736f3c4433f" width="30%" />
-  <img src="https://github.com/user-attachments/assets/360063f5-95cb-4164-b976-d8ed58a7ea15" width="30%" />
-  <img src="https://github.com/user-attachments/assets/1a8728ce-adde-4a98-98e3-8065a0ce4cb4" width="30%" />
-</p>
+#### Choose User Role
+![chooseuser](https://github.com/user-attachments/assets/de414018-b8f9-4771-bcc5-d74326e9596b)
 
-### User Attended Events | Profile | Chatbot
+#### Community Signup
+![community_signup](https://github.com/user-attachments/assets/b491e243-c1d5-4417-ad61-0d3b8df4d617)
 
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/0befafe9-fcd0-40d8-94a0-e5db1d7b2561" width="30%" />
-  <img src="https://github.com/user-attachments/assets/76f1bff0-4200-4a0a-a685-1a3721c88fba" width="30%" />
-  <img src="https://github.com/user-attachments/assets/39964bfb-99a4-4a47-adcd-f2b8d718c905" width="30%" />
-</p>
+#### User Signup
+![usersignup](https://github.com/user-attachments/assets/03f56adc-abab-4229-9cee-51f9a79b3612)
 
-### Search | Community Page | Register Event
-
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/e8902172-4e4e-4fb2-a29a-90d95f1a2a94" width="30%" />
-  <img src="https://github.com/user-attachments/assets/5b1445d0-b5cd-4757-812c-bbfc69bac0e2" width="30%" />
-  <img src="https://github.com/user-attachments/assets/b359b92a-5b36-45db-af2d-d5cdae276337" width="30%" />
-</p>
+#### Forgot Password
+![forgot_pass](https://github.com/user-attachments/assets/28e2e24c-07b5-4936-9e42-09d6fc283dba)
 
 ---
 
-<p align="center">
-  <h2>3. Community Section</h2>
-</p>
+## Student Features
 
-- **Purpose:** This section allows community members to manage and organize events.
-- **Features:**
-  - View and manage events they’ve added.
-  - Edit, delete, and approve event registrations.
-  - View and approve payment status.
-  - Add new events and manage event details.
-  - Manage community profile.
+### Homepage, Tickets, and Payment Approval
 
-**Screenshots:**
+#### Homepage
+![user_homepage](https://github.com/user-attachments/assets/8315b5a5-ae81-4754-821e-d736f3c4433f)
 
-### Community Homepage | My Events | Event Details
+#### Ticket
+![ticket](https://github.com/user-attachments/assets/360063f5-95cb-4164-b976-d8ed58a7ea15)
 
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/0404bdee-4e12-4471-8ef7-c0f028326cfb" width="30%" />
-  <img src="https://github.com/user-attachments/assets/e8847825-de02-4582-87e9-ae220a35f4c1" width="30%" />
-  <img src="https://github.com/user-attachments/assets/cd659042-d521-44e0-9baa-20db851cfeb3" width="30%" />
-</p>
+#### Payment Verification
+![payment_verfication](https://github.com/user-attachments/assets/1a8728ce-adde-4a98-98e3-8065a0ce4cb4)
 
-### Edit Event | Delete Event | Payment Approval
+### User Attended, Profile, and Chatbot
 
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/1ba14d21-1631-4e8e-a16f-f5247fb8404a" width="30%" />
-  <img src="https://github.com/user-attachments/assets/1311d2d2-5abd-4fb2-b213-f587a8be17f6" width="30%" />
-  <img src="https://github.com/user-attachments/assets/8f796518-d5d0-483f-b119-e59d1c755d8c" width="30%" />
-</p>
+#### Attended Events
+![user_attended](https://github.com/user-attachments/assets/0befafe9-fcd0-40d8-94a0-e5db1d7b2561)
 
-### Registrants | Add Event
+#### Profile
+![user_profile](https://github.com/user-attachments/assets/76f1bff0-4200-4a0a-a685-1a3721c88fba)
 
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/7459179d-5b7e-45b1-9d35-e1cdea9d9766" width="30%" />
-  <img src="https://github.com/user-attachments/assets/12667765-a1be-41a5-8516-0543392e0b2d" width="30%" />
-  <img src="https://github.com/user-attachments/assets/5c75d9a3-eb35-4aa9-aa23-338bbd3cbe69" width="30%" />
-</p>
+#### Chatbot
+![chatbot](https://github.com/user-attachments/assets/39964bfb-99a4-4a47-adcd-f2b8d718c905)
+
+### Search and Register Event
+
+#### Search
+![search](https://github.com/user-attachments/assets/e8902172-4e4e-4fb2-a29a-90d95f1a2a94)
+
+#### Register Event
+![registerevent](https://github.com/user-attachments/assets/b359b92a-5b36-45db-af2d-d5cdae276337)
 
 ---
 
-<p align="center">
-  <h2>4. Admin Section</h2>
-</p>
+## Community Features
 
-- **Purpose:** Admins oversee event management and user approvals.
-- **Features:**
-  - View and approve users and events.
-  - Manage all user roles and event details.
+### Homepage, My Events, and Add Event
 
-**Screenshots:**
+#### Community Homepage
+![community_homepage](https://github.com/user-attachments/assets/0404bdee-4e12-4471-8ef7-c0f028326cfb)
 
-### Admin Homepage | Admin Approvals
+#### My Events
+![community_myevents](https://github.com/user-attachments/assets/e8847825-de02-4582-87e9-ae220a35f4c1)
 
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/1d29e342-7309-4e7e-8a75-12d170d19935" width="30%" />
-  <img src="https://github.com/user-attachments/assets/9367ef9f-2bbe-4a58-957d-51f19643057d" width="30%" />
-</p>
+#### Add Event
+![add_event1](https://github.com/user-attachments/assets/5c75d9a3-eb35-4aa9-aa23-338bbd3cbe69)
+![add_event2](https://github.com/user-attachments/assets/5190bc83-8a9d-4b50-becd-2f1ff8a781e3)
+
+### Event Management, Payment Approval, and Registrants
+
+#### Event Management
+![community_event](https://github.com/user-attachments/assets/cd659042-d521-44e0-9baa-20db851cfeb3)
+![editevent](https://github.com/user-attachments/assets/1ba14d21-1631-4e8e-a16f-f5247fb8404a)
+![dltevent](https://github.com/user-attachments/assets/1311d2d2-5abd-4fb2-b213-f587a8be17f6)
+
+#### Payment Approval
+![payment_approval](https://github.com/user-attachments/assets/8f796518-d5d0-483f-b119-e59d1c755d8c)
+
+#### Registrants
+![registrants1](https://github.com/user-attachments/assets/7459179d-5b7e-45b1-9d35-e1cdea9d9766)
+![registrants](https://github.com/user-attachments/assets/12667765-a1be-41a5-8516-0543392e0b2d)
+
+### Community Profile
+![community_profile](https://github.com/user-attachments/assets/72904dda-ab85-4b42-9a3f-6c14d3ff8b3c)
+
+---
+
+## Admin Features
+
+### Admin Home and Event Management
+
+#### Admin Home
+![adminhome](https://github.com/user-attachments/assets/1d29e342-7309-4e7e-8a75-12d170d19935)
+
+#### Approve Communities
+![admin_approval](https://github.com/user-attachments/assets/9367ef9f-2bbe-4a58-957d-51f19643057d)
+
+---
+
+## Tech Stack
+
+- **Client:** Flutter, Dart
+- **Server:** Firebase (Firestore, Firebase Authentication, Firebase Functions, Firebase Hosting)
+
+---
+
+## Authors
+
+- [@Chaithanya Shaji](https://www.github.com/chaithanyashaji)
+- [@Thahir Aboobacker D V](https://github.com/ThahirAboobacker)
+- [@Ayisha Nahida](https://github.com/nahidaayisha)
+- [@Gemima V A](https://www.github.com/gemimav.a)
