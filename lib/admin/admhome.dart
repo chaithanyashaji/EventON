@@ -28,7 +28,7 @@ class _AdmhomeState extends State<Admhome> {
   late Stream<List<Map<String, dynamic>>> _stream;
 
   static List<Widget> _widgetOptions = <Widget>[
-    Admaddevent(),
+    AdmAddEvent(),
     ApprovalsPage(), // Widget for user approvals
   ];
 

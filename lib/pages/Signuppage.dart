@@ -137,11 +137,15 @@ class _SignupPageState extends State<SignupPage> {
 
                   // Error Text
                   if (_errorText.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 10),
-                      child: Text(
-                        _errorText,
-                        style: TextStyle(color: Colors.red),
+                    Align(
+                      alignment: Alignment.center,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 10),
+                        child: Text(
+                          _errorText,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.red),
+                        ),
                       ),
                     ),
 
