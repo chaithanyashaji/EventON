@@ -4,7 +4,40 @@ EventON is a platform designed to help colleges host and manage technical events
 
 ---
 
-## 1. Students Section
+<p align="center">
+  <h2>1. General Section</h2>
+</p>
+
+### Login
+- **Purpose:** This section allows users to log in, sign up, or reset their password based on their role (Student, Community, Admin).
+- **Features:**
+  - **Login:** Users can log in to access the platform.
+  - **Sign Up:** Separate sign-up options for students and community members.
+  - **Forgot Password:** Option to reset the password if a user forgets their credentials.
+
+**Screenshots:**
+
+### Splash Screen | Login | Choose User
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/cf2fc45d-fa06-437b-b75c-9e750c45521f" width="30%" />
+  <img src="https://github.com/user-attachments/assets/b0367262-3248-4208-b6e5-f84ab08be948" width="30%" />
+  <img src="https://github.com/user-attachments/assets/de414018-b8f9-4771-bcc5-d74326e9596b" width="30%" />
+</p>
+
+### Community Sign Up | User Sign Up | Forgot Password
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/b491e243-c1d5-4417-ad61-0d3b8df4d617" width="30%" />
+  <img src="https://github.com/user-attachments/assets/03f56adc-abab-4229-9cee-51f9a79b3612" width="30%" />
+  <img src="https://github.com/user-attachments/assets/28e2e24c-07b5-4936-9e42-09d6fc283dba" width="30%" />
+</p>
+
+---
+
+<p align="center">
+  <h2>2. Students Section</h2>
+</p>
 
 - **Purpose:** This section allows students to register, view events, and track their participation.
 - **Features:**
@@ -42,7 +75,9 @@ EventON is a platform designed to help colleges host and manage technical events
 
 ---
 
-## 2. Community Section
+<p align="center">
+  <h2>3. Community Section</h2>
+</p>
 
 - **Purpose:** This section allows community members to manage and organize events.
 - **Features:**
@@ -80,7 +115,9 @@ EventON is a platform designed to help colleges host and manage technical events
 
 ---
 
-## 3. Admin Section
+<p align="center">
+  <h2>4. Admin Section</h2>
+</p>
 
 - **Purpose:** Admins oversee event management and user approvals.
 - **Features:**
@@ -94,33 +131,4 @@ EventON is a platform designed to help colleges host and manage technical events
 <p align="center">
   <img src="https://github.com/user-attachments/assets/1d29e342-7309-4e7e-8a75-12d170d19935" width="30%" />
   <img src="https://github.com/user-attachments/assets/9367ef9f-2bbe-4a58-957d-51f19643057d" width="30%" />
-</p>
-
----
-
-## 4. General
-
-### Login
-- **Purpose:** This section allows users to log in, sign up, or reset their password based on their role (Student, Community, Admin).
-- **Features:**
-  - **Login:** Users can log in to access the platform.
-  - **Sign Up:** Separate sign-up options for students and community members.
-  - **Forgot Password:** Option to reset the password if a user forgets their credentials.
-
-**Screenshots:**
-
-### Splash Screen | Login | Choose User
-
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/cf2fc45d-fa06-437b-b75c-9e750c45521f" width="30%" />
-  <img src="https://github.com/user-attachments/assets/b0367262-3248-4208-b6e5-f84ab08be948" width="30%" />
-  <img src="https://github.com/user-attachments/assets/de414018-b8f9-4771-bcc5-d74326e9596b" width="30%" />
-</p>
-
-### Community Sign Up | User Sign Up | Forgot Password
-
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/b491e243-c1d5-4417-ad61-0d3b8df4d617" width="30%" />
-  <img src="https://github.com/user-attachments/assets/03f56adc-abab-4229-9cee-51f9a79b3612" width="30%" />
-  <img src="https://github.com/user-attachments/assets/28e2e24c-07b5-4936-9e42-09d6fc283dba" width="30%" />
 </p>
