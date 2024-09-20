@@ -155,7 +155,9 @@ _ _ _
   <img src="https://github.com/user-attachments/assets/1d29e342-7309-4e7e-8a75-12d170d19935" width="28%" style="margin-right: 1%;" />
   <img src="https://github.com/user-attachments/assets/9367ef9f-2bbe-4a58-957d-51f19643057d" width="28%" />
 </p>
->>>>>>> f5be65ef1b8b0644b220ff55996f5893e0f30d65
+
+
+- - -
 
 ## Tech Stack
 
@@ -163,8 +165,9 @@ _ _ _
 
 **Server:** Firebase (Firestore, Firebase Authentication, Firebase Functions, Firebase Hosting)
 
-<<<<<<< HEAD
-=======
+
+- - -
+
 ## Authors
 
 - [Chaithanya Shaji](https://www.github.com/chaithanyashaji)
@@ -173,4 +176,4 @@ _ _ _
 - [Gemima V A](https://github.com/GemimaVA)
 
 
->>>>>>> f5be65ef1b8b0644b220ff55996f5893e0f30d65
+
