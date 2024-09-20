@@ -71,6 +71,7 @@ assets/dialog_flow_auth.json
 ios/Runner/GoogleService-Info.plist
 .env
 lib/firebase_options.dart
+firebase.json
 
 # VSCode
 .vscode/
