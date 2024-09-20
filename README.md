@@ -77,13 +77,14 @@ EventON is a platform designed to help colleges host and manage technical events
 
 
 
-###Event page after registration
+### Event page after registration
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/9f7bc8a3-a961-40c1-b164-5724a89a82b3" width="28%" style="margin-right: 1%;" />
   
 </p>
----
+
+_ _ _
 
 <p align="center">
   <h2>3. Community Section</h2>
