@@ -163,9 +163,9 @@ _ _ _
 
 ## Authors
 
-- [@Chaithanya Shaji](https://www.github.com/chaithanyashaji)
-- [@Thahir Aboobacker D V](https://github.com/ThahirAboobacker)
-- [@Ayisha Nahida](https://github.com/nahidaayisha)
+- [Chaithanya Shaji](https://www.github.com/chaithanyashaji)
+- [Thahir Aboobacker D V](https://github.com/ThahirAboobacker)
+- [Ayisha Nahida](https://github.com/nahidaayisha)
 - [Gemima V A](https://github.com/GemimaVA)
 
 
