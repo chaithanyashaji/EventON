@@ -21,14 +21,14 @@ class _ApprovalsPageState extends State<ApprovalsPage> {
         .where('status', isEqualTo: 'pending') // Assuming users have a 'status' field
         .snapshots()
         .map((snapshot) {
-          return snapshot.docs.map((doc) {
-            return {
-              'id': doc.id,
-              'name': doc['name'], // Assuming user documents have 'name' field
-              'email': doc['email'], // Assuming user documents have 'email' field
-            };
-          }).toList();
-        });
+      return snapshot.docs.map((doc) {
+        return {
+          'id': doc.id,
+          'name': doc['name'], // Assuming user documents have 'name' field
+          'email': doc['email'], // Assuming user documents have 'email' field
+        };
+      }).toList();
+    });
   }
 
   void _approveUser(String userId) {
@@ -36,11 +36,17 @@ class _ApprovalsPageState extends State<ApprovalsPage> {
       'status': 'approved',
     }).then((_) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('User approved successfully')),
+        SnackBar(
+          content: Text('User approved successfully', style: TextStyle(color: Colors.black)),
+          backgroundColor: Colors.white,
+        ),
       );
     }).catchError((error) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to approve user: $error')),
+        SnackBar(
+          content: Text('Failed to approve user: $error', style: TextStyle(color: Colors.black)),
+          backgroundColor: Colors.white,
+        ),
       );
     });
   }
@@ -48,20 +54,24 @@ class _ApprovalsPageState extends State<ApprovalsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white, // White background
       appBar: AppBar(
         title: Text('User Approvals'),
+        backgroundColor: Colors.white, // White app bar
+        foregroundColor: Colors.black, // Black text
+        elevation: 0, // No shadow for a clean look
       ),
       body: StreamBuilder<List<Map<String, dynamic>>>(
         stream: _usersStream,
         builder: (BuildContext context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
           if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.black)));
           }
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator(color: Colors.black));
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No users pending approval'));
+            return Center(child: Text('No users pending approval', style: TextStyle(color: Colors.black)));
           }
 
           var users = snapshot.data!;
@@ -71,9 +81,13 @@ class _ApprovalsPageState extends State<ApprovalsPage> {
             itemBuilder: (context, index) {
               var user = users[index];
               return ListTile(
-                title: Text(user['name']),
-                subtitle: Text(user['email']),
+                title: Text(user['name'], style: TextStyle(color: Colors.black)), // Black text for names
+                subtitle: Text(user['email'], style: TextStyle(color: Colors.black54)), // Slightly lighter black for emails
                 trailing: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black, // Black button
+                    foregroundColor: Colors.white, // White text on the button
+                  ),
                   onPressed: () {
                     _approveUser(user['id']);
                   },
