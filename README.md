@@ -132,7 +132,7 @@ _ _ _
   <img src="https://github.com/user-attachments/assets/14abd639-12f9-4284-a06e-db49e96e36fb" width="28%" style="margin-right: 1%;" />
   
 </p>
----
+_ _ _
 
 <p align="center">
   <h2>4. Admin Section</h2>
