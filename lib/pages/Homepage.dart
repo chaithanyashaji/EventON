@@ -37,7 +37,7 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   CollectionReference _reference = FirebaseFirestore.instance.collection('EVENTS');
 
-    late Stream<List<Map<String, dynamic>>> _eventsStream;
+  late Stream<List<Map<String, dynamic>>> _eventsStream;
   late Stream<List<Map<String, dynamic>>> _adminEventsStream;
 
   static List<Widget> _widgetOptions = <Widget>[
@@ -110,25 +110,25 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          automaticallyImplyLeading: false,
-          actions: [
-            SizedBox(width: 10),
-            GestureDetector(
-              onTap: () {
-                _showLogoutConfirmation(context);
-              },
-              child: Image.asset('assets/EventOn.png', height: 32),
-            ),
-            SizedBox(width: 10),
-          ],
-        ),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        actions: [
+          SizedBox(width: 10),
+          GestureDetector(
+            onTap: () {
+              _showLogoutConfirmation(context);
+            },
+            child: Image.asset('assets/EventOn.png', height: 32),
+          ),
+          SizedBox(width: 10),
+        ],
+      ),
       body: _selectedIndex == 0
           ? Stack(
         children: [
@@ -237,8 +237,8 @@ class _HomePageState extends State<HomePage> {
           data: Theme.of(context).copyWith(
             dialogBackgroundColor: Colors.black,
             textTheme: TextTheme(
-              titleLarge: TextStyle(color: Colors.white),
-              bodyMedium: TextStyle(color: Colors.white),
+              headline6: TextStyle(color: Colors.white),
+              bodyText2: TextStyle(color: Colors.white),
             ),
           ),
           child: AlertDialog(
@@ -286,7 +286,7 @@ class HomeContent extends StatelessWidget {
   final List<Map<String, dynamic>> events;
   final List<Map<String, dynamic>> adminEvents;
 
-    const HomeContent({
+  const HomeContent({
     Key? key,
     required this.events,
     required this.adminEvents,
@@ -417,7 +417,7 @@ class HomeContent extends StatelessWidget {
           ),
 
 
-  Container(
+          Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: Colors.white,

@@ -1,3 +1,5 @@
+
+
 import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -257,11 +259,11 @@ class _loginpageState extends State<loginpage> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => Admhome(userId: documentSnapshot.id),
+              builder: (context) => Admhome(),
             ),
           );
         }
-         else {
+        else {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(

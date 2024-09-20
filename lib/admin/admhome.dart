@@ -14,24 +14,23 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../pages/loginpage.dart';
 
 class Admhome extends StatefulWidget {
-  final String userId;
-
-  const Admhome({super.key, required this.userId});
-
   @override
   _AdmhomeState createState() => _AdmhomeState();
 }
 
 class _AdmhomeState extends State<Admhome> {
   int _selectedIndex = 0;
-  late Stream<List<Map<String, dynamic>>> _stream;
+  final _eventNameController = TextEditingController();
+  final _eventDateController = TextEditingController();
+  final _eventTimeController = TextEditingController();
+  final _registrationWebsiteController = TextEditingController();
 
+  late Stream<List<Map<String, dynamic>>> _stream;
 
   static List<Widget> _widgetOptions = <Widget>[
     AdmAddEvent(),
     ApprovalsPage(), // Widget for user approvals
   ];
-
 
   @override
   void initState() {
@@ -75,12 +74,6 @@ class _AdmhomeState extends State<Admhome> {
 
   @override
   Widget build(BuildContext context) {
-    // Dynamically build widget options
-    List<Widget> _widgetOptions = [
-      Admaddevent(userID: widget.userId),
-      ApprovalsPage(), // Widget for user approvals
-    ];
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
