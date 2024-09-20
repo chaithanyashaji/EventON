@@ -1,7 +1,7 @@
 # EventON App
 
-EventON is a platform designed to help colleges host and manage technical events. It supports different user roles, including students, community members, and admins, each having specific functionalities.
 
+*EventON* is a college-focused app designed to streamline the organization of events like workshops, competitions, and talk sessions. It features *QR code-generated tickets* for easy check-ins,  *payment monitoring* , and  estimation of *activity points* for participants. The app fully *digitizes* the event management process, making it more efficient, *user-friendly, and paperless* .
 ---
 
 <p align="center">
