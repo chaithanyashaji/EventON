@@ -65,10 +65,9 @@ web/.flutter-plugins-dependencies
 # Firebase related
 firebase_app_id_file.json
 android/app/google-services.json
-<<<<<<< HEAD
+
 assets/dialog_flow_auth.json
-=======
->>>>>>> f5be65ef1b8b0644b220ff55996f5893e0f30d65
+
 ios/Runner/GoogleService-Info.plist
 .env
 lib/firebase_options.dart
@@ -104,8 +103,8 @@ GeneratedPluginRegistrant.*
 *.swo
 *.tmp
 *.bak
-<<<<<<< HEAD
+
 *.lock
-=======
+
 *.lock
->>>>>>> f5be65ef1b8b0644b220ff55996f5893e0f30d65
+
