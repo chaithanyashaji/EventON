@@ -72,6 +72,7 @@ ios/Runner/GoogleService-Info.plist
 .env
 lib/firebase_options.dart
 firebase.json
+.firebaserc
 
 # VSCode
 .vscode/
