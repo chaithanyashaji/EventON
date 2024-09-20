@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:universe2024/org/attendee.dart';
+import 'package:EventON/org/attendee.dart';
 
 class MyEventsPage extends StatefulWidget {
   final String userId;

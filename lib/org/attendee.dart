@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:universe2024/Utiles/app_styles.dart';
-import 'package:universe2024/org/attendencemodel.dart';
-import 'package:universe2024/org/qrscanner.dart';
+import 'package:EventON/Utiles/app_styles.dart';
+import 'package:EventON/org/attendencemodel.dart';
+import 'package:EventON/org/qrscanner.dart';
 
 class Attendee extends StatefulWidget {
   final String eventId;

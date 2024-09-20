@@ -1,4 +1,4 @@
-package com.example.universe2024
+package com.example.EventON
 
 import io.flutter.embedding.android.FlutterActivity
 

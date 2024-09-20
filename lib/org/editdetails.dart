@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:gap/gap.dart';
-import 'package:universe2024/Utiles/app_styles.dart';
+import 'package:EventON/Utiles/app_styles.dart';
 import 'package:firebase_storage/firebase_storage.dart'; // Import Firebase Storage
 
 class EditDetailsForm extends StatefulWidget {

@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:universe2024/pages/loginpage.dart';
+import 'package:EventON/pages/loginpage.dart';
 import 'package:gap/gap.dart';
 
 class Splashscreen extends StatefulWidget {

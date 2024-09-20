@@ -4,14 +4,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
-import 'package:universe2024/org/addevent.dart';
-import 'package:universe2024/org/my_events_org.dart';
-import 'package:universe2024/org/orgprofile.dart';
-import 'package:universe2024/org/payment_approval.dart';
-import 'package:universe2024/pages/EventDetails.dart'; // Import the EventDetails page
-import 'package:universe2024/pages/chatbot.dart';
-import 'package:universe2024/pages/loginpage.dart';
-import 'package:universe2024/pages/search1.dart';
+import 'package:EventON/org/addevent.dart';
+import 'package:EventON/org/my_events_org.dart';
+import 'package:EventON/org/orgprofile.dart';
+import 'package:EventON/org/payment_approval.dart';
+import 'package:EventON/pages/EventDetails.dart'; // Import the EventDetails page
+import 'package:EventON/pages/chatbot.dart';
+import 'package:EventON/pages/loginpage.dart';
+import 'package:EventON/pages/search1.dart';
 import 'package:url_launcher/url_launcher.dart'; // Import other necessary pages
 
 class SocHomePage extends StatefulWidget {

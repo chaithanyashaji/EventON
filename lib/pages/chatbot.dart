@@ -1,7 +1,7 @@
 import 'package:dialog_flowtter/dialog_flowtter.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:universe2024/Utiles/app_styles.dart';
+import 'package:EventON/Utiles/app_styles.dart';
 import 'Messages.dart';
 
 class Chat extends StatefulWidget {

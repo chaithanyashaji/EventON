@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:gap/gap.dart';
-import 'package:universe2024/Utiles/app_styles.dart'; // Ensure this import is correct
-import 'package:universe2024/pages/loginpage.dart'; // Ensure this import is correct
+import 'package:EventON/Utiles/app_styles.dart'; // Ensure this import is correct
+import 'package:EventON/pages/loginpage.dart'; // Ensure this import is correct
 
 class Profile extends StatefulWidget {
   const Profile({Key? key}) : super(key: key);

@@ -5,7 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:intl/intl.dart';
-import 'package:universe2024/Utiles/app_styles.dart';
+import 'package:EventON/Utiles/app_styles.dart';
 
 class AdmAddEvent extends StatefulWidget {
   const AdmAddEvent({Key? key}) : super(key: key);

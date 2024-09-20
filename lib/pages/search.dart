@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:gap/gap.dart';
-import 'package:universe2024/pages/Eventdetails.dart';
-import 'package:universe2024/pages/communitypage.dart';
+import 'package:EventON/pages/Eventdetails.dart';
+import 'package:EventON/pages/communitypage.dart';
 import '../org/orgprofile.dart';
 import '../Utiles/app_styles.dart';
 

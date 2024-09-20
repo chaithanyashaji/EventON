@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:universe2024/Utiles/app_styles.dart';  // Adjust as per your project
+import 'package:EventON/Utiles/app_styles.dart';  // Adjust as per your project
 
 class QrGenerationScreen extends StatelessWidget {
   final String id;

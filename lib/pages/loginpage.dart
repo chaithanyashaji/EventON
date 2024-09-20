@@ -4,16 +4,16 @@ import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:universe2024/Utiles/app_styles.dart';
+import 'package:EventON/Utiles/app_styles.dart';
 import 'package:gap/gap.dart';
-import 'package:universe2024/admin/admhome.dart';
-import 'package:universe2024/org/home.dart';
-import 'package:universe2024/pages/Forget.dart';
-import 'package:universe2024/pages/Homepage.dart';
-import 'package:universe2024/pages/Signuppage.dart';
-import 'package:universe2024/pages/Splashscreen.dart';
-import 'package:universe2024/pages/firebase.dart';
-import 'package:universe2024/pages/loginas.dart';
+import 'package:EventON/admin/admhome.dart';
+import 'package:EventON/org/home.dart';
+import 'package:EventON/pages/Forget.dart';
+import 'package:EventON/pages/Homepage.dart';
+import 'package:EventON/pages/Signuppage.dart';
+import 'package:EventON/pages/Splashscreen.dart';
+import 'package:EventON/pages/firebase.dart';
+import 'package:EventON/pages/loginas.dart';
 
 class loginpage extends StatefulWidget {
   const loginpage({Key? key});

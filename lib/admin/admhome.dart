@@ -1,14 +1,14 @@
 import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:universe2024/Utiles/app_styles.dart';
+import 'package:EventON/Utiles/app_styles.dart';
 import 'package:gap/gap.dart';
-import 'package:universe2024/admin/admaddevent.dart';
-import 'package:universe2024/admin/approval.dart';
-import 'package:universe2024/pages/search1.dart';
-import 'package:universe2024/org/attendee.dart';
-import 'package:universe2024/org/orgprofile.dart';
-import 'package:universe2024/pages/chatbot.dart';
+import 'package:EventON/admin/admaddevent.dart';
+import 'package:EventON/admin/approval.dart';
+import 'package:EventON/pages/search1.dart';
+import 'package:EventON/org/attendee.dart';
+import 'package:EventON/org/orgprofile.dart';
+import 'package:EventON/pages/chatbot.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../pages/loginpage.dart';

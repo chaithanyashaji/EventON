@@ -5,15 +5,15 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:universe2024/admin/admhome.dart';
-import 'package:universe2024/pages/Homepage.dart';
+import 'package:EventON/admin/admhome.dart';
+import 'package:EventON/pages/Homepage.dart';
 import 'admin/admaddevent.dart';
 import 'firebase_options.dart';
-import 'package:universe2024/pages/Splashscreen.dart';
-import 'package:universe2024/org/addevent.dart';
-import 'package:universe2024/pages/Homepage.dart';
-import 'package:universe2024/pages/loginpage.dart';
-import 'package:universe2024/pages/profile.dart';
+import 'package:EventON/pages/Splashscreen.dart';
+import 'package:EventON/org/addevent.dart';
+import 'package:EventON/pages/Homepage.dart';
+import 'package:EventON/pages/loginpage.dart';
+import 'package:EventON/pages/profile.dart';
 
 // Background message handler
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:gap/gap.dart';
-import 'package:universe2024/pages/Eventdetails.dart';
+import 'package:EventON/pages/Eventdetails.dart';
 
 class CommunityPage extends StatefulWidget {
   final String communityId;

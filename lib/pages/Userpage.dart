@@ -6,7 +6,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:gap/gap.dart';
 
-import 'package:universe2024/Utiles/app_styles.dart';
+import 'package:EventON/Utiles/app_styles.dart';
 
 class Profile extends StatelessWidget {
   const Profile({Key? key});

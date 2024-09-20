@@ -5,9 +5,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:gap/gap.dart';
-import 'package:universe2024/Utiles/app_styles.dart';
-import 'package:universe2024/pages/firebase.dart';
-import 'package:universe2024/pages/loginpage.dart';
+import 'package:EventON/Utiles/app_styles.dart';
+import 'package:EventON/pages/firebase.dart';
+import 'package:EventON/pages/loginpage.dart';
 
 class orgsignup extends StatefulWidget {
   const orgsignup({Key? key});
