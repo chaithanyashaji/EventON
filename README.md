@@ -116,7 +116,7 @@ _ _ _
   <img src="https://github.com/user-attachments/assets/8f796518-d5d0-483f-b119-e59d1c755d8c" width="28%" />
 </p>
 
-### Registrants | Add Event
+### Registrants | Add Event 
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/7459179d-5b7e-45b1-9d35-e1cdea9d9766" width="28%" style="margin-right: 1%;" />
@@ -124,6 +124,14 @@ _ _ _
   <img src="https://github.com/user-attachments/assets/5c75d9a3-eb35-4aa9-aa23-338bbd3cbe69" width="28%" />
 </p>
 
+
+
+### Community Profile
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/14abd639-12f9-4284-a06e-db49e96e36fb" width="28%" style="margin-right: 1%;" />
+  
+</p>
 ---
 
 <p align="center">
